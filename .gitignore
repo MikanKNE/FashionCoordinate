@@ -1,0 +1,56 @@
+
+# =====================
+# 環境変数
+# =====================
+
+# プロジェクト直下の.envも無視
+.env
+
+# =====================
+# Python / 仮想環境
+# =====================
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# =====================
+# Django 関連
+# =====================
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# =====================
+# Node / frontend
+# =====================
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =====================
+# IDE / エディタ
+# =====================
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =====================
+# OS 特有
+# =====================
+.DS_Store
+Thumbs.db
