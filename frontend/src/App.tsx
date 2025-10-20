@@ -43,7 +43,7 @@ function App() {
       <h2>Items List</h2>
       <div>
         {items.map((item: any) => (
-          <div key={item.id}>{item.name}</div>
+          <div key={item.item_id}>{item.name}</div>
         ))}
       </div>
 

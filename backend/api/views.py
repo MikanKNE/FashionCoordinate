@@ -5,7 +5,7 @@ from .supabase_client import supabase  # ← 共通クライアントを import
 @api_view(['GET'])
 def test_supabase(request):
     try:
-        data = supabase.table("subcategories").select("*").execute()
+        data = supabase.table("items").select("*").execute()
         return Response({
             "status": "success",
             "data": data.data
