@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from ..supabase_client import supabase
+import traceback  # ← 追加！
 
 # ----------------------------
 # コーディネーションアイテム追加 / 削除
@@ -27,4 +28,8 @@ def coordination_items_manage(request):
             return Response({"status": "success", "message": "Item removed from coordination"})
 
     except Exception as e:
+        # 🔍 追加：ターミナルに詳細なエラーログを出す
+        print("----- ERROR OCCURRED IN coordination_items_manage -----")
+        traceback.print_exc()  # ← これで詳細なスタックトレースを表示
+        print("--------------------------------------------------------")
         return Response({"status": "error", "message": str(e)}, status=500)

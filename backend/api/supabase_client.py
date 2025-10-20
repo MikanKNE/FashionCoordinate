@@ -15,7 +15,7 @@ load_dotenv(dotenv_path)
 # Supabase 接続情報
 # ===============================
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY")  # .env に合わせる
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")  # .env に合わせる
 
 # ===============================
 # Supabase クライアント生成
