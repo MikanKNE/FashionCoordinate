@@ -1,13 +1,7 @@
-import { useState } from "react";
+// src/components/ItemList.tsx
+import React, { useState } from "react";
+import type { Item } from "../types";
 import ItemDetailModal from "./ItemDetailModal";
-
-type Item = {
-    item_id: number;
-    name: string;
-    category?: string;
-    image_url?: string;
-    description?: string;
-};
 
 type Props = {
     items: Item[];
@@ -15,28 +9,17 @@ type Props = {
 
 export default function ItemList({ items }: Props) {
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleOpen = (item: Item) => {
-        setSelectedItemId(item.item_id);
-        setIsModalOpen(true);
-    };
+    const handleClose = () => setSelectedItemId(null);
 
-    const handleClose = () => {
-        setSelectedItemId(null);
-        setIsModalOpen(false);
-    };
-
-    if (!items || items.length === 0) {
-        return <p>アイテムが登録されていません。</p>;
-    }
+    if (!items || items.length === 0) return <p>アイテムが登録されていません</p>;
 
     return (
         <>
             <div
                 style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, 150px)",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
                     gap: "16px",
                 }}
             >
@@ -50,7 +33,7 @@ export default function ItemList({ items }: Props) {
                             textAlign: "center",
                             cursor: "pointer",
                         }}
-                        onClick={() => handleOpen(item)}
+                        onClick={() => setSelectedItemId(item.item_id)}
                     >
                         {item.image_url ? (
                             <img
@@ -74,12 +57,7 @@ export default function ItemList({ items }: Props) {
                 ))}
             </div>
 
-            {/* 詳細モーダル */}
-            <ItemDetailModal
-                isOpen={isModalOpen}
-                onClose={handleClose}
-                itemId={selectedItemId}
-            />
+            <ItemDetailModal itemId={selectedItemId} onClose={handleClose} />
         </>
     );
 }

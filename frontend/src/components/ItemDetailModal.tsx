@@ -1,148 +1,90 @@
-import { useEffect, useState } from "react";
-import Modal from "./Modal";
-import {
-    getItemDetail,
-    addFavorite,
-    addItemToCoordination,
-} from "../api/items";
+// src/components/ItemDetailModal.tsx
+import React, { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+import { Button } from "./ui/Button";
+import toast from "react-hot-toast";
+import type { Item } from "../types";
 
-export interface Item {
-    item_id: number;
-    name: string;
-    category?: string;
-    image_url?: string;
-    description?: string;
-    created_at?: string;
-}
-
-interface ItemDetailModalProps {
-    isOpen: boolean;
-    onClose: () => void;
+interface Props {
     itemId: number | null;
-    coordinationId?: number; // 任意（指定時に「コーデ追加」ボタン表示）
+    onClose: () => void;
 }
 
-export default function ItemDetailModal({
-    isOpen,
-    onClose,
-    itemId,
-    coordinationId,
-}: ItemDetailModalProps) {
+export default function ItemDetailModal({ itemId, onClose }: Props) {
     const [item, setItem] = useState<Item | null>(null);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
 
-    // 詳細データ取得
     useEffect(() => {
-        if (isOpen && itemId) {
-            setMessage("");
-            fetchDetail(itemId);
-        }
-    }, [isOpen, itemId]);
+        if (!itemId) return;
 
-    const fetchDetail = async (id: number) => {
-        try {
+        const fetchItem = async () => {
             setLoading(true);
-            const data = await getItemDetail(id);
-            setItem(data);
-        } catch (err) {
-            setMessage("詳細データの取得に失敗しました。");
-        } finally {
+            const { data, error } = await supabase
+                .from("items")
+                .select("*")
+                .eq("item_id", itemId)
+                .single();
+            if (error) toast.error("アイテム取得失敗");
+            else setItem(data);
             setLoading(false);
-        }
+        };
+
+        fetchItem();
+    }, [itemId]);
+
+    const handleToggleFavorite = async () => {
+        if (!item) return;
+        const newState = !item.is_favorite;
+        const { error } = await supabase
+            .from("items")
+            .update({ is_favorite: newState })
+            .eq("item_id", item.item_id);
+
+        if (error) toast.error("お気に入り更新失敗");
+        else setItem({ ...item, is_favorite: newState });
     };
 
-    const handleAddFavorite = async () => {
-        try {
-            const user_id = "test-user"; // 認証後にユーザーIDを取得する箇所
-            await addFavorite(user_id, item!.item_id);
-            setMessage("お気に入りに追加しました！");
-        } catch {
-            setMessage("お気に入り追加に失敗しました。");
-        }
-    };
-
-    const handleAddCoordination = async () => {
-        try {
-            if (!coordinationId) {
-                setMessage("コーディネートIDが指定されていません。");
-                return;
-            }
-            await addItemToCoordination(coordinationId, item!.item_id);
-            setMessage("コーディネートに追加しました！");
-        } catch {
-            setMessage("コーディネート追加に失敗しました。");
-        }
-    };
-
-    if (!isOpen) return null;
+    if (!itemId) return null;
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="アイテム詳細"
-            footer={
-                <div className="flex gap-2 justify-center">
-                    <button
-                        onClick={handleAddFavorite}
-                        className="px-4 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500"
-                    >
-                        ★ お気に入り追加
-                    </button>
-                    {coordinationId && (
-                        <button
-                            onClick={handleAddCoordination}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                        >
-                            コーディネートに追加
-                        </button>
-                    )}
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-                    >
-                        閉じる
-                    </button>
-                </div>
-            }
-        >
-            {loading ? (
-                <p>読み込み中...</p>
-            ) : item ? (
-                <div className="flex flex-col items-center text-center">
-                    {item.image_url ? (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-2xl shadow-lg w-96 relative">
+                <button className="absolute top-3 right-3" onClick={onClose}>
+                    ✕
+                </button>
+
+                {loading ? (
+                    <p>読み込み中...</p>
+                ) : item ? (
+                    <>
                         <img
-                            src={item.image_url}
+                            src={item.image_url || "/noimage.png"}
                             alt={item.name}
-                            className="w-48 h-48 object-cover rounded-xl mb-4"
+                            className="w-full h-64 object-cover rounded-lg mb-4"
                         />
-                    ) : (
-                        <div className="w-48 h-48 bg-gray-200 rounded-xl mb-4 flex items-center justify-center">
-                            <span className="text-gray-500">No Image</span>
+                        <h2>{item.name}</h2>
+                        <p>{item.category}</p>
+                        {item.description && <p>{item.description}</p>}
+
+                        <div className="flex gap-2 mt-4">
+                            <Button
+                                onClick={handleToggleFavorite}
+                                className={`flex-1 ${item.is_favorite ? "bg-pink-500" : "bg-gray-300"} text-white`}
+                            >
+                                {item.is_favorite ? "お気に入り解除" : "お気に入り追加"}
+                            </Button>
+                            <Button
+                                onClick={() => toast.success("コーデに追加")}
+                                className="flex-1 bg-blue-400 text-white"
+                            >
+                                コーデに追加
+                            </Button>
                         </div>
-                    )}
-                    <h3 className="text-lg font-semibold">{item.name}</h3>
-                    {item.category && (
-                        <p className="text-gray-500 mt-1">{item.category}</p>
-                    )}
-                    {item.description && (
-                        <p className="mt-3 text-sm text-gray-600">
-                            {item.description}
-                        </p>
-                    )}
-                    {item.created_at && (
-                        <p className="mt-2 text-xs text-gray-400">
-                            登録日: {new Date(item.created_at).toLocaleDateString()}
-                        </p>
-                    )}
-                    {message && (
-                        <p className="mt-3 text-sm text-blue-500">{message}</p>
-                    )}
-                </div>
-            ) : (
-                <p>データが見つかりません。</p>
-            )}
-        </Modal>
+                    </>
+                ) : (
+                    <p>アイテムが見つかりません</p>
+                )}
+            </div>
+        </div>
     );
 }
