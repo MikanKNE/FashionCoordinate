@@ -1,7 +1,7 @@
 // src/pages/Home.tsx
 import { useEffect, useState } from "react";
 import { getItems } from "../api/items";
-import ItemList from "../components/ItemList";
+import ItemCard from "../components/ItemCard";
 import Header from "../components/Header";
 import type { Item } from "../types";
 
@@ -34,7 +34,17 @@ export default function Home() {
         <>
             <Header />
             <h1 className="text-2xl font-bold mb-4">アイテム一覧</h1>
-            <ItemList items={items} />
+            <div
+                style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+                    gap: "16px",
+                }}
+            >
+                {items.map((item) => (
+                    <ItemCard key={item.item_id} item={item} />
+                ))}
+            </div>
         </>
     );
 }
