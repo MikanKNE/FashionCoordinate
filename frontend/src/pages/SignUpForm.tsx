@@ -2,17 +2,19 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useNavigate } from 'react-router-dom'
 
-const Login = () => {
+const SignUpForm = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null)
+    const [message, setMessage] = useState<string | null>(null)
     const navigate = useNavigate()
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault()
         setError(null)
+        setMessage(null)
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signUp({
             email,
             password,
         })
@@ -20,15 +22,17 @@ const Login = () => {
         if (error) {
             setError(error.message)
         } else {
-            console.log('Logged in:', data)
-            navigate('/') // ログイン後にホームへ
+            console.log('User registered:', data)
+            setMessage('確認メールを送信しました。メールを確認してください。')
+            // 確認メールのリンクをクリックした後にログイン可能になります
+            // navigate('/login') // メール確認不要ならここで自動遷移も可
         }
     }
 
     return (
         <div className="flex flex-col items-center justify-center h-screen">
-            <h1 className="text-2xl mb-4">ログイン</h1>
-            <form onSubmit={handleLogin} className="flex flex-col w-80 space-y-3">
+            <h1 className="text-2xl mb-4">新規登録</h1>
+            <form onSubmit={handleSignUp} className="flex flex-col w-80 space-y-3">
                 <input
                     type="email"
                     placeholder="メールアドレス"
@@ -45,14 +49,15 @@ const Login = () => {
                 />
                 <button
                     type="submit"
-                    className="bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+                    className="bg-green-500 text-white py-2 rounded hover:bg-green-600"
                 >
-                    ログイン
+                    登録
                 </button>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
+                {message && <p className="text-green-600 text-sm">{message}</p>}
             </form>
         </div>
     )
 }
 
-export default Login
+export default SignUpForm
