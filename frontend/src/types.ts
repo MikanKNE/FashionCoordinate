@@ -1,4 +1,4 @@
-// src/types/item.ts
+// src/types.ts
 
 export type Item = {
     item_id: number

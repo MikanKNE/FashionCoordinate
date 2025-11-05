@@ -6,18 +6,20 @@ import toast from "react-hot-toast";
 import type { Item } from "../types";
 
 interface Props {
-    itemId: number;
+    // 呼び出し元は number | null を持つので null を受け取るようにする
+    itemId: number | null;
     isOpen: boolean;
     onClose: () => void;
+    onEdit?: (item: Item) => void; // optional にしておく（Home が渡す）
 }
 
-export default function ItemDetailModal({ itemId, isOpen, onClose }: Props) {
+export default function ItemDetailModal({ itemId, isOpen, onClose, onEdit }: Props) {
     const [item, setItem] = useState<Item | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchItem = async () => {
-            if (!isOpen) return;
+            if (!isOpen || itemId == null) return; // null チェック
             setLoading(true);
             const { data, error } = await supabase
                 .from("items")
@@ -28,8 +30,9 @@ export default function ItemDetailModal({ itemId, isOpen, onClose }: Props) {
             if (error) {
                 console.error("詳細取得エラー:", error);
                 toast.error("アイテム詳細の取得に失敗しました");
+                setItem(null);
             } else {
-                setItem(data);
+                setItem(data as Item);
             }
             setLoading(false);
         };
@@ -38,9 +41,17 @@ export default function ItemDetailModal({ itemId, isOpen, onClose }: Props) {
 
     if (!isOpen) return null;
 
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        // 背景クリックで閉じる
+        if (e.target === e.currentTarget) onClose();
+    };
+
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-2xl shadow-lg w-96 relative">
+        <div
+            className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
+            onClick={handleOverlayClick}
+        >
+            <div className="bg-white p-6 rounded-2xl shadow-lg w-96 relative animate-fadeIn">
                 <button
                     className="absolute top-3 right-3 text-gray-500 hover:text-black"
                     onClick={onClose}
@@ -59,7 +70,17 @@ export default function ItemDetailModal({ itemId, isOpen, onClose }: Props) {
                         />
                         <h2 className="text-xl font-semibold">{item.name}</h2>
                         {item.category && <p className="text-gray-500">{item.category}</p>}
-                        <p>ID: {item.item_id}</p>
+                        <p className="mt-2 text-sm text-gray-600">ID: {item.item_id}</p>
+
+                        {onEdit && (
+                            <Button
+                                variant="primary"
+                                className="mt-4 w-full"
+                                onClick={() => onEdit(item)}
+                            >
+                                編集
+                            </Button>
+                        )}
                     </>
                 ) : (
                     <p>アイテムが見つかりません</p>

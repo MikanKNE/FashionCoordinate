@@ -1,82 +1,87 @@
-// src/components/ItemEditModal.tsx
-import React, { useState, useEffect } from "react";
+// src/components/ItemDetailModal.tsx
+import React, { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 import { Button } from "./ui/Button";
+import toast from "react-hot-toast";
 import type { Item } from "../types";
 
 interface Props {
-    item: Item | null;
+    itemId: number | null;
     isOpen: boolean;
     onClose: () => void;
-    onSave: (updatedItem: Item) => void;
+    onEdit: (item: Item) => void;
 }
 
-export default function ItemEditModal({ item, isOpen, onClose, onSave }: Props) {
-    const [name, setName] = useState("");
-    const [category, setCategory] = useState("");
-    const [imageUrl, setImageUrl] = useState("");
+export default function ItemDetailModal({ itemId, isOpen, onClose, onEdit }: Props) {
+    const [item, setItem] = useState<Item | null>(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (item) {
-            setName(item.name);
-            setCategory(item.category || "");
-            setImageUrl(item.image_url || "");
-        }
-    }, [item]);
+        const fetchItem = async () => {
+            if (!isOpen || !itemId) return;
+            setLoading(true);
+            const { data, error } = await supabase
+                .from("items")
+                .select("*")
+                .eq("item_id", itemId)
+                .single();
 
-    if (!isOpen || !item) return null;
+            if (error) {
+                console.error("詳細取得エラー:", error);
+                toast.error("アイテム詳細の取得に失敗しました");
+            } else {
+                setItem(data);
+            }
+            setLoading(false);
+        };
+        fetchItem();
+    }, [itemId, isOpen]);
 
-    const handleSave = () => {
-        onSave({
-            ...item,
-            name,
-            category,
-            image_url: imageUrl,
-        });
-        onClose();
+    if (!isOpen) return null;
+
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) onClose();
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-2xl shadow-lg w-96 relative">
+        <div
+            className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50"
+            onClick={handleOverlayClick}
+        >
+            <div className="bg-white p-6 rounded-2xl shadow-lg w-96 relative animate-fadeIn">
                 <button
                     className="absolute top-3 right-3 text-gray-500 hover:text-black"
                     onClick={onClose}
                 >
                     ✕
                 </button>
-                <h2 className="text-xl font-semibold mb-4">アイテム編集</h2>
 
-                <label className="block mb-2">
-                    名前
-                    <input
-                        className="w-full border rounded px-2 py-1"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                </label>
+                {loading ? (
+                    <p className="text-center">読み込み中...</p>
+                ) : item ? (
+                    <>
+                        <img
+                            src={item.image_url || "/noimage.png"}
+                            alt={item.name}
+                            className="w-full h-48 object-cover rounded-md mb-4"
+                        />
+                        <h2 className="text-xl font-semibold">{item.name}</h2>
+                        {item.category && (
+                            <p className="text-gray-500">{item.category}</p>
+                        )}
+                        <p className="mt-2 text-sm text-gray-600">ID: {item.item_id}</p>
 
-                <label className="block mb-2">
-                    カテゴリ
-                    <input
-                        className="w-full border rounded px-2 py-1"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                    />
-                </label>
-
-                <label className="block mb-4">
-                    画像URL
-                    <input
-                        className="w-full border rounded px-2 py-1"
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                    />
-                </label>
-
-                <div className="flex justify-between">
-                    <Button variant="secondary" onClick={onClose}>キャンセル</Button>
-                    <Button variant="primary" onClick={handleSave}>保存</Button>
-                </div>
+                        <Button
+                            variant="primary"
+                            className="mt-4 w-full"
+                            onClick={() => onEdit(item)}
+                        >
+                            編集
+                        </Button>
+                    </>
+                ) : (
+                    <p>アイテムが見つかりません</p>
+                )}
             </div>
         </div>
     );

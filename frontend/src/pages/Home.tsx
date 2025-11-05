@@ -1,7 +1,9 @@
 // src/pages/Home.tsx
 import { useEffect, useState } from "react";
 import { getItems } from "../api/items";
-import ItemCard from "../components/ItemCard";
+import ItemList from "../components/ItemList";
+import ItemDetailModal from "../components/ItemDetailModal";
+import ItemEditModal from "../components/ItemEditModal";
 import Header from "../components/Header";
 import type { Item } from "../types";
 
@@ -9,6 +11,8 @@ export default function Home() {
     const [items, setItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+    const [editingItem, setEditingItem] = useState<Item | null>(null);
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -27,24 +31,40 @@ export default function Home() {
         fetchItems();
     }, []);
 
-    if (loading) return <p>読み込み中...</p>;
-    if (error) return <p className="text-red-500">{error}</p>;
+    const handleCloseDetail = () => setSelectedItemId(null);
+    const handleCloseEdit = () => setEditingItem(null);
 
     return (
         <>
             <Header />
             <h1 className="text-2xl font-bold mb-4">アイテム一覧</h1>
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-                    gap: "16px",
+
+            <ItemList
+                items={items}
+                onItemClick={(id) => {
+                    // 他のモーダルを閉じてから開く例（必要なら）
+                    setEditingItem(null);
+                    setSelectedItemId(id);
                 }}
-            >
-                {items.map((item) => (
-                    <ItemCard key={item.item_id} item={item} />
-                ))}
-            </div>
+                onEditClick={(item) => {
+                    // 直接編集モーダルを開く
+                    setSelectedItemId(null);
+                    setEditingItem(item);
+                }}
+            />
+
+            <ItemDetailModal
+                itemId={selectedItemId}
+                isOpen={!!selectedItemId}
+                onClose={handleCloseDetail}
+                onEdit={(item) => {
+                    // 詳細→編集への遷移
+                    handleCloseDetail();
+                    setEditingItem(item);
+                }}
+            />
+
+            <ItemEditModal item={editingItem} isOpen={!!editingItem} onClose={handleCloseEdit} />
         </>
     );
 }

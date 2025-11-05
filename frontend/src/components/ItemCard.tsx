@@ -1,28 +1,17 @@
 // src/components/ItemCard.tsx
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "./ui/Button";
 import type { Item } from "../types";
-import ItemEditModal from "./ItemEditModal";
-import ItemDetailModal from "./ItemDetailModal";
 
 interface ItemCardProps {
     item: Item;
+    // 親がどのように開くか決められるように、単純なコールバックにする（引数は親クロージャで捕まる）
+    onClick?: () => void;
+    onEdit?: () => void;
     selected?: boolean;
 }
 
-const ItemCard: React.FC<ItemCardProps> = ({ item, selected }) => {
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
-    const [isEditOpen, setIsEditOpen] = useState(false);
-
-    const handleOpenDetail = () => {
-        setIsEditOpen(false); // 他モーダルを閉じる
-        setIsDetailOpen(true);
-    };
-    const handleOpenEdit = () => {
-        setIsDetailOpen(false); // 他モーダルを閉じる
-        setIsEditOpen(true);
-    };
-
+const ItemCard: React.FC<ItemCardProps> = ({ item, onClick, onEdit, selected }) => {
     return (
         <div
             className={`rounded-xl shadow-md p-3 cursor-pointer transition-transform transform hover:scale-105 
@@ -37,7 +26,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, selected }) => {
                 overflow: "hidden",
             }}
         >
-            <div onClick={handleOpenDetail} style={{ width: "100%" }}>
+            <div onClick={onClick} style={{ width: "100%" }}>
                 {item.image_url ? (
                     <img
                         src={item.image_url}
@@ -66,25 +55,11 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, selected }) => {
                 {item.category && <p className="text-sm text-gray-500">{item.category}</p>}
             </div>
 
-            <Button
-                onClick={handleOpenEdit}
-                variant="primary"
-                className="mt-2 w-full text-sm"
-            >
-                編集
-            </Button>
-
-            <ItemDetailModal
-                itemId={item.item_id}
-                isOpen={isDetailOpen}
-                onClose={() => setIsDetailOpen(false)}
-            />
-            <ItemEditModal
-                item={item}
-                isOpen={isEditOpen}
-                onClose={() => setIsEditOpen(false)}
-                onSave={(updatedItem) => console.log("保存:", updatedItem)}
-            />
+            {onEdit && (
+                <Button onClick={onEdit} variant="primary" className="mt-2 w-full text-sm">
+                    編集
+                </Button>
+            )}
         </div>
     );
 };
