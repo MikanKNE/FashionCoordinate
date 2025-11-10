@@ -1,5 +1,6 @@
 // src/components/ItemForm.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import type { Item } from "../types";
 import { createItem, updateItem } from "../api/items";
 import { Button } from "./ui/Button";
@@ -41,16 +42,31 @@ export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
         }
     };
 
-    return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-2xl shadow-lg w-96 relative">
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) onClose();
+    };
+
+    // Portal によって body 直下にレンダリング
+    return ReactDOM.createPortal(
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={handleOverlayClick}
+        >
+            <div className="bg-white rounded-2xl shadow-lg w-96 mx-4 p-6 relative
+                transform transition-all duration-300 ease-out
+                animate-fadeInModal text-gray-900">
+
                 <button
                     className="absolute top-3 right-3 text-gray-500 hover:text-black"
                     onClick={onClose}
                 >
                     ✕
                 </button>
-                <h2 className="text-xl font-semibold mb-4">{item ? "アイテム編集" : "アイテム追加"}</h2>
+
+                <h2 className="text-xl font-semibold mb-4">
+                    {item ? "アイテム編集" : "アイテム追加"}
+                </h2>
+
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <input
                         type="text"
@@ -79,6 +95,7 @@ export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
                     </Button>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

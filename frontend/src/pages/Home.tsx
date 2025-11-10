@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getItems } from "../api/items";
 import ItemList from "../components/ItemList";
-import ItemModal from "../components/ItemModal"; // 汎用モーダル
+import ItemModal from "../components/ItemModal";
 import ItemForm from "../components/ItemForm";
 import Header from "../components/Header";
 import type { Item } from "../types";
@@ -83,9 +83,9 @@ export default function Home() {
                 <ItemModal
                     itemId={selectedItemId}
                     isOpen={!!selectedItemId}
-                    onClose={handleCloseModal}
-                    onEdit={handleEdit} // 編集ボタンが必要なら表示
+                    onClose={() => setSelectedItemId(null)}
                 />
+
             )}
 
             {isFormOpen && (
