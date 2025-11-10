@@ -1,3 +1,4 @@
+// frontend/src/components/CoordinationEditor.tsx
 import { useEffect, useState } from "react";
 import { getItems } from "../api/items";
 import { addItemToCoordination, removeItemFromCoordination } from "../api/coordination_items";

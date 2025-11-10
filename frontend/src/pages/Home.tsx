@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { getItems } from "../api/items";
 import ItemList from "../components/ItemList";
-import ItemDetailModal from "../components/ItemDetailModal";
-import ItemEditModal from "../components/ItemEditModal";
+import ItemModal from "../components/ItemModal"; // 汎用モーダル
+import ItemForm from "../components/ItemForm";
 import Header from "../components/Header";
 import type { Item } from "../types";
 
@@ -11,8 +11,10 @@ export default function Home() {
     const [items, setItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
     const [editingItem, setEditingItem] = useState<Item | null>(null);
+    const [isFormOpen, setIsFormOpen] = useState(false);
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -31,40 +33,68 @@ export default function Home() {
         fetchItems();
     }, []);
 
-    const handleCloseDetail = () => setSelectedItemId(null);
-    const handleCloseEdit = () => setEditingItem(null);
+    const handleCloseModal = () => {
+        setSelectedItemId(null);
+        setEditingItem(null);
+        setIsFormOpen(false);
+    };
+
+    const handleEdit = (item: Item) => {
+        setEditingItem(item);
+        setIsFormOpen(true);
+    };
+
+    const handleSave = (item: Item) => {
+        const index = items.findIndex((i) => i.item_id === item.item_id);
+        if (index >= 0) {
+            // 更新
+            const newItems = [...items];
+            newItems[index] = item;
+            setItems(newItems);
+        } else {
+            // 新規追加
+            setItems([...items, item]);
+        }
+        handleCloseModal();
+    };
 
     return (
         <>
             <Header />
             <h1 className="text-2xl font-bold mb-4">アイテム一覧</h1>
 
+            {loading && <p>読み込み中...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+
             <ItemList
                 items={items}
                 onItemClick={(id) => {
-                    // 他のモーダルを閉じてから開く例（必要なら）
                     setEditingItem(null);
+                    setIsFormOpen(false);
                     setSelectedItemId(id);
                 }}
                 onEditClick={(item) => {
-                    // 直接編集モーダルを開く
-                    setSelectedItemId(null);
-                    setEditingItem(item);
+                    setSelectedItemId(item.item_id);
+                    handleEdit(item);
                 }}
             />
 
-            <ItemDetailModal
-                itemId={selectedItemId}
-                isOpen={!!selectedItemId}
-                onClose={handleCloseDetail}
-                onEdit={(item) => {
-                    // 詳細→編集への遷移
-                    handleCloseDetail();
-                    setEditingItem(item);
-                }}
-            />
+            {selectedItemId && !isFormOpen && (
+                <ItemModal
+                    itemId={selectedItemId}
+                    isOpen={!!selectedItemId}
+                    onClose={handleCloseModal}
+                    onEdit={handleEdit} // 編集ボタンが必要なら表示
+                />
+            )}
 
-            <ItemEditModal item={editingItem} isOpen={!!editingItem} onClose={handleCloseEdit} />
+            {isFormOpen && (
+                <ItemForm
+                    item={editingItem || undefined}
+                    onClose={handleCloseModal}
+                    onSave={handleSave}
+                />
+            )}
         </>
     );
 }

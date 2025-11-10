@@ -1,4 +1,4 @@
-// src/components/ItemDetailModal.tsx
+// src/components/ItemModal.tsx
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { Button } from "./ui/Button";
@@ -9,17 +9,18 @@ interface Props {
     itemId: number | null;
     isOpen: boolean;
     onClose: () => void;
-    onEdit: (item: Item) => void;
+    onEdit?: (item: Item) => void; // 編集機能は任意
 }
 
-export default function ItemDetailModal({ itemId, isOpen, onClose, onEdit }: Props) {
+export default function ItemModal({ itemId, isOpen, onClose, onEdit }: Props) {
     const [item, setItem] = useState<Item | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchItem = async () => {
-            if (!isOpen || !itemId) return;
+            if (!isOpen || itemId == null) return;
             setLoading(true);
+
             const { data, error } = await supabase
                 .from("items")
                 .select("*")
@@ -27,13 +28,16 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onEdit }: Pro
                 .single();
 
             if (error) {
-                console.error("詳細取得エラー:", error);
+                console.error("アイテム取得エラー:", error);
                 toast.error("アイテム詳細の取得に失敗しました");
+                setItem(null);
             } else {
-                setItem(data);
+                setItem(data as Item);
             }
+
             setLoading(false);
         };
+
         fetchItem();
     }, [itemId, isOpen]);
 
@@ -71,13 +75,15 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onEdit }: Pro
                         )}
                         <p className="mt-2 text-sm text-gray-600">ID: {item.item_id}</p>
 
-                        <Button
-                            variant="primary"
-                            className="mt-4 w-full"
-                            onClick={() => onEdit(item)}
-                        >
-                            編集
-                        </Button>
+                        {onEdit && (
+                            <Button
+                                variant="primary"
+                                className="mt-4 w-full"
+                                onClick={() => onEdit(item)}
+                            >
+                                編集
+                            </Button>
+                        )}
                     </>
                 ) : (
                     <p>アイテムが見つかりません</p>
