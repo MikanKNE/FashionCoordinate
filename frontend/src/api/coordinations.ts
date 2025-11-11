@@ -1,3 +1,4 @@
+// frontend/src/api/coordinations.ts
 import { API_BASE } from "./index";
 
 export async function getCoordinations() {

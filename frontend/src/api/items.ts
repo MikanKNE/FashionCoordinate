@@ -1,3 +1,4 @@
+// frontend/src/api/items.ts
 import { API_BASE } from "./index";
 
 // 全アイテム取得
