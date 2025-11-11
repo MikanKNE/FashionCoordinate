@@ -37,7 +37,6 @@ body {
   flex-direction: column;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #242424;
 }
 
 h1 {
