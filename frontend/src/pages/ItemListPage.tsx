@@ -1,4 +1,4 @@
-// src/pages/Home.tsx
+// src/pages/ItemListPage.tsx
 import { useEffect, useState } from "react";
 import { getItems } from "../api/items";
 import ItemList from "../components/ItemList";
@@ -7,7 +7,7 @@ import ItemForm from "../components/ItemForm";
 import Header from "../components/Header";
 import type { Item } from "../types";
 
-export default function Home() {
+export default function ItemListPage() {
     const [items, setItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
