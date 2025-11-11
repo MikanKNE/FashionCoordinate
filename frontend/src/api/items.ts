@@ -1,29 +1,57 @@
+// frontend/src/api/items.ts
 import { API_BASE } from "./index";
 
+// 全アイテム取得
 export async function getItems() {
     const res = await fetch(`${API_BASE}/items/`);
+    if (!res.ok) throw new Error("アイテム取得に失敗しました");
     return res.json();
 }
 
+// アイテム詳細取得
+export async function getItemDetail(item_id: number) {
+    const res = await fetch(`${API_BASE}/items/${item_id}/`);
+    if (!res.ok) throw new Error("アイテム詳細の取得に失敗しました");
+    return res.json();
+}
+
+// アイテム作成
 export async function createItem(item: any) {
     const res = await fetch(`${API_BASE}/items/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(item),
     });
+    if (!res.ok) throw new Error("アイテム作成に失敗しました");
     return res.json();
 }
 
+// アイテム更新
 export async function updateItem(item_id: number, item: any) {
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(item),
     });
+    if (!res.ok) throw new Error("アイテム更新に失敗しました");
     return res.json();
 }
 
+// アイテム削除
 export async function deleteItem(item_id: number) {
     const res = await fetch(`${API_BASE}/items/${item_id}/`, { method: "DELETE" });
+    if (!res.ok) throw new Error("アイテム削除に失敗しました");
     return res.json();
 }
+
+// お気に入り状態を更新
+export async function toggleFavorite(item_id: number, is_favorite: boolean) {
+    const res = await fetch(`${API_BASE}/items/${item_id}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_favorite }),
+    });
+    if (!res.ok) throw new Error("お気に入り状態の更新に失敗しました");
+    return res.json();
+}
+
