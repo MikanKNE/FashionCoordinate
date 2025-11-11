@@ -1,5 +1,4 @@
 // src/components/ItemList.tsx
-import React from "react";
 import type { Item } from "../types";
 import ItemCard from "./ItemCard";
 
