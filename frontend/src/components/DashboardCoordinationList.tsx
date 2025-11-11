@@ -1,8 +1,8 @@
-// frontend/src/components/CoordinationListPreview.tsx
+// frontend/src/components/DashboardCoordinationList.tsx
 import { useEffect, useState } from "react";
 import { getCoordinations } from "../api/coordinations";
 
-export default function CoordinationListPreview() {
+export default function DashboardCoordinationList() {
     const [coordinations, setCoordinations] = useState<any[]>([]);
 
     useEffect(() => {
@@ -14,7 +14,7 @@ export default function CoordinationListPreview() {
 
     return (
         <div className="bg-white rounded-2xl shadow p-4">
-            <h2 className="text-lg font-semibold mb-3">登録コーデ</h2>
+            <h2 className="text-lg font-semibold mb-3">コーデ一覧</h2>
             <ul className="space-y-2">
                 {coordinations.map((c) => (
                     <li key={c.id} className="border-b pb-1">
