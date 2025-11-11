@@ -1,3 +1,4 @@
+// frontend/src/components/CoordinationPreview.tsx
 import type { Item } from "../types";
 import type { FC } from "react";
 

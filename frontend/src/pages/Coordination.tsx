@@ -158,7 +158,7 @@ export default function CoordinationPage() {
     return (
         <>
             <Header />
-            <div className="min-h-screen bg-indigo-50 dark:bg-gray-900 p-6 text-gray-800 dark:text-gray-100">
+            <div className="min-h-screen bg-blue-50 dark:bg-gray-900 p-6 text-gray-800 dark:text-gray-100">
                 <div className="max-w-6xl mx-auto">
                     <h1 className="text-2xl font-bold mb-4">コーディネート登録</h1>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -291,9 +291,12 @@ export default function CoordinationPage() {
                         </main>
 
                         {/* 右：選択 + 登録フォーム */}
-                        <aside className="md:col-span-1 space-y-4 sticky top-6">
-                            <CoordinationForm selectedItems={selectedItems} />
-                            <CoordinationPreview items={selectedItems} />
+                        <aside className="md:col-span-1 sticky top-6">
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 space-y-4">
+                                <h4 className="text-lg font-semibold mb-2">選択中アイテム</h4>
+                                <CoordinationForm selectedItems={selectedItems} />
+                                <CoordinationPreview items={selectedItems} />
+                            </div>
                         </aside>
                     </div>
                 </div>
