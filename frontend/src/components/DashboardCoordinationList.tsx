@@ -1,19 +1,20 @@
 // frontend/src/components/DashboardCoordinationList.tsx
 import { useEffect, useState } from "react";
-import { getCoordinations } from "../api/coordinations";
 
 export default function DashboardCoordinationList() {
     const [coordinations, setCoordinations] = useState<any[]>([]);
 
     useEffect(() => {
-        getCoordinations().then((res) => {
-            const list = Array.isArray(res) ? res : res.data
-            setCoordinations(list.slice(0, 3))
+        import("../api/coordinations").then(({ getCoordinations }) => {
+            getCoordinations().then((res) => {
+                const list = Array.isArray(res) ? res : res.data
+                setCoordinations(list.slice(0, 3))
+            })
         })
     }, [])
 
     return (
-        <div className="bg-white rounded-2xl shadow p-4">
+        <div>
             <h2 className="text-lg font-semibold mb-3">コーデ一覧</h2>
             <ul className="space-y-2">
                 {coordinations.map((c) => (

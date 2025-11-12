@@ -4,7 +4,6 @@ import type { Item } from "../types";
 
 interface ItemCardProps {
     item: Item;
-    // 親がどのように開くか決められるように、単純なコールバックにする（引数は親クロージャで捕まる）
     onClick?: () => void;
     onEdit?: () => void;
     selected?: boolean;
@@ -13,7 +12,8 @@ interface ItemCardProps {
 const ItemCard: React.FC<ItemCardProps> = ({ item, onClick, onEdit, selected }) => {
     return (
         <div
-            className={`rounded-xl shadow-md p-3 cursor-pointer transition-transform transform hover:scale-105 
+            className={`rounded-xl shadow-md p-3 cursor-pointer transition-transform transform hover:scale-105
+            bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100
             ${selected ? "ring-2 ring-blue-500" : ""}`}
             style={{
                 border: "1px solid #ddd",
@@ -48,10 +48,11 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, onClick, onEdit, selected }) 
                             borderRadius: "8px",
                             marginBottom: "8px",
                         }}
+                        className="dark:bg-gray-600"
                     />
                 )}
                 <h3 className="text-lg font-semibold">{item.name}</h3>
-                {item.category && <p className="text-sm text-gray-500">{item.category}</p>}
+                {item.category && <p className="text-sm text-gray-500 dark:text-gray-400">{item.category}</p>}
             </div>
 
             {onEdit && (

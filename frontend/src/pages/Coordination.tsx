@@ -6,6 +6,8 @@ import type { Item, Subcategory } from "../types";
 import { getItems } from "../api/items";
 import Header from "../components/Header";
 import toast from "react-hot-toast";
+// Cardコンポーネント（frontend/src/components/ui/Card.tsx）
+import Card from "../components/ui/Card";
 
 interface MultiFilters {
     subcategory_ids: number[];
@@ -67,7 +69,6 @@ export default function CoordinationPage() {
         fetch();
     }, []);
 
-    // 親カテゴリーごとにサブカテゴリー整理
     const subcategoriesByParent = useMemo(() => {
         const map = new Map<string, Subcategory[]>();
         allItems.forEach((i) => {
@@ -164,7 +165,7 @@ export default function CoordinationPage() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         {/* 左：フィルター */}
                         <aside className="md:col-span-1 sticky top-6 space-y-4">
-                            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                            <Card>
                                 <h4 className="text-lg font-semibold mb-3">フィルター</h4>
 
                                 {/* カテゴリー */}
@@ -191,9 +192,7 @@ export default function CoordinationPage() {
                                                         }
                                                     >
                                                         <span>{parent}</span>
-                                                        <span>
-                                                            {expandedCategory === parent ? "-" : "+"}
-                                                        </span>
+                                                        <span>{expandedCategory === parent ? "-" : "+"}</span>
                                                     </button>
                                                     {expandedCategory === parent && (
                                                         <div className="pl-4 mt-1">
@@ -247,12 +246,12 @@ export default function CoordinationPage() {
                                     uniqueValues.tpos.map((v) => ({ id: v, name: v })),
                                     "tpo_tags"
                                 )}
-                            </div>
+                            </Card>
                         </aside>
 
                         {/* 中央：アイテム一覧 */}
                         <main className="md:col-span-2">
-                            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4">
+                            <Card className="p-4">
                                 <div className="flex items-center justify-between mb-4 text-sm text-gray-600 dark:text-gray-400">
                                     <span>{loading ? "読み込み中..." : `${filteredItems.length} アイテム`}</span>
                                     <span>選択済み: {selectedItems.length}</span>
@@ -287,16 +286,16 @@ export default function CoordinationPage() {
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </Card>
                         </main>
 
                         {/* 右：選択 + 登録フォーム */}
                         <aside className="md:col-span-1 sticky top-6">
-                            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 space-y-4">
+                            <Card className="space-y-4 p-4">
                                 <h4 className="text-lg font-semibold mb-2">選択中アイテム</h4>
                                 <CoordinationForm selectedItems={selectedItems} />
                                 <CoordinationPreview items={selectedItems} />
-                            </div>
+                            </Card>
                         </aside>
                     </div>
                 </div>
