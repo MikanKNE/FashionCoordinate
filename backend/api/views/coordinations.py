@@ -1,61 +1,72 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from ..supabase_client import supabase
+from ..decorators import require_user_id
 import traceback
 
 # ----------------------------
 # コーディネーション一覧取得 / 新規作成
 # ----------------------------
 @api_view(['GET', 'POST'])
-def coordinations_list_create(request):
+@require_user_id
+def coordinations_list_create(request, user_id):
     if request.method == 'GET':
         try:
-            response = supabase.table("coordinations").select("*").execute()
+            response = supabase.table("coordinations").select("*").eq("user_id", user_id).execute()
             return Response({"status": "success", "data": response.data})
         except Exception as e:
-            print("GET /coordinations エラー内容:", e)
+            print("GET /coordinations エラー:", e)
             traceback.print_exc()
-            return Response({"status": "error", "message": str(e)}, status=500)
+            return Response({"status": "error", "message": "コーディネーション一覧の取得に失敗しました"}, status=500)
 
     elif request.method == 'POST':
         data = request.data
+        data["user_id"] = user_id
         data.setdefault("is_favorite", False)
         try:
-            print("POSTデータ:", data)
             response = supabase.table("coordinations").insert(data).execute()
             return Response({"status": "success", "data": response.data})
         except Exception as e:
-            print("POST /coordinations エラー内容:", e)
+            print("POST /coordinations エラー:", e)
             traceback.print_exc()
-            return Response({"status": "error", "message": str(e)}, status=500)
+            return Response({"status": "error", "message": "コーディネーションの作成に失敗しました"}, status=500)
 
 
 # ----------------------------
 # コーディネーション取得 / 更新 / 削除
 # ----------------------------
 @api_view(['GET', 'PUT', 'DELETE'])
-def coordination_detail(request, coordination_id):
+@require_user_id
+def coordination_detail(request, coordination_id, user_id):
     try:
-        print(f"coordination_id={coordination_id}, method={request.method}")
+        existing = supabase.table("coordinations").select("*").eq("coordination_id", coordination_id).eq("user_id", user_id).execute()
 
-        existing = supabase.table("coordinations").select("*").eq("coordination_id", coordination_id).execute()
         if not existing.data:
-            return Response({"status": "error", "message": "Coordination not found"}, status=404)
+            return Response({"status": "error", "message": "コーディネーションが見つかりません"}, status=404)
 
         if request.method == 'GET':
             return Response({"status": "success", "data": existing.data[0]})
 
         elif request.method == 'PUT':
             data = request.data
-            print("PUTデータ:", data)
-            response = supabase.table("coordinations").update(data).eq("coordination_id", coordination_id).execute()
-            return Response({"status": "success", "data": response.data})
+            try:
+                response = supabase.table("coordinations").update(data).eq("coordination_id", coordination_id).eq("user_id", user_id).execute()
+                return Response({"status": "success", "data": response.data})
+            except Exception as e:
+                print("PUT /coordinations エラー:", e)
+                traceback.print_exc()
+                return Response({"status": "error", "message": "コーディネーションの更新に失敗しました"}, status=500)
 
         elif request.method == 'DELETE':
-            supabase.table("coordinations").delete().eq("coordination_id", coordination_id).execute()
-            return Response({"status": "success", "message": "Coordination deleted"})
+            try:
+                supabase.table("coordinations").delete().eq("coordination_id", coordination_id).eq("user_id", user_id).execute()
+                return Response({"status": "success", "message": "コーディネーションを削除しました"})
+            except Exception as e:
+                print("DELETE /coordinations エラー:", e)
+                traceback.print_exc()
+                return Response({"status": "error", "message": "コーディネーションの削除に失敗しました"}, status=500)
 
     except Exception as e:
-        print("coordination_detail エラー内容:", e)
+        print("coordination_detail 全体エラー:", e)
         traceback.print_exc()
-        return Response({"status": "error", "message": str(e)}, status=500)
+        return Response({"status": "error", "message": "コーディネーション取得時にエラーが発生しました"}, status=500)
