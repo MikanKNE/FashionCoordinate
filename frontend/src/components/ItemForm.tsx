@@ -7,7 +7,7 @@ import { Button } from "./ui/Button";
 import toast from "react-hot-toast";
 
 interface ItemFormProps {
-    item?: Item; // 編集時のみ渡す
+    item?: Item;
     onClose: () => void;
     onSave: (item: Item) => void;
 }
