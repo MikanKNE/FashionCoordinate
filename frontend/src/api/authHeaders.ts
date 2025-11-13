@@ -1,31 +1,18 @@
-// frontend/src/api/authHeaders.ts
+import { supabase } from "../lib/supabaseClient";
 
 /**
- * Supabaseのアクセストークンを取得して、
- * 認証付きリクエスト用の共通ヘッダーを返す
+ * Supabaseのアクセストークンを取得して認証ヘッダーを返す
  */
-export function getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem("supabase.auth.token");
-    let accessToken: string | null = null;
-
-    if (token) {
-        try {
-            const parsed = JSON.parse(token);
-            accessToken =
-                parsed?.currentSession?.access_token ||
-                parsed?.access_token ||
-                null;
-        } catch {
-            accessToken = null;
-        }
-    }
+export async function getAuthHeaders(): Promise<HeadersInit> {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
 
     const headers: Record<string, string> = {
         "Content-Type": "application/json",
     };
 
-    if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
     return headers;
