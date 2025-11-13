@@ -3,6 +3,7 @@ import type { FC } from "react";
 import type { Item } from "../types";
 import { useState } from "react";
 import { createCoordination } from "../api/coordinations";
+import { Button } from "./ui/Button";
 
 export interface CoordinationFormData {
     name: string;
@@ -14,7 +15,10 @@ interface Props {
 }
 
 const CoordinationForm: FC<Props> = ({ selectedItems }) => {
-    const [form, setForm] = useState<CoordinationFormData>({ name: "", is_favorite: false });
+    const [form, setForm] = useState<CoordinationFormData>({
+        name: "",
+        is_favorite: false,
+    });
     const [status, setStatus] = useState<string>("");
 
     const handleSubmit = async () => {
@@ -44,23 +48,32 @@ const CoordinationForm: FC<Props> = ({ selectedItems }) => {
                 type="text"
                 placeholder="コーディネート名"
                 value={form.name}
-                className="w-full p-1 rounded bg-gray-800 text-white"
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="w-full p-2 rounded
+                        bg-white text-gray-900 border border-gray-300
+                        dark:bg-gray-800 dark:text-white dark:border-gray-600
+                        focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                onChange={(e) =>
+                    setForm({ ...form, name: e.target.value })
+                }
             />
             <label className="flex items-center gap-2">
                 <input
                     type="checkbox"
                     checked={form.is_favorite}
-                    onChange={(e) => setForm({ ...form, is_favorite: e.target.checked })}
+                    onChange={(e) =>
+                        setForm({
+                            ...form,
+                            is_favorite: e.target.checked,
+                        })
+                    }
                 />
                 お気に入り
             </label>
-            <button
-                className="w-full p-2 bg-blue-600 hover:bg-blue-500 rounded"
-                onClick={handleSubmit}
-            >
+
+            <Button variant="primary" onClick={handleSubmit}>
                 登録
-            </button>
+            </Button>
+
             {status && <p>{status}</p>}
         </div>
     );

@@ -1,15 +1,8 @@
 // frontend/tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: "class",
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-    theme: {
-        extend: {},
-    },
-    plugins: [],
-}
-
-
-module.exports = {
     theme: {
         extend: {
             keyframes: {
@@ -19,11 +12,9 @@ module.exports = {
                 },
             },
             animation: {
-                fadeInModal: "fadeInModal 0.3s ease-out forwards", // ← forwards を必ず追加
+                fadeInModal: "fadeInModal 0.3s ease-out forwards",
             },
         },
     },
     plugins: [],
 };
-
-

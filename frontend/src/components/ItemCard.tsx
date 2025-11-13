@@ -1,61 +1,73 @@
-// src/components/ItemCard.tsx
+// frontend/src/components/ItemCard.tsx
 import { Button } from "./ui/Button";
 import type { Item } from "../types";
 
 interface ItemCardProps {
     item: Item;
-    // 親がどのように開くか決められるように、単純なコールバックにする（引数は親クロージャで捕まる）
     onClick?: () => void;
     onEdit?: () => void;
     selected?: boolean;
+    compact?: boolean;
 }
 
-const ItemCard: React.FC<ItemCardProps> = ({ item, onClick, onEdit, selected }) => {
+const ItemCard: React.FC<ItemCardProps> = ({
+    item,
+    onClick,
+    onEdit,
+    selected = false,
+    compact = false,
+}) => {
     return (
         <div
-            className={`rounded-xl shadow-md p-3 cursor-pointer transition-transform transform hover:scale-105 
-            ${selected ? "ring-2 ring-blue-500" : ""}`}
+            onClick={onClick}
+            className={`relative rounded-2xl shadow-md transition-all cursor-pointer 
+                hover:scale-[1.03] hover:shadow-lg
+                bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100
+                ${selected
+                    ? "ring-2 ring-blue-400 dark:ring-blue-300"
+                    : "border border-gray-200 dark:border-gray-500/70"
+                }
+                ${compact ? "p-2" : "p-3"}
+            `}
             style={{
-                border: "1px solid #ddd",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 textAlign: "center",
-                borderRadius: "12px",
-                overflow: "hidden",
             }}
         >
-            <div onClick={onClick} style={{ width: "100%" }}>
+            <div className="w-full mb-2">
                 {item.image_url ? (
                     <img
                         src={item.image_url}
                         alt={item.name}
-                        style={{
-                            width: "100%",
-                            height: "150px",
-                            objectFit: "cover",
-                            borderRadius: "8px",
-                            marginBottom: "8px",
-                            display: "block",
-                        }}
+                        className={`w-full object-cover rounded-xl ${compact ? "h-24" : "h-36"}`}
                     />
                 ) : (
                     <div
-                        style={{
-                            width: "100%",
-                            height: "150px",
-                            backgroundColor: "#f0f0f0",
-                            borderRadius: "8px",
-                            marginBottom: "8px",
-                        }}
-                    />
+                        className={`w-full ${compact ? "h-24" : "h-36"} rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 text-sm`}
+                    >
+                        No Image
+                    </div>
                 )}
-                <h3 className="text-lg font-semibold">{item.name}</h3>
-                {item.category && <p className="text-sm text-gray-500">{item.category}</p>}
             </div>
 
+            <h3 className={`font-medium ${compact ? "text-sm" : "text-base"}`}>{item.name}</h3>
+            {item.category && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {item.category}
+                </p>
+            )}
+
             {onEdit && (
-                <Button onClick={onEdit} variant="primary" className="mt-2 w-full text-sm">
+                <Button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit();
+                    }}
+                    variant="primary"
+                    className="mt-2 w-full text-sm"
+                >
                     編集
                 </Button>
             )}

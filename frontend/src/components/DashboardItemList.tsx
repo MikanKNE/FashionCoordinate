@@ -22,7 +22,7 @@ export default function DashboardItemList() {
     const currentItem = items[currentIndex];
 
     return (
-        <div className="bg-white rounded-2xl shadow p-4 flex flex-col items-center">
+        <div className="flex flex-col items-center">
             <h2 className="text-lg font-semibold mb-3">アイテム一覧</h2>
             <ItemCard item={currentItem} />
             <div className="flex mt-4 gap-2">

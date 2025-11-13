@@ -21,6 +21,9 @@ export default function Header() {
                 <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
                     ホーム
                 </Link>
+                <Link to="/item-list" style={{ color: "#fff", textDecoration: "none" }}>
+                    アイテム一覧
+                </Link>
                 <Link to="/coordination/1" style={{ color: "#fff", textDecoration: "none" }}>
                     コーディネート
                 </Link>

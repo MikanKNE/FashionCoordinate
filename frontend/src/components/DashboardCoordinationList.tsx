@@ -15,7 +15,7 @@ export default function DashboardCoordinationList() {
     }
 
     return (
-        <div className="bg-white rounded-2xl shadow p-4">
+        <div>
             <h2 className="text-lg font-semibold mb-3">コーデ一覧</h2>
             <ul className="space-y-2">
                 {coordinations.map((c) => (

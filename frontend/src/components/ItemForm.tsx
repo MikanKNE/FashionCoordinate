@@ -1,4 +1,4 @@
-// src/components/ItemForm.tsx
+// frontend/src/components/ItemForm.tsx
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import type { Item } from "../types";
@@ -7,7 +7,7 @@ import { Button } from "./ui/Button";
 import toast from "react-hot-toast";
 
 interface ItemFormProps {
-    item?: Item; // 編集時のみ渡す
+    item?: Item;
     onClose: () => void;
     onSave: (item: Item) => void;
 }
@@ -23,12 +23,10 @@ export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
         setLoading(true);
         try {
             if (item) {
-                // 編集
                 const updated = await updateItem(item.item_id, { name, category, image_url });
                 onSave(updated);
                 toast.success("アイテムを更新しました");
             } else {
-                // 新規追加
                 const created = await createItem({ name, category, image_url });
                 onSave(created);
                 toast.success("アイテムを追加しました");
@@ -46,18 +44,17 @@ export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
         if (e.target === e.currentTarget) onClose();
     };
 
-    // Portal によって body 直下にレンダリング
     return ReactDOM.createPortal(
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
             onClick={handleOverlayClick}
         >
-            <div className="bg-white rounded-2xl shadow-lg w-96 mx-4 p-6 relative
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg w-96 mx-4 p-6 relative
                 transform transition-all duration-300 ease-out
-                animate-fadeInModal text-gray-900">
+                animate-fadeInModal text-gray-900 dark:text-gray-100">
 
                 <button
-                    className="absolute top-3 right-3 text-gray-500 hover:text-black"
+                    className="absolute top-3 right-3 text-gray-500 hover:text-black dark:hover:text-white"
                     onClick={onClose}
                 >
                     ✕
@@ -90,7 +87,7 @@ export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
                         onChange={(e) => setImageUrl(e.target.value)}
                         className="border p-2 rounded"
                     />
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} variant="primary">
                         {loading ? "保存中..." : "保存"}
                     </Button>
                 </form>
