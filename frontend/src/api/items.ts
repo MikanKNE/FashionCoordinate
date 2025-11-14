@@ -6,8 +6,9 @@ import { getAuthHeaders } from "./authHeaders";
 // 全アイテム取得
 // ----------------------------
 export async function getItems() {
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_BASE}/items/`, { headers });
+    const res = await fetch(`${API_BASE}/items/`, {
+        headers: getAuthHeaders(),
+    });
     if (!res.ok) throw new Error("アイテム取得に失敗しました");
     return res.json();
 }
@@ -16,8 +17,9 @@ export async function getItems() {
 // アイテム詳細取得
 // ----------------------------
 export async function getItemDetail(item_id: number) {
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_BASE}/items/${item_id}/`, { headers });
+    const res = await fetch(`${API_BASE}/items/${item_id}/`, {
+        headers: getAuthHeaders(),
+    });
     if (!res.ok) throw new Error("アイテム詳細の取得に失敗しました");
     return res.json();
 }
@@ -26,10 +28,9 @@ export async function getItemDetail(item_id: number) {
 // アイテム作成
 // ----------------------------
 export async function createItem(item: any) {
-    const headers = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/items/`, {
         method: "POST",
-        headers,
+        headers: getAuthHeaders(),
         body: JSON.stringify(item),
     });
     if (!res.ok) throw new Error("アイテム作成に失敗しました");
@@ -40,10 +41,9 @@ export async function createItem(item: any) {
 // アイテム更新
 // ----------------------------
 export async function updateItem(item_id: number, item: any) {
-    const headers = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
         method: "PUT",
-        headers,
+        headers: getAuthHeaders(),
         body: JSON.stringify(item),
     });
     if (!res.ok) throw new Error("アイテム更新に失敗しました");
@@ -54,10 +54,9 @@ export async function updateItem(item_id: number, item: any) {
 // アイテム削除
 // ----------------------------
 export async function deleteItem(item_id: number) {
-    const headers = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
         method: "DELETE",
-        headers,
+        headers: getAuthHeaders(),
     });
     if (!res.ok) throw new Error("アイテム削除に失敗しました");
     return res.json();
@@ -67,10 +66,9 @@ export async function deleteItem(item_id: number) {
 // お気に入り状態を更新
 // ----------------------------
 export async function toggleFavorite(item_id: number, is_favorite: boolean) {
-    const headers = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
         method: "PATCH",
-        headers,
+        headers: getAuthHeaders(),
         body: JSON.stringify({ is_favorite }),
     });
     if (!res.ok) throw new Error("お気に入り状態の更新に失敗しました");

@@ -1,8 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from ..supabase_client import supabase
-from ..common.decorators import require_user_id
-from ..common.utils import get_user_id_from_token
+from ..decorators import require_user_id
 import traceback
 
 # ----------------------------
