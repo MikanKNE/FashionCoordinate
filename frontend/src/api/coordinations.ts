@@ -1,30 +1,107 @@
 // frontend/src/api/coordinations.ts
-import { API_BASE } from "./index";
 
-export async function getCoordinations() {
-    const res = await fetch(`${API_BASE}/coordinations/`);
-    return res.json();
-}
-
-export async function createCoordination(data: any) {
-    const res = await fetch(`${API_BASE}/coordinations/`, {
+// ----------------------------
+// コーディネーション作成（coordinations + coordination_items のまとめ登録）
+// ----------------------------
+export const createCoordination = async (payload: {
+    name: string;
+    is_favorite: boolean;
+    items: number[]; // item_id[]
+}) => {
+    const res = await fetch("/api/coordinations/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
     });
-    return res.json();
-}
 
-export async function updateCoordination(id: number, data: any) {
-    const res = await fetch(`${API_BASE}/coordinations/${id}/`, {
+    return res.json();
+};
+
+// ----------------------------
+// 一覧取得
+// ----------------------------
+export const getCoordinations = async () => {
+    const res = await fetch("/api/coordinations/");
+    return res.json();
+};
+
+// ----------------------------
+// 単体取得
+// ----------------------------
+export const getCoordination = async (coordination_id: number) => {
+    const res = await fetch(`/api/coordinations/${coordination_id}/`);
+    return res.json();
+};
+
+// ----------------------------
+// 更新
+// ----------------------------
+export const updateCoordination = async (
+    coordination_id: number,
+    data: any
+) => {
+    const res = await fetch(`/api/coordinations/${coordination_id}/`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
     });
-    return res.json();
-}
 
-export async function deleteCoordination(id: number) {
-    const res = await fetch(`${API_BASE}/coordinations/${id}/`, { method: "DELETE" });
     return res.json();
-}
+};
+
+// ----------------------------
+// 削除
+// ----------------------------
+export const deleteCoordination = async (coordination_id: number) => {
+    const res = await fetch(`/api/coordinations/${coordination_id}/`, {
+        method: "DELETE",
+    });
+
+    return res.json();
+};
+
+// ----------------------------
+// coordination_items の追加
+// ----------------------------
+export const addItemToCoordination = async (
+    coordination_id: number,
+    item_id: number
+) => {
+    const res = await fetch("/api/coordination_items/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            coordination_id,
+            item_id,
+        }),
+    });
+
+    return res.json();
+};
+
+// ----------------------------
+// coordination_items の削除
+// ----------------------------
+export const removeItemFromCoordination = async (
+    coordination_id: number,
+    item_id: number
+) => {
+    const res = await fetch("/api/coordination_items/", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            coordination_id,
+            item_id,
+        }),
+    });
+
+    return res.json();
+};
