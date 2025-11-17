@@ -1,28 +1,35 @@
+// frontend/src/api/coordinations.ts
 import { supabase } from "../lib/supabaseClient";
 
+// ヘッダー作成ヘルパー
+async function authHeaders() {
+    const {
+        data: { session },
+    } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) throw new Error("ログインが必要です");
+
+    return {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+    };
+}
+
 // ----------------------------
-// コーディネーション作成（coordinations + coordination_items のまとめ登録）
+// コーディネーション作成（coordinations + coordination_items まとめ登録）
 // ----------------------------
 export const createCoordination = async (payload: {
     name: string;
-    is_favorite: boolean;
-    items: number[]; // item_id[]
+    is_favorite?: boolean;
+    items?: number[]; // item_id[]
 }) => {
-    // JWT取得
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-
-    if (!token) throw new Error("ログインが必要です");
-
+    const headers = await authHeaders();
     const res = await fetch("/api/coordinations/", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // JWTをヘッダーに追加
-        },
+        headers,
         body: JSON.stringify(payload),
     });
-
+    if (!res.ok) throw new Error("コーディネーション作成に失敗しました");
     return res.json();
 };
 
@@ -30,14 +37,9 @@ export const createCoordination = async (payload: {
 // 一覧取得
 // ----------------------------
 export const getCoordinations = async () => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-
-    const res = await fetch("/api/coordinations/", {
-        headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-        },
-    });
+    const headers = await authHeaders();
+    const res = await fetch("/api/coordinations/", { headers });
+    if (!res.ok) throw new Error("コーディネーション取得に失敗しました");
     return res.json();
 };
 
@@ -45,36 +47,23 @@ export const getCoordinations = async () => {
 // 単体取得
 // ----------------------------
 export const getCoordination = async (coordination_id: number) => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-
-    const res = await fetch(`/api/coordinations/${coordination_id}/`, {
-        headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-        },
-    });
+    const headers = await authHeaders();
+    const res = await fetch(`/api/coordinations/${coordination_id}/`, { headers });
+    if (!res.ok) throw new Error("コーディネーション詳細の取得に失敗しました");
     return res.json();
 };
 
 // ----------------------------
 // 更新
 // ----------------------------
-export const updateCoordination = async (
-    coordination_id: number,
-    data: any
-) => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-
+export const updateCoordination = async (coordination_id: number, data: any) => {
+    const headers = await authHeaders();
     const res = await fetch(`/api/coordinations/${coordination_id}/`, {
         method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
-        },
+        headers,
         body: JSON.stringify(data),
     });
-
+    if (!res.ok) throw new Error("コーディネーション更新に失敗しました");
     return res.json();
 };
 
@@ -82,15 +71,11 @@ export const updateCoordination = async (
 // 削除
 // ----------------------------
 export const deleteCoordination = async (coordination_id: number) => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-
+    const headers = await authHeaders();
     const res = await fetch(`/api/coordinations/${coordination_id}/`, {
         method: "DELETE",
-        headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-        },
+        headers,
     });
-
+    if (!res.ok) throw new Error("コーディネーション削除に失敗しました");
     return res.json();
 };
