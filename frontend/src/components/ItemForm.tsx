@@ -24,7 +24,8 @@ export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
         try {
             if (item) {
                 const updated = await updateItem(item.item_id, { name, category, image_url });
-                onSave(updated);
+                console.log("updated:", updated.data[0]);
+                onSave(updated.data[0]);
                 toast.success("アイテムを更新しました");
             } else {
                 const created = await createItem({ name, category, image_url });

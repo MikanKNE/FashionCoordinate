@@ -1,6 +1,7 @@
 // frontend/src/components/OutfitModal.tsx
 import { useNavigate } from 'react-router-dom'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { getUsageByDate } from '../api/usage_history'
 
 export default function OutfitModal({
     date,
@@ -11,9 +12,14 @@ export default function OutfitModal({
 }) {
     const navigate = useNavigate()
     const modalRef = useRef<HTMLDivElement>(null)
+    const [items, setItems] = useState<any[]>([]) // その日の服装アイテム
 
+    // 編集ページ遷移
     const handleEdit = () => {
-        navigate(`/outfit-form?date=${date.toISOString().split('T')[0]}`)
+        const localDateStr = `${date.getFullYear()}-${(date.getMonth() + 1)
+            .toString()
+            .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`
+        navigate(`/outfit-form?date=${localDateStr}`)
     }
 
     // 背景クリックで閉じる
@@ -30,11 +36,28 @@ export default function OutfitModal({
         }
     }, [])
 
+    // その日の服装を取得
+    useEffect(() => {
+        const fetchItems = async () => {
+            const localDateStr = `${date.getFullYear()}-${(date.getMonth() + 1)
+                .toString()
+                .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`
+
+            const res = await getUsageByDate(localDateStr)
+            if (res.status === 'success') {
+                // items配列をまとめる
+                const allItems = res.data.map((u: any) => u.items).flat()
+                setItems(allItems)
+            }
+        }
+        fetchItems()
+    }, [date])
+
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div
                 ref={modalRef}
-                className="relative bg-white p-6 rounded-2xl shadow-lg w-96"
+                className="relative bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg w-96 max-h-[80vh] overflow-y-auto"
             >
                 {/* ✕ ボタン */}
                 <button
@@ -49,8 +72,23 @@ export default function OutfitModal({
                     {date.toLocaleDateString()} の服装
                 </h2>
 
-                {/* TODO: Supabase/Django APIで服装データを取得して表示 */}
-                <p className="text-gray-600">登録された服装があればここに表示</p>
+                {/* 服装アイテム表示 */}
+                {items.length === 0 ? (
+                    <p className="text-gray-600">この日は登録がありません</p>
+                ) : (
+                    <div className="grid grid-cols-3 gap-2">
+                        {items.map(item => (
+                            <div key={item.item_id} className="border rounded p-1">
+                                <img
+                                    src={item.image_url}
+                                    alt={item.name}
+                                    className="w-full h-20 object-cover rounded"
+                                />
+                                <p className="text-sm text-center mt-1">{item.name}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 <div className="flex justify-end mt-6 gap-2">
                     <button

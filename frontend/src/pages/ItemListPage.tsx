@@ -1,5 +1,5 @@
 // src/pages/ItemListPage.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getItems } from "../api/items";
 import ItemList from "../components/ItemList";
 import ItemModal from "../components/ItemModal";
@@ -16,22 +16,24 @@ export default function ItemListPage() {
     const [editingItem, setEditingItem] = useState<Item | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
 
-    useEffect(() => {
-        const fetchItems = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const res = await getItems();
-                setItems(res.data || []);
-            } catch (err: any) {
-                console.error(err);
-                setError("アイテム取得失敗");
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchItems();
+    // 最新アイテム再取得
+    const fetchItems = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await getItems();
+            setItems(res.data || []);
+        } catch (err: any) {
+            console.error(err);
+            setError("アイテム取得失敗");
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        fetchItems();
+    }, [fetchItems]);
 
     const handleCloseModal = () => {
         setSelectedItemId(null);
@@ -44,24 +46,35 @@ export default function ItemListPage() {
         setIsFormOpen(true);
     };
 
-    const handleSave = (item: Item) => {
-        const index = items.findIndex((i) => i.item_id === item.item_id);
-        if (index >= 0) {
-            // 更新
-            const newItems = [...items];
-            newItems[index] = item;
-            setItems(newItems);
-        } else {
-            // 新規追加
-            setItems([...items, item]);
-        }
+    // 保存後にリストをAPIで最新化
+    const handleSave = async (item: Item) => {
+        await fetchItems();
         handleCloseModal();
+    };
+
+    // モーダル（編集モード）内からの再取得対応
+    const handleItemUpdated = async () => {
+        await fetchItems();
     };
 
     return (
         <>
             <Header />
-            <h1 className="text-2xl font-bold mb-4">アイテム一覧</h1>
+            <div className="flex items-center mt-4 mb-4">
+                <h1 className="text-2xl font-bold">アイテム一覧</h1>
+                <button
+                    className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    onClick={() => {
+                        setEditingItem(null);
+                        setSelectedItemId(null);
+                        setIsFormOpen(true);
+                    }}
+                >
+                    ＋ 追加
+                </button>
+            </div>
+
+
 
             {loading && <p>読み込み中...</p>}
             {error && <p className="text-red-500">{error}</p>}
@@ -84,8 +97,8 @@ export default function ItemListPage() {
                     itemId={selectedItemId}
                     isOpen={!!selectedItemId}
                     onClose={() => setSelectedItemId(null)}
+                    onItemUpdated={handleItemUpdated}
                 />
-
             )}
 
             {isFormOpen && (

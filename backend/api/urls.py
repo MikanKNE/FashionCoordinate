@@ -4,6 +4,7 @@ from .views.coordinations import coordinations_list_create, coordination_detail
 from .views.usage_history import usage_list_create, usage_detail
 from .views.coordination_items import coordination_items_manage
 from .views import protected_view
+from .views import usage_history
 
 urlpatterns = [
     # items
@@ -23,4 +24,7 @@ urlpatterns = [
 
     # protected view
     path("protected/", protected_view.protected_view),
+    
+    # usage by date
+    path("usage_history/date/<str:date_str>/", usage_history.usage_by_date),
 ]

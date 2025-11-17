@@ -28,3 +28,8 @@ export async function deleteUsage(id: number) {
     const res = await fetch(`${API_BASE}/usage_history/${id}/`, { method: "DELETE" });
     return res.json();
 }
+
+export async function getUsageByDate(date: string) {
+    const res = await fetch(`${API_BASE}/usage_history/date/${date}/`);
+    return res.json();
+}

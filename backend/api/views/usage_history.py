@@ -47,3 +47,17 @@ def usage_detail(request, history_id):
 
     except Exception as e:
         return Response({"status": "error", "message": str(e)}, status=500)
+    
+
+@api_view(['GET'])
+def usage_by_date(request, date_str):
+    """指定された日付の使用履歴とアイテム情報を取得"""
+    try:
+        # 日付で絞る
+        response = supabase.table("usage_history")\
+            .select("*, items(*)")\
+            .eq("used_date", date_str)\
+            .execute()
+        return Response({"status": "success", "data": response.data})
+    except Exception as e:
+        return Response({"status": "error", "message": str(e)}, status=500)

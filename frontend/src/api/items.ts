@@ -8,13 +8,6 @@ export async function getItems() {
     return res.json();
 }
 
-// アイテム詳細取得
-export async function getItemDetail(item_id: number) {
-    const res = await fetch(`${API_BASE}/items/${item_id}/`);
-    if (!res.ok) throw new Error("アイテム詳細の取得に失敗しました");
-    return res.json();
-}
-
 // アイテム作成
 export async function createItem(item: any) {
     const res = await fetch(`${API_BASE}/items/`, {
@@ -34,7 +27,14 @@ export async function updateItem(item_id: number, item: any) {
         body: JSON.stringify(item),
     });
     if (!res.ok) throw new Error("アイテム更新に失敗しました");
-    return res.json();
+    return res.json(); // ← ここで {data: {…updatedItem}} を返していることを前提とする
+}
+
+// アイテム詳細取得
+export async function getItemDetail(item_id: number) {
+    const res = await fetch(`${API_BASE}/items/${item_id}/`);
+    if (!res.ok) throw new Error("アイテム詳細の取得に失敗しました");
+    return res.json(); // {data: {…item}}
 }
 
 // アイテム削除
