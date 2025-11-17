@@ -1,11 +1,12 @@
+# backend/api/views/coordination_items.py
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from ..supabase_client import supabase
-import traceback  # ← 追加！
+import traceback
 
-# ----------------------------
+# ====================================================
 # コーディネーションアイテム追加 / 削除
-# ----------------------------
+# ====================================================
 @api_view(['POST', 'DELETE'])
 def coordination_items_manage(request):
     data = request.data
@@ -16,6 +17,7 @@ def coordination_items_manage(request):
         return Response({"status": "error", "message": "coordination_id と item_id が必要"}, status=400)
 
     try:
+        # -------- 登録 --------
         if request.method == 'POST':
             response = supabase.table("coordination_items").insert({
                 "coordination_id": coordination_id,
@@ -23,13 +25,18 @@ def coordination_items_manage(request):
             }).execute()
             return Response({"status": "success", "data": response.data})
 
+        # -------- 削除 --------
         elif request.method == 'DELETE':
-            supabase.table("coordination_items").delete().eq("coordination_id", coordination_id).eq("item_id", item_id).execute()
+            supabase.table("coordination_items") \
+                .delete() \
+                .eq("coordination_id", coordination_id) \
+                .eq("item_id", item_id) \
+                .execute()
+
             return Response({"status": "success", "message": "Item removed from coordination"})
 
     except Exception as e:
-        # 🔍 追加：ターミナルに詳細なエラーログを出す
         print("----- ERROR OCCURRED IN coordination_items_manage -----")
-        traceback.print_exc()  # ← これで詳細なスタックトレースを表示
+        traceback.print_exc()
         print("--------------------------------------------------------")
         return Response({"status": "error", "message": str(e)}, status=500)
