@@ -35,6 +35,20 @@ def coordinations_list_create(request):
         try:
             print("POSTデータ:", data)
 
+            # --- JWTから user_id を取得してセット ---
+            auth_header = request.headers.get("Authorization")
+            if not auth_header or not auth_header.startswith("Bearer "):
+                return Response({"status": "error", "message": "Authorization header missing"}, status=401)
+
+            token = auth_header.split(" ")[1]
+
+            # v2 対応：apiは不要、get_user を直接呼び出す
+            user = supabase.auth.get_user(token)
+            if not user or not user.user:
+                return Response({"status": "error", "message": "Invalid token"}, status=401)
+
+            data["user_id"] = user.user.id  # UUID をセット
+
             # --- 1. coordinations テーブルへ登録 ---
             inserted = supabase.table("coordinations").insert(data).execute()
 

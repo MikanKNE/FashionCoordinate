@@ -1,4 +1,3 @@
-// frontend/src/components/CoordinationForm.tsx
 import type { FC } from "react";
 import type { Item } from "../types";
 import { useState } from "react";
@@ -35,10 +34,10 @@ const CoordinationForm: FC<Props> = ({ selectedItems }) => {
                 setStatus("登録完了！");
                 setForm({ name: "", is_favorite: false });
             } else {
-                setStatus("登録失敗");
+                setStatus("登録失敗: " + (res.message ?? ""));
             }
         } catch (err) {
-            setStatus("登録エラー");
+            setStatus("登録エラー: " + (err instanceof Error ? err.message : ""));
         }
     };
 
