@@ -16,10 +16,28 @@ def usage_list_create(request):
             return Response({"status": "error", "message": str(e)}, status=500)
 
     elif request.method == 'POST':
-        data = request.data
         try:
-            response = supabase.table("usage_history").insert(data).execute()
-            return Response({"status": "success", "data": response.data})
+            item_ids = request.data.get("item_ids")     # ← array
+            used_date = request.data.get("used_date")
+            weather = request.data.get("weather")
+            temperature = request.data.get("temperature")
+
+            if not item_ids or not isinstance(item_ids, list):
+                return Response({"status": "error", "message": "item_ids は配列で指定してください"}, status=400)
+
+            insert_rows = []
+            for item_id in item_ids:
+                insert_rows.append({
+                    "item_id": item_id,
+                    "used_date": used_date,
+                    "weather": weather,
+                    "temperature": temperature
+                })
+
+            response = supabase.table("usage_history").insert(insert_rows).execute()
+
+            return Response({"status": "success", "inserted": response.data})
+
         except Exception as e:
             return Response({"status": "error", "message": str(e)}, status=500)
 

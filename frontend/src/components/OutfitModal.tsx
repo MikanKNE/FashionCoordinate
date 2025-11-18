@@ -95,9 +95,10 @@ export default function OutfitModal({
                         className="px-4 py-2 bg-gray-300 rounded hover:bg-blue-600"
                         onClick={handleEdit}
                     >
-                        登録・編集
+                        {items.length > 0 ? "編集" : "登録"}
                     </button>
                 </div>
+
             </div>
         </div>
     )
