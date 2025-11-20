@@ -36,3 +36,21 @@ export interface User {
     email?: string;
     last_login_date?: string;
 }
+
+export interface MultiFilters {
+    subcategory_ids: number[];
+    color: string[];
+    material: string[];
+    pattern: string[];
+    season_tag: string[];
+    tpo_tags: string[];
+    is_favorite?: boolean;
+}
+
+export interface AccordionState {
+    color: boolean;
+    material: boolean;
+    pattern: boolean;
+    season_tag: boolean;
+    tpo_tags: boolean;
+}
