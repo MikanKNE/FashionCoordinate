@@ -4,6 +4,7 @@ from .views import items_list_create, item_detail
 from .views.coordinations import coordinations_list_create, coordination_detail
 from .views.usage_history import usage_list_create, usage_detail
 from .views.coordination_items import coordination_items_manage
+from .views.users import users_list_create, user_detail
 from .views import protected_view
 
 urlpatterns = [
@@ -21,6 +22,10 @@ urlpatterns = [
 
     # coordination_items
     path("coordination_items/", coordination_items_manage),
+
+    # users
+    path("users/", users_list_create),
+    path("users/<uuid:user_id>/", user_detail),
 
     # protected view
     path("protected/", protected_view.protected_view),

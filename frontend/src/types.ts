@@ -28,3 +28,11 @@ export interface Subcategory {
     category: string;
     name: string;
 }
+
+export interface User {
+    user_id: string;        // Supabase Auth UUID
+    display_name: string;
+    line_id?: string;
+    email?: string;
+    last_login_date?: string;
+}

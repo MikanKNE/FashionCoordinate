@@ -1,9 +1,30 @@
-// src/components/Header.tsx
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import type { User } from "../types";
+import { getUserDetail } from "../api/users";
 
 export default function Header() {
-    const { user, signOut, loading } = useAuth();
+    const { user: authUser, signOut, loading } = useAuth();
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        if (!authUser) {
+            setCurrentUser(null);
+            return;
+        }
+
+        // AuthContext の user.id を使って Django API から取得
+        getUserDetail(authUser.id)
+            .then(res => {
+                if (res.status === "success") {
+                    setCurrentUser(res.data);
+                } else {
+                    console.error(res.message);
+                }
+            })
+            .catch(err => console.error(err));
+    }, [authUser]);
 
     return (
         <header
@@ -30,9 +51,12 @@ export default function Header() {
 
                 {!loading && (
                     <>
-                        {user ? (
+                        {currentUser ? (
                             <>
-                                <span style={{ color: "#ccc" }}>{user.email}</span>
+                                {/* display_name を表示 */}
+                                <span style={{ color: "#ccc" }}>
+                                    {currentUser.display_name + "様" || currentUser.email + "様"}
+                                </span>
                                 <button
                                     onClick={signOut}
                                     style={{
@@ -48,9 +72,14 @@ export default function Header() {
                                 </button>
                             </>
                         ) : (
-                            <Link to="/login" style={{ color: "#fff", textDecoration: "none" }}>
-                                ログイン
-                            </Link>
+                            <>
+                                <span style={{ color: "#ccc" }}>
+                                    ゲスト様
+                                </span>
+                                <Link to="/login" style={{ color: "#fff", textDecoration: "none" }}>
+                                    ログイン
+                                </Link>
+                            </>
                         )}
                     </>
                 )}
