@@ -1,10 +1,10 @@
 // src/components/ItemModal.tsx
 import React, { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
-import { Button } from "./ui/Button";
-import toast from "react-hot-toast";
 import type { Item } from "../types";
 import ItemForm from "./ItemForm";
+import { getItemDetail } from "../api/items";
+import { Button } from "./ui/Button";
+import toast from "react-hot-toast";
 
 interface Props {
   itemId: number | null;
@@ -17,30 +17,31 @@ export default function ItemModal({ itemId, isOpen, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+
   useEffect(() => {
     const fetchItem = async () => {
       if (!isOpen || itemId == null) return;
       setLoading(true);
-
-      const { data, error } = await supabase
-        .from("items")
-        .select("*")
-        .eq("item_id", itemId)
-        .single();
-
-      if (error) {
-        console.error("アイテム取得エラー:", error);
+      try {
+        const res = await getItemDetail(itemId);
+        if (res.status === "success") {
+          setItem(res.data);
+        } else {
+          setItem(null);
+          toast.error("アイテム詳細の取得に失敗しました");
+        }
+      } catch (err) {
+        console.error(err);
         toast.error("アイテム詳細の取得に失敗しました");
         setItem(null);
-      } else {
-        setItem(data as Item);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     fetchItem();
   }, [itemId, isOpen]);
+
 
   const handleSave = (updatedItem: Item) => {
     setItem(updatedItem);

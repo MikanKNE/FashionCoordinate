@@ -24,11 +24,11 @@ export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
         try {
             if (item) {
                 const updated = await updateItem(item.item_id, { name, category, image_url });
-                onSave(updated);
+                onSave(updated.data);
                 toast.success("アイテムを更新しました");
             } else {
                 const created = await createItem({ name, category, image_url });
-                onSave(created);
+                onSave(created.data);
                 toast.success("アイテムを追加しました");
             }
             onClose();
