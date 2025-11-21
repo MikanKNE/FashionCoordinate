@@ -20,7 +20,7 @@ export default function Filter({ filters, setFilters }: FilterProps) {
     const [allItems, setAllItems] = useState<Item[]>([]);
     const [subcategoriesByParent, setSubcategoriesByParent] = useState<Map<string, Subcategory[]>>(new Map());
     const [accordion, setAccordion] = useState<AccordionState>({
-        category: true,
+        category: false,
         color: false,
         material: false,
         pattern: false,
@@ -30,6 +30,8 @@ export default function Filter({ filters, setFilters }: FilterProps) {
     const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const parentCategories = ["服", "靴", "アクセサリー", "帽子", "バッグ"];
 
     // ------------------------------
     // アイテム取得
@@ -57,12 +59,10 @@ export default function Filter({ filters, setFilters }: FilterProps) {
     useEffect(() => {
         const fetchSubcategories = async () => {
             const map = new Map<string, Subcategory[]>();
-            const parentCategories = ["服", "靴", "アクセサリー", "帽子", "バッグ"];
             for (const parent of parentCategories) {
                 try {
                     const res = await getSubcategories(parent);
                     const data: SubcategoryResponse[] = Array.isArray(res) ? res : res.data || [];
-
                     map.set(
                         parent,
                         data.map((s: SubcategoryResponse) => ({
@@ -78,7 +78,6 @@ export default function Filter({ filters, setFilters }: FilterProps) {
             }
             setSubcategoriesByParent(map);
         };
-
         fetchSubcategories();
     }, []);
 
@@ -93,6 +92,20 @@ export default function Filter({ filters, setFilters }: FilterProps) {
         const tpos = Array.from(new Set(allItems.flatMap(i => i.tpo_tags || [])));
         return { colors, materials, patterns, seasons, tpos };
     }, [allItems]);
+
+    // ------------------------------
+    // 使用されているサブカテゴリだけを表示
+    // ------------------------------
+    const filteredSubcategoriesByParent = useMemo(() => {
+        const usedSubcategoryIds = new Set(allItems.map(i => i.subcategory_id).filter(Boolean));
+        const map = new Map<string, Subcategory[]>();
+        parentCategories.forEach(parent => {
+            const subs = subcategoriesByParent.get(parent) || [];
+            const filtered = subs.filter(s => usedSubcategoryIds.has(s.subcategory_id));
+            if (filtered.length > 0) map.set(parent, filtered);
+        });
+        return map;
+    }, [allItems, subcategoriesByParent]);
 
     // ------------------------------
     // フィルター操作
@@ -142,8 +155,6 @@ export default function Filter({ filters, setFilters }: FilterProps) {
         </div>
     );
 
-    const parentCategories = ["服", "靴", "アクセサリー", "帽子", "バッグ"];
-
     const renderCategorySection = () => (
         <div className="mb-3 border border-gray-300 dark:border-white/20 rounded-lg p-2">
             <button
@@ -172,7 +183,7 @@ export default function Filter({ filters, setFilters }: FilterProps) {
 
                             {expandedCategory === parent && (
                                 <div className="pl-4 mt-1 space-y-1">
-                                    {(subcategoriesByParent.get(parent) || []).map((s: Subcategory) => (
+                                    {(filteredSubcategoriesByParent.get(parent) || []).map((s: Subcategory) => (
                                         <label key={s.subcategory_id} className="flex items-center text-sm">
                                             <input
                                                 type="checkbox"
