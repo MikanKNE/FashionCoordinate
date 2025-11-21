@@ -2,11 +2,12 @@
 from django.urls import path
 from .views import items_list_create, item_detail
 from .views.coordinations import coordinations_list_create, coordination_detail
-from .views.usage_history import usage_list_create, usage_detail
+from .views.usage_history import usage_list_create, usage_detail, usage_by_date
 from .views.coordination_items import coordination_items_manage
+from .views.subcategories import subcategories_list
 from .views.users import users_list_create, user_detail
-from .views import protected_view
-from .views import usage_history
+from .views.protected_view import protected_view
+
 
 urlpatterns = [
     # items
@@ -24,13 +25,16 @@ urlpatterns = [
     # coordination_items
     path("coordination_items/", coordination_items_manage),
 
+    # subcategories
+    path("subcategories/", subcategories_list),
+
     # users
     path("users/", users_list_create),
     path("users/<uuid:user_id>/", user_detail),
 
     # protected view
-    path("protected/", protected_view.protected_view),
-    
+    path("protected/", protected_view),
+
     # usage by date
-    path("usage_history/date/<str:date_str>/", usage_history.usage_by_date),
+    path("usage_history/date/<str:date_str>/", usage_by_date),
 ]

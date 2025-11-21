@@ -59,18 +59,6 @@ const ItemCard: React.FC<ItemCardProps> = ({
                 </p>
             )}
 
-            {onEdit && (
-                <Button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit();
-                    }}
-                    variant="primary"
-                    className="mt-2 w-full text-sm"
-                >
-                    編集
-                </Button>
-            )}
         </div>
     );
 };

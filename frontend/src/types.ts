@@ -48,6 +48,7 @@ export interface MultiFilters {
 }
 
 export interface AccordionState {
+    category: boolean;
     color: boolean;
     material: boolean;
     pattern: boolean;
