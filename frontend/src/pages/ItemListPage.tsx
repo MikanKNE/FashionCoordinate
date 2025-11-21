@@ -86,10 +86,6 @@ export default function ItemListPage() {
                     setIsFormOpen(false);
                     setSelectedItemId(id);
                 }}
-                onEditClick={(item) => {
-                    setSelectedItemId(item.item_id);
-                    handleEdit(item);
-                }}
             />
 
             {selectedItemId && !isFormOpen && (

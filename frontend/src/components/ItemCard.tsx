@@ -5,7 +5,6 @@ import type { Item } from "../types";
 interface ItemCardProps {
     item: Item;
     onClick?: () => void;
-    onEdit?: () => void;
     selected?: boolean;
     compact?: boolean;
 }
@@ -13,7 +12,6 @@ interface ItemCardProps {
 const ItemCard: React.FC<ItemCardProps> = ({
     item,
     onClick,
-    onEdit,
     selected = false,
     compact = false,
 }) => {
@@ -58,7 +56,6 @@ const ItemCard: React.FC<ItemCardProps> = ({
                     {item.category}
                 </p>
             )}
-
         </div>
     );
 };

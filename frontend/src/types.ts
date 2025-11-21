@@ -1,20 +1,21 @@
 // src/types.ts
-
 export interface Item {
     item_id: number;
     user_id?: string;
+    name: string;
     storage_id?: number;
     category: string;
     subcategory_id?: number;
     subcategory_name?: string;
-    name: string;
     image_url?: string;
+    season_tag: string[];
     tpo_tags: string[];
     color?: string;
     material?: string;
     pattern?: string;
     is_favorite: boolean;
-    season_tag: string[];
+    wear_count?: number;
+    last_used_date?: string;
 }
 
 export type Coordination = {
