@@ -4,8 +4,11 @@ export interface Item {
     user_id?: string;
     name: string;
     storage_id?: number;
+    storages?: { storage_location: string };
+    storage_name?: string;
     category: string;
     subcategory_id?: number;
+    subcategories?: { name: string };
     subcategory_name?: string;
     image_url?: string;
     season_tag: string[];

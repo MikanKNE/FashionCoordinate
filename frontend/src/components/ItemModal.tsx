@@ -1,4 +1,3 @@
-// src/components/ItemModal.tsx
 import React, { useEffect, useState } from "react";
 import { getItemDetail, deleteItem } from "../api/items";
 import { Button } from "./ui/Button";
@@ -10,7 +9,7 @@ interface Props {
     itemId: number | null;
     isOpen: boolean;
     onClose: () => void;
-    onItemUpdated?: () => void; // アイテム更新・削除後のリスト更新用
+    onItemUpdated?: () => void;
 }
 
 export default function ItemModal({ itemId, isOpen, onClose, onItemUpdated }: Props) {
@@ -18,7 +17,6 @@ export default function ItemModal({ itemId, isOpen, onClose, onItemUpdated }: Pr
     const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
-    // --- アイテム詳細取得 ---
     const fetchItem = async (id: number) => {
         setLoading(true);
         try {
@@ -36,16 +34,17 @@ export default function ItemModal({ itemId, isOpen, onClose, onItemUpdated }: Pr
         fetchItem(itemId);
     }, [itemId, isOpen]);
 
-    // --- 保存（編集フォーム） ---
     const handleSave = async (updated: Item) => {
         setIsEditing(false);
-        setItem(updated);
+
+        if (updated.item_id) {
+            await fetchItem(updated.item_id);
+        }
+
         if (onItemUpdated) onItemUpdated();
-        if (updated.item_id) await fetchItem(updated.item_id);
         toast.success("保存しました");
     };
 
-    // --- 削除処理 ---
     const handleDelete = async () => {
         if (!item?.item_id) return;
         if (!confirm("本当に削除しますか？")) return;
@@ -61,7 +60,6 @@ export default function ItemModal({ itemId, isOpen, onClose, onItemUpdated }: Pr
         }
     };
 
-    // --- モーダル背景クリック ---
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) onClose();
     };
@@ -74,6 +72,7 @@ export default function ItemModal({ itemId, isOpen, onClose, onItemUpdated }: Pr
             onClick={handleOverlayClick}
         >
             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg w-96 relative animate-fadeIn border border-gray-300 dark:border-white/20">
+
                 {/* 閉じるボタン */}
                 <button
                     className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white"
@@ -94,13 +93,24 @@ export default function ItemModal({ itemId, isOpen, onClose, onItemUpdated }: Pr
                                 className="w-full h-48 object-cover rounded-md mb-4 border border-gray-200 dark:border-white/20"
                             />
 
-                            {/* 名前 */}
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{item.name}</h2>
+                            {/* タイトル＋お気に入り */}
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                {item.name}
+                                <span className="text-yellow-400 text-2xl">
+                                    {item.is_favorite ? "⭐" : "☆"}
+                                </span>
+                            </h2>
 
                             {/* 詳細情報 */}
                             <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                <p>カテゴリ: {item.category + "(" + item.subcategory_name + ")" || "未設定"}</p>
-                                <p>使用回数: {item.wear_count ?? 0}</p>
+                                <p>カテゴリ: {item.category || "未設定"} [ {item.subcategories?.name || "未設定"} ]</p>
+                                <p>保存場所: {item.storages?.storage_location || "未設定"}</p>
+                                <p>シーズン: {item.season_tag.length > 0 ? item.season_tag.join(", ") : "未設定"}</p>
+                                <p>TPO: {item.tpo_tags.length > 0 ? item.tpo_tags.join(", ") : "未設定"}</p>
+                                <p>カラー: {item.color || "未設定"}</p>
+                                <p>素材: {item.material || "未設定"}</p>
+                                <p>柄: {item.pattern || "未設定"}</p>
+                                <p>使用回数: {item.wear_count ?? 0} 回</p>
                                 <p>最終使用日: {item.last_used_date || "未使用"}</p>
                             </div>
 
