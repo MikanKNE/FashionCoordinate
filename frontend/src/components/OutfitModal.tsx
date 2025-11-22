@@ -14,6 +14,10 @@ export default function OutfitModal({
     const modalRef = useRef<HTMLDivElement>(null)
     const [items, setItems] = useState<any[]>([]) // その日の服装アイテム
 
+    const today = new Date();
+    const selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const isFuture = selectedDate > today;
+
     // 編集ページ遷移
     const handleEdit = () => {
         const localDateStr = `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -91,12 +95,14 @@ export default function OutfitModal({
                 )}
 
                 <div className="flex justify-end mt-6 gap-2">
-                    <button
-                        className="px-4 py-2 bg-gray-300 rounded hover:bg-blue-600"
-                        onClick={handleEdit}
-                    >
-                        {items.length > 0 ? "編集" : "登録"}
-                    </button>
+                    {!isFuture && (
+                        <button
+                            className="px-4 py-2 bg-gray-300 rounded hover:bg-blue-600"
+                            onClick={handleEdit}
+                        >
+                            {items.length > 0 ? "編集" : "登録"}
+                        </button>
+                    )}
                 </div>
 
             </div>
