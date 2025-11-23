@@ -1,4 +1,4 @@
-// frontend/src/components/ItemForm.tsx
+// frontend/src/components/ItemUpdateModel.tsx
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import type { Item } from "../types";
@@ -14,7 +14,7 @@ interface ItemFormProps {
     onSave: (item: Item) => void;
 }
 
-export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
+export default function ItemUpdateModel({ item, onClose, onSave }: ItemFormProps) {
     const [name, setName] = useState(item?.name || "");
     const [category, setCategory] = useState(item?.category || "");
     const [subcategoryId, setSubcategoryId] = useState<number | null>(item?.subcategory_id || null);
@@ -124,7 +124,7 @@ export default function ItemForm({ item, onClose, onSave }: ItemFormProps) {
                 </button>
 
                 <h2 className="text-xl font-semibold mb-4">
-                    {item ? "アイテム編集" : "アイテム追加"}
+                    {item ? "アイテム編集" : "アイテム追加（簡易）"}
                 </h2>
 
                 <form onSubmit={handleSubmit}>

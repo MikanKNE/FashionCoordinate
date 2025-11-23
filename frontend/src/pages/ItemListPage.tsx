@@ -1,9 +1,10 @@
 // src/pages/ItemListPage.tsx
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { getItems } from "../api/items";
 import ItemList from "../components/ItemList";
 import ItemModal from "../components/ItemModal";
-import ItemForm from "../components/ItemForm";
+import ItemForm from "../components/ItemUpdateModel";
 import Filter from "../components/Filter";
 import Header from "../components/Header";
 import { Button } from "../components/ui/Button";
@@ -27,6 +28,8 @@ export default function ItemListPage() {
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
     const [editingItem, setEditingItem] = useState<Item | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
+
+    const navigate = useNavigate();
 
     const fetchItems = useCallback(async () => {
         setLoading(true);
@@ -104,11 +107,7 @@ export default function ItemListPage() {
             <h1 className="text-2xl font-bold">アイテム一覧</h1>
             <Button
                 className="max-w-xs"
-                onClick={() => {
-                setEditingItem(null);
-                setSelectedItemId(null);
-                setIsFormOpen(true);
-                }}
+                onClick={() => navigate("/items/new")}
             >
                 ＋ 追加
             </Button>
@@ -117,7 +116,7 @@ export default function ItemListPage() {
             {/* 左右レイアウト */}
             <div className="grid grid-cols-10 gap-6">
             {/* 左：Filter（幅 2） */}
-            <aside className="col-span-2 sticky top-6">
+            <aside className="col-span-2 sticky top-0 mt-6">
                 <Filter filters={filters} setFilters={setFilters} />
             </aside>
 

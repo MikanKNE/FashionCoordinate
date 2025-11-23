@@ -1,11 +1,12 @@
 // src/routes/AppRoutes.tsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ItemListPage from "../pages/ItemListPage";
-import ItemFormPage from "../pages/ItemFormPage";
+import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Login";
 import SignUpForm from "../pages/SignUpForm";
 import Coordination from "../pages/CoordinationAddPage";
-import Dashboard from "../pages/Dashboard";
+import ItemListPage from "../pages/ItemListPage";
+import ItemAddPage from "../pages/ItemAddPage";
+import ItemFormPage from "../pages/ItemFormPage";
 import OutfitFormPage from "../pages/OutfitFormPage";
 
 export default function AppRoutes() {
@@ -17,6 +18,7 @@ export default function AppRoutes() {
                 <Route path="/signup" element={<SignUpForm />} />
                 <Route path="/coordination" element={<Coordination />} />
                 <Route path="/item-list" element={<ItemListPage />} />
+                <Route path="/items/new" element={<ItemAddPage />} />
                 <Route path="/item-form" element={<ItemFormPage />} />
                 <Route path="/item-form/:id" element={<ItemFormPage />} />
                 <Route path="/outfit-form" element={<OutfitFormPage />} />

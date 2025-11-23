@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { getItemDetail, deleteItem } from "../api/items";
 import { Button } from "./ui/Button";
 import type { Item } from "../types";
-import ItemForm from "./ItemForm";
+import ItemForm from "./ItemUpdateModel";
 import toast from "react-hot-toast";
 
 interface Props {

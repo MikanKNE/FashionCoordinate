@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Item } from "../types";
 import { getItemDetail, createItem, updateItem } from "../api/items";
-import ItemForm from "../components/ItemForm";
+import ItemForm from "../components/ItemUpdateModel";
 import Header from "../components/Header";
 import toast from "react-hot-toast";
 
