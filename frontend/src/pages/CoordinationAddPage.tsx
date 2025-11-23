@@ -8,7 +8,7 @@ import Card from "../components/ui/Card";
 import ItemCard from "../components/ItemCard";
 import { getItems } from "../api/items";
 
-export default function CoordinationPage() {
+export default function CoordinationAddPage() {
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [allItems, setAllItems] = useState<Item[]>([]);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
