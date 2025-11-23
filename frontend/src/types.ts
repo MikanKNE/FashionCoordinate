@@ -33,6 +33,12 @@ export interface Subcategory {
     name: string;
 }
 
+export interface Storage {
+    storage_id: number;
+    user_id?: string;
+    storage_location: string;
+}
+
 export interface User {
     user_id: string;        // Supabase Auth UUID
     display_name: string;
