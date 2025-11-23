@@ -13,7 +13,7 @@ interface Props {
     onItemUpdated?: () => void;
 }
 
-export default function ItemModal({ itemId, isOpen, onClose, onItemUpdated }: Props) {
+export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated }: Props) {
     const [item, setItem] = useState<Item | null>(null);
     const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);

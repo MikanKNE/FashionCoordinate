@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getItems } from "../api/items";
 import ItemList from "../components/ItemList";
-import ItemModal from "../components/ItemModal";
+import ItemModal from "../components/ItemDetailModal";
 import ItemForm from "../components/ItemUpdateModel";
 import Filter from "../components/Filter";
 import Header from "../components/Header";
