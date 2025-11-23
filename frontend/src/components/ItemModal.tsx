@@ -1,9 +1,10 @@
+// frontend/src/components/ItemModal.tsx
 import React, { useEffect, useState } from "react";
 import { getItemDetail, deleteItem } from "../api/items";
 import { Button } from "./ui/Button";
-import toast from "react-hot-toast";
 import type { Item } from "../types";
 import ItemForm from "./ItemForm";
+import toast from "react-hot-toast";
 
 interface Props {
     itemId: number | null;
