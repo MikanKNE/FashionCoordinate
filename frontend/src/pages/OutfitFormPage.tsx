@@ -12,6 +12,8 @@ import type { Item, MultiFilters } from "../types";
 import { getItems } from "../api/items";
 import { Button } from "../components/ui/Button";
 
+import toast from "react-hot-toast";
+
 type SelectionMode = "items" | "coordination";
 
 interface Coordination {
@@ -129,8 +131,8 @@ export default function OutfitFormPage() {
     };
 
     const handleSave = async () => {
-        if (!date) return alert("日付が取得できません");
-        if (selectedItems.length === 0) return alert("アイテムを選択してください");
+        if (!date) return toast("日付が取得できません");
+        if (selectedItems.length === 0) return toast("アイテムを選択してください");
 
         try {
             await supabase.from("usage_history").delete().eq("used_date", date);
@@ -141,14 +143,14 @@ export default function OutfitFormPage() {
                 temperature: null,
             }));
             const { error } = await supabase.from("usage_history").insert(inserts);
-            if (error) alert("保存に失敗しました");
+            if (error) toast("保存に失敗しました");
             else {
-                alert("服装を登録しました");
+                toast("服装を登録しました");
                 navigate("/");
             }
         } catch (err) {
             console.error(err);
-            alert("保存中にエラーが発生しました");
+            toast("保存中にエラーが発生しました");
         }
     };
 
