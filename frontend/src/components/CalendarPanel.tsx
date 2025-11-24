@@ -1,6 +1,5 @@
 // frontend/src/components/CalendarPanel.tsx
 import { useState } from "react";
-import OutfitModal from "./OutfitModal";
 
 function formatDateLocal(d: Date) {
   const y = d.getFullYear();
@@ -19,7 +18,6 @@ export default function CalendarPanel({
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [showModal, setShowModal] = useState(false);
 
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
   const startDay = firstDayOfMonth.getDay();
@@ -37,7 +35,6 @@ export default function CalendarPanel({
   const handleClick = (d: Date) => {
     const iso = formatDateLocal(d);
     onSelectDate(iso);
-    setShowModal(true);
   };
 
   const changeMonth = (offset: number) => {
@@ -49,22 +46,29 @@ export default function CalendarPanel({
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow p-4">
       {/* ヘッダー */}
-      <div className="flex justify-between items-center mb-3">
-        <button
-          className="px-3 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
-          onClick={() => changeMonth(-1)}
-        >
-          ◁
-        </button>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {currentYear}年 {currentMonth + 1}月
-        </h2>
-        <button
-          className="px-3 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
-          onClick={() => changeMonth(1)}
-        >
-          ▷
-        </button>
+      <div className="relative mb-3 h-8">
+
+        {/* 中央：◁ 日付 ▷ */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2">
+          <button
+            className="px-3 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
+            onClick={() => changeMonth(-1)}
+          >
+            ◁
+          </button>
+
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {currentYear}年 {currentMonth + 1}月
+          </h2>
+
+          <button
+            className="px-3 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
+            onClick={() => changeMonth(1)}
+          >
+            ▷
+          </button>
+        </div>
+
       </div>
 
       {/* 曜日ヘッダー */}
@@ -108,10 +112,6 @@ export default function CalendarPanel({
         })}
       </div>
 
-      {/* モーダル */}
-      {showModal && selectedDate && (
-        <OutfitModal date={new Date(selectedDate + "T00:00")} onClose={() => setShowModal(false)} />
-      )}
     </div>
   );
 }

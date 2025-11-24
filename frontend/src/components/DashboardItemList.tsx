@@ -32,14 +32,14 @@ export default function DashboardItemList() {
                     disabled={currentIndex === 0}
                     className="px-4 py-2 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
                 >
-                    前へ
+                    ◁
                 </button>
                 <button
                     onClick={handleNext}
                     disabled={currentIndex === items.length - 1}
                     className="px-4 py-2 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
                 >
-                    次へ
+                    ▷
                 </button>
             </div>
             <p className="text-sm text-gray-500 mt-2">{currentIndex + 1} / {items.length}</p>
