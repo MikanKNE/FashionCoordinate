@@ -3,7 +3,7 @@ from django.urls import path
 from .views import items_list_create, item_detail
 from .views.coordinations import coordinations_list_create, coordination_detail
 from .views.usage_history import usage_list_create, usage_detail, usage_by_date
-from .views.coordination_items import coordination_items_manage
+from .views.coordination_items import coordination_items_manage, get_all_coordination_items
 from .views.subcategories import subcategories_list
 from .views.storages import storages_list_create, storage_detail
 from .views.users import users_list_create, user_detail
@@ -25,6 +25,7 @@ urlpatterns = [
 
     # coordination_items
     path("coordination_items/", coordination_items_manage),
+    path("coordination_items/all/", get_all_coordination_items),
 
     # subcategories
     path("subcategories/", subcategories_list),

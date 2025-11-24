@@ -24,7 +24,14 @@ export interface Item {
 export type Coordination = {
     coordination_id: number
     name: string
+    is_favorite: boolean
     items: Item[]
+}
+
+export interface CoordinationItem {
+    coordination_id: number;
+    item_id: number;
+    item?: Item;
 }
 
 export interface Subcategory {

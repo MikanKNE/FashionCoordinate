@@ -1,63 +1,135 @@
-// frontend/src/pages/CoordinationListPage.tsx
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/CoordinationListPage.tsx
+import { useEffect, useState, useCallback } from "react";
 import Header from "../components/Header";
 import Card from "../components/ui/Card";
-import CoordinationDetailModal from "../components/CoordinationDetailModal";
+import { Button } from "../components/ui/Button";
+import ItemCard from "../components/ItemCard";
+import toast from "react-hot-toast";
 import { getCoordinations } from "../api/coordinations";
+import { getAllCoordinationItems } from "../api/coordination_items";
+import { getItems } from "../api/items";
+import CoordinationDetailModal from "../components/CoordinationDetailModal";
+import type { Coordination, Item, CoordinationItem } from "../types";
 
 export default function CoordinationListPage() {
-    const [coordinations, setCoordinations] = useState<any[]>([]);
-    const [selectedCoordination, setSelectedCoordination] = useState<any | null>(null);
-    const navigate = useNavigate();
+    const [coordinations, setCoordinations] = useState<Coordination[]>([]);
+    const [coordinationItems, setCoordinationItems] = useState<CoordinationItem[]>([]);
+    const [selected, setSelected] = useState<Coordination | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const load = async () => {
-            const result = await getCoordinations();
-            // 必ず配列だけを state に入れる
-            setCoordinations(result.data || []);
-        };
-        load();
+    const fetchList = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            // コーディネーション一覧取得
+            const res = await getCoordinations();
+            const list = res?.data ?? [];
+            setCoordinations(list);
+
+            // コーディネーションアイテム中間テーブル取得
+            const ciRes = await getAllCoordinationItems();
+            const ciListRaw = ciRes?.data ?? [];
+
+            // アイテム一覧取得
+            const itemsRes = await getItems();
+            const itemsMap = new Map<number, Item>();
+            itemsRes.data.forEach((item: Item) => itemsMap.set(item.item_id, item));
+
+            // ciList に item を紐付け
+            const ciList: CoordinationItem[] = ciListRaw.map((ci: { coordination_id: number; item_id: number }) => ({
+                coordination_id: ci.coordination_id,
+                item_id: ci.item_id,
+                item: itemsMap.get(ci.item_id),
+            }));
+
+            setCoordinationItems(ciList);
+        } catch (e) {
+            console.error(e);
+            setError("コーディネーション一覧の取得に失敗しました");
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
+    useEffect(() => {
+        fetchList();
+    }, [fetchList]);
+
+    // コーディネーションごとに紐づくアイテム配列を取得（最大2個）
+    const getItemsForCoordination = (coordination_id: number): Item[] => {
+        const related = coordinationItems.filter(ci => ci.coordination_id === coordination_id);
+        return related.map(ci => ci.item).filter(Boolean) as Item[];
+    };
+
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-slate-900">
+        <>
             <Header />
 
-            <div className="max-w-3xl mx-auto p-4">
-                <div className="flex justify-end mb-4">
-                    <button
-                        onClick={() => navigate("/coordination/new")}
-                        className="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700"
-                    >
-                        新規作成
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {coordinations.map((c) => (
-                        <Card
-                            key={c.coordination_id} // ← 修正
-                            className="cursor-pointer hover:shadow-lg transition"
-                            onClick={() => setSelectedCoordination(c)}
+            <div className="min-h-screen p-6 text-slate-800 dark:text-slate-100">
+                <div className="max-w-6xl mx-auto">
+                    {/* ヘッダー＆新規作成ボタン */}
+                    <div className="flex items-center justify-between mb-4">
+                        <h1 className="text-2xl font-bold">コーディネーション一覧</h1>
+                        <Button
+                            className="max-w-xs"
+                            onClick={() => (window.location.href = "/coordination/new")}
                         >
-                            <h2 className="text-lg font-semibold mb-1">
-                                {c.name || "無題コーディネーション"}
-                            </h2>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                作成日: {new Date(c.created_at).toLocaleDateString()}
-                            </p>
-                        </Card>
-                    ))}
-                </div>
-            </div>
+                            ＋ 作成
+                        </Button>
+                    </div>
 
-            {selectedCoordination && (
-                <CoordinationDetailModal
-                    coordination={selectedCoordination}
-                    onClose={() => setSelectedCoordination(null)}
-                />
-            )}
-        </div>
+                    {/* 読み込み中・エラー表示 */}
+                    {loading && <p>読み込み中...</p>}
+                    {error && <p className="text-red-500">{error}</p>}
+
+                    {/* コーディネーションカード */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {coordinations.map(c => {
+                            const items = getItemsForCoordination(c.coordination_id).slice(0, 2); // 最大2個
+                            return (
+                                <Card
+                                    key={c.coordination_id}
+                                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition"
+                                    onClick={() => setSelected(c)}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-lg font-semibold">{c.name}</div>
+                                        <div className="text-xl text-yellow-500">
+                                            {c.is_favorite ? "★" : "☆"}
+                                        </div>
+                                    </div>
+
+                                    {/* アイテムカード表示（最大2個） */}
+                                    <div className="mt-2 flex gap-2">
+                                        {items.length ? (
+                                            items.map((item: Item) => (
+                                                <ItemCard
+                                                    key={item.item_id}
+                                                    item={item}
+                                                    compact={true} // 小型表示
+                                                />
+                                            ))
+                                        ) : (
+                                            <div className="text-gray-400">アイテムなし</div>
+                                        )}
+                                    </div>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* モーダル */}
+                {selected && (
+                    <CoordinationDetailModal
+                        coordination={selected}
+                        isOpen={!!selected}
+                        onClose={() => setSelected(null)}
+                    />
+                )}
+            </div>
+        </>
     );
 }
