@@ -45,7 +45,7 @@ export default function Header() {
                 <Link to="/item-list" style={{ color: "#fff", textDecoration: "none" }}>
                     アイテム一覧
                 </Link>
-                <Link to="/coordination/1" style={{ color: "#fff", textDecoration: "none" }}>
+                <Link to="/coordination-list" style={{ color: "#fff", textDecoration: "none" }}>
                     コーディネート
                 </Link>
 
@@ -53,10 +53,14 @@ export default function Header() {
                     <>
                         {currentUser ? (
                             <>
-                                {/* display_name を表示 */}
-                                <span style={{ color: "#ccc" }}>
-                                    {currentUser.display_name + "様" || currentUser.email + "様"}
-                                </span>
+                                {/* display_name をリンク化 */}
+                                <Link
+                                    to="/user-profile"
+                                    style={{ color: "#ccc", textDecoration: "underline" }}
+                                >
+                                    {currentUser.display_name || currentUser.email}様
+                                </Link>
+
                                 <button
                                     onClick={signOut}
                                     style={{
@@ -73,9 +77,7 @@ export default function Header() {
                             </>
                         ) : (
                             <>
-                                <span style={{ color: "#ccc" }}>
-                                    ゲスト様
-                                </span>
+                                <span style={{ color: "#ccc" }}>ゲスト様</span>
                                 <Link to="/login" style={{ color: "#fff", textDecoration: "none" }}>
                                     ログイン
                                 </Link>

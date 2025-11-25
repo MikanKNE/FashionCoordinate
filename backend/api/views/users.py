@@ -50,3 +50,36 @@ def user_detail(request, user_id):
 
     except Exception as e:
         return Response({"status": "error", "message": str(e)}, status=500)
+
+# ====================================================
+# メール更新
+# ====================================================
+@api_view(['PUT'])
+def user_update_email(request, user_id):
+    try:
+        email = request.data.get("email")
+        if not email:
+            return Response({"status": "error", "message": "email is required"}, status=400)
+
+        response = supabase.table("users").update({"email": email}).eq("user_id", user_id).execute()
+        return Response({"status": "success", "data": response.data})
+
+    except Exception as e:
+        return Response({"status": "error", "message": str(e)}, status=500)
+
+
+# ====================================================
+# パスワード更新
+# ====================================================
+@api_view(['PUT'])
+def user_update_password(request, user_id):
+    try:
+        password = request.data.get("password")
+        if not password:
+            return Response({"status": "error", "message": "password is required"}, status=400)
+
+        response = supabase.table("users").update({"password": password}).eq("user_id", user_id).execute()
+        return Response({"status": "success", "data": response.data})
+
+    except Exception as e:
+        return Response({"status": "error", "message": str(e)}, status=500)

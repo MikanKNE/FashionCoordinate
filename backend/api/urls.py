@@ -3,9 +3,10 @@ from django.urls import path
 from .views import items_list_create, item_detail
 from .views.coordinations import coordinations_list_create, coordination_detail
 from .views.usage_history import usage_list_create, usage_detail, usage_by_date
-from .views.coordination_items import coordination_items_manage
+from .views.coordination_items import coordination_items_manage, get_all_coordination_items
 from .views.subcategories import subcategories_list
-from .views.users import users_list_create, user_detail
+from .views.storages import storages_list_create, storage_detail
+from .views.users import users_list_create, user_detail, user_update_email, user_update_password
 from .views.protected_view import protected_view
 
 
@@ -24,13 +25,20 @@ urlpatterns = [
 
     # coordination_items
     path("coordination_items/", coordination_items_manage),
+    path("coordination_items/all/", get_all_coordination_items),
 
     # subcategories
     path("subcategories/", subcategories_list),
 
+    # storages
+    path("storages/", storages_list_create,),
+    path("storages/<int:storage_id>/", storage_detail,),
+
     # users
     path("users/", users_list_create),
     path("users/<uuid:user_id>/", user_detail),
+    path("users/<uuid:user_id>/email/", user_update_email),
+    path("users/<uuid:user_id>/password/", user_update_password),
 
     # protected view
     path("protected/", protected_view),

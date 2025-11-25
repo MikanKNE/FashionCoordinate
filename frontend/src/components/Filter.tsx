@@ -1,4 +1,6 @@
+// frontend/src/components/Filter.tsx
 import React, { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import type { MultiFilters, AccordionState, Subcategory, Item } from "../types";
 import Card from "./ui/Card";
 import { getItems } from "../api/items";
@@ -45,7 +47,7 @@ export default function Filter({ filters, setFilters }: FilterProps) {
                 setAllItems(itemsArr);
             } catch (e) {
                 console.error(e);
-                setError("アイテム取得に失敗しました");
+                toast.error("アイテム取得に失敗しました");
             } finally {
                 setLoading(false);
             }

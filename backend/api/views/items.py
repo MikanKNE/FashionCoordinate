@@ -22,7 +22,12 @@ def items_list_create(request):
 
         # ---------------- GET ----------------
         if request.method == 'GET':
-            response = supabase.table("items").select("*").eq("user_id", user_id).execute()
+            response = (
+                supabase.table("items")
+                .select("*, subcategories:subcategory_id(name), storages:storage_id(storage_location)")
+                .eq("user_id", user_id)
+                .execute()
+            )
             return Response({"status": "success", "data": response.data})
 
         # ---------------- POST ----------------
@@ -57,7 +62,13 @@ def item_detail(request, item_id):
             return Response({"status": "error", "message": "Invalid token"}, status=401)
         user_id = user.user.id
 
-        existing = supabase.table("items").select("*").eq("item_id", item_id).eq("user_id", user_id).execute()
+        existing = (
+            supabase.table("items")
+            .select("*, subcategories:subcategory_id(name), storages:storage_id(storage_location)")
+            .eq("item_id", item_id)
+            .eq("user_id", user_id)
+            .execute()
+        )
         if not existing.data:
             return Response({"status": "error", "message": "Item not found"}, status=404)
 

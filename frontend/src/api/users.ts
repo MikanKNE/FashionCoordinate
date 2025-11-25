@@ -46,6 +46,32 @@ export async function updateUser(user_id: string, user: any) {
 }
 
 // ===============================
+// メール更新
+// ===============================
+export async function updateEmail(user_id: string, email: string) {
+    const res = await fetch(`${API_BASE}/users/${user_id}/email/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+    });
+    if (!res.ok) throw new Error("メール更新に失敗しました");
+    return res.json();
+}
+
+// ===============================
+// パスワード更新
+// ===============================
+export async function updatePassword(user_id: string, password: string) {
+    const res = await fetch(`${API_BASE}/users/${user_id}/password/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+    });
+    if (!res.ok) throw new Error("パスワード更新に失敗しました");
+    return res.json();
+}
+
+// ===============================
 // ユーザ削除
 // ===============================
 export async function deleteUser(user_id: string) {

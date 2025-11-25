@@ -4,8 +4,11 @@ export interface Item {
     user_id?: string;
     name: string;
     storage_id?: number;
+    storages?: { storage_location: string };
+    storage_name?: string;
     category: string;
     subcategory_id?: number;
+    subcategories?: { name: string };
     subcategory_name?: string;
     image_url?: string;
     season_tag: string[];
@@ -18,16 +21,34 @@ export interface Item {
     last_used_date?: string;
 }
 
+export type CategoryType = "服" | "靴" | "アクセサリー" | "帽子" | "バッグ";
+export type SeasonType = "春" | "夏" | "秋" | "冬";
+export type TpoType = "フォーマル" | "カジュアル" | "ビジネス" | "ルームウェア" | "その他";
+
+
 export type Coordination = {
     coordination_id: number
     name: string
+    is_favorite: boolean
     items: Item[]
+}
+
+export interface CoordinationItem {
+    coordination_id: number;
+    item_id: number;
+    item?: Item;
 }
 
 export interface Subcategory {
     subcategory_id: number;
     category: string;
     name: string;
+}
+
+export interface Storage {
+    storage_id: number;
+    user_id?: string;
+    storage_location: string;
 }
 
 export interface User {

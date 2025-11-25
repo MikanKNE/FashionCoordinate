@@ -1,28 +1,40 @@
 // src/pages/ItemListPage.tsx
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { getItems } from "../api/items";
 import ItemList from "../components/ItemList";
-import ItemModal from "../components/ItemModal";
-import ItemForm from "../components/ItemForm";
+import ItemDetailModal from "../components/ItemDetailModal";
+import Filter from "../components/Filter";
 import Header from "../components/Header";
-import type { Item } from "../types";
+import { Button } from "../components/ui/Button";
+import type { MultiFilters, Item } from "../types";
 
 export default function ItemListPage() {
     const [items, setItems] = useState<Item[]>([]);
+    const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+    const [filters, setFilters] = useState<MultiFilters>({
+        subcategory_ids: [],
+        color: [],
+        material: [],
+        pattern: [],
+        season_tag: [],
+        tpo_tags: [],
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-    const [editingItem, setEditingItem] = useState<Item | null>(null);
-    const [isFormOpen, setIsFormOpen] = useState(false);
 
-    // 最新アイテム再取得
+    const navigate = useNavigate();
+
     const fetchItems = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             const res = await getItems();
-            setItems(res.data || []);
+            const dataArr = Array.isArray(res) ? res : res?.data || [];
+            setItems(dataArr);
+            setFilteredItems(dataArr);
         } catch (err: any) {
             console.error(err);
             setError("アイテム取得失敗");
@@ -35,24 +47,33 @@ export default function ItemListPage() {
         fetchItems();
     }, [fetchItems]);
 
-    const handleCloseModal = () => {
-        setSelectedItemId(null);
-        setEditingItem(null);
-        setIsFormOpen(false);
-    };
+    // ------------------------------
+    // フィルター適用
+    // ------------------------------
+    useEffect(() => {
+        const filtered = items.filter(item => {
+            const subcategoryMatch =
+                filters.subcategory_ids.length === 0 ||
+                (item.subcategory_id !== undefined && filters.subcategory_ids.includes(item.subcategory_id));
+            const colorMatch =
+                filters.color.length === 0 || (item.color && filters.color.includes(item.color));
+            const materialMatch =
+                filters.material.length === 0 || (item.material && filters.material.includes(item.material));
+            const patternMatch =
+                filters.pattern.length === 0 || (item.pattern && filters.pattern.includes(item.pattern));
+            const seasonMatch =
+                filters.season_tag.length === 0 ||
+                (item.season_tag?.some(s => filters.season_tag.includes(s)) ?? false);
+            const tpoMatch =
+                filters.tpo_tags.length === 0 ||
+                (item.tpo_tags?.some(t => filters.tpo_tags.includes(t)) ?? false);
 
-    const handleEdit = (item: Item) => {
-        setEditingItem(item);
-        setIsFormOpen(true);
-    };
+            return subcategoryMatch && colorMatch && materialMatch && patternMatch && seasonMatch && tpoMatch;
+        });
 
-    // 保存後にリストをAPIで最新化
-    const handleSave = async (item: Item) => {
-        await fetchItems();
-        handleCloseModal();
-    };
+        setFilteredItems(filtered);
+    }, [filters, items]);
 
-    // モーダル（編集モード）内からの再取得対応
     const handleItemUpdated = async () => {
         await fetchItems();
     };
@@ -60,50 +81,48 @@ export default function ItemListPage() {
     return (
         <>
             <Header />
-            <div className="flex items-center mt-4 mb-4">
-                <h1 className="text-2xl font-bold">アイテム一覧</h1>
-                <button
-                    className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    onClick={() => {
-                        setEditingItem(null);
-                        setSelectedItemId(null);
-                        setIsFormOpen(true);
-                    }}
-                >
-                    ＋ 追加
-                </button>
+            <div className="min-h-screen p-6 text-slate-800 dark:text-slate-100">
+                <div className="max-w-6xl mx-auto">
+                    <div className="flex items-center justify-between mb-4">
+                        <h1 className="text-2xl font-bold">アイテム一覧</h1>
+                        <Button
+                            className="max-w-xs"
+                            onClick={() => navigate("/items/new")}
+                        >
+                            ＋ 追加
+                        </Button>
+                    </div>
+
+                    {/* 左右レイアウト */}
+                    <div className="grid grid-cols-10 gap-6">
+                        {/* 左：Filter */}
+                        <aside className="col-span-2 sticky top-0 mt-6">
+                            <Filter filters={filters} setFilters={setFilters} />
+                        </aside>
+
+                        {/* 右：ItemList */}
+                        <main className="col-span-8">
+                            {loading && <p>読み込み中...</p>}
+                            {error && <p className="text-red-500">{error}</p>}
+
+                            <ItemList
+                                items={filteredItems}
+                                onItemClick={(id) => setSelectedItemId(id)}
+                            />
+                        </main>
+                    </div>
+
+                    {/* モーダル：詳細表示 */}
+                    {selectedItemId && (
+                        <ItemDetailModal
+                            itemId={selectedItemId}
+                            isOpen={!!selectedItemId}
+                            onClose={() => setSelectedItemId(null)}
+                            onItemUpdated={handleItemUpdated}
+                        />
+                    )}
+                </div>
             </div>
-
-
-
-            {loading && <p>読み込み中...</p>}
-            {error && <p className="text-red-500">{error}</p>}
-
-            <ItemList
-                items={items}
-                onItemClick={(id) => {
-                    setEditingItem(null);
-                    setIsFormOpen(false);
-                    setSelectedItemId(id);
-                }}
-            />
-
-            {selectedItemId && !isFormOpen && (
-                <ItemModal
-                    itemId={selectedItemId}
-                    isOpen={!!selectedItemId}
-                    onClose={() => setSelectedItemId(null)}
-                    onItemUpdated={handleItemUpdated}
-                />
-            )}
-
-            {isFormOpen && (
-                <ItemForm
-                    item={editingItem || undefined}
-                    onClose={handleCloseModal}
-                    onSave={handleSave}
-                />
-            )}
         </>
     );
 }

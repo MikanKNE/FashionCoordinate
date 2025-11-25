@@ -5,6 +5,25 @@ from ..supabase_client import supabase
 import traceback
 
 # ====================================================
+# 全コーディネーションアイテム取得
+# ====================================================
+@api_view(['GET'])
+def get_all_coordination_items(request):
+    """
+    例：
+    GET /api/coordination_items/all/
+    全ての coordination_items を返す
+    """
+    try:
+        response = supabase.table("coordination_items").select("*").execute()
+        return Response({"status": "success", "data": response.data})
+    except Exception as e:
+        print("----- ERROR OCCURRED IN get_all_coordination_items -----")
+        traceback.print_exc()
+        return Response({"status": "error", "message": str(e)}, status=500)
+
+
+# ====================================================
 # コーディネーションアイテム追加 / 削除
 # ====================================================
 @api_view(['POST', 'DELETE'])

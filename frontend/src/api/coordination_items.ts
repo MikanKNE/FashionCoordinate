@@ -39,3 +39,12 @@ export async function getItemsOfCoordination(coordination_id: number) {
     // 返ってくる data.data.items がアイテム配列として返る想定
     return data;
 }
+
+/**
+ * コーディネーションとアイテムの中間テーブルを全件取得
+ */
+export async function getAllCoordinationItems() {
+    const res = await fetch(`${API_BASE}/coordination_items/all/`);
+    const data = await res.json();
+    return data;
+}
