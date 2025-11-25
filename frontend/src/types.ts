@@ -21,6 +21,11 @@ export interface Item {
     last_used_date?: string;
 }
 
+export type CategoryType = "服" | "靴" | "アクセサリー" | "帽子" | "バッグ";
+export type SeasonType = "春" | "夏" | "秋" | "冬";
+export type TpoType = "フォーマル" | "カジュアル" | "ビジネス" | "ルームウェア" | "その他";
+
+
 export type Coordination = {
     coordination_id: number
     name: string

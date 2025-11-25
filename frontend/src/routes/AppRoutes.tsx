@@ -8,7 +8,7 @@ import Coordination from "../pages/CoordinationAddPage";
 import CoordinationListPage from "../pages/CoordinationListPage";
 import ItemListPage from "../pages/ItemListPage";
 import ItemAddPage from "../pages/ItemAddPage";
-import ItemFormPage from "../pages/ItemFormPage";
+import ItemEditPage from "../pages/ItemEditPage";
 import OutfitFormPage from "../pages/OutfitFormPage";
 
 export default function AppRoutes() {
@@ -23,8 +23,7 @@ export default function AppRoutes() {
                 <Route path="/coordination/new" element={<Coordination />} />
                 <Route path="/item-list" element={<ItemListPage />} />
                 <Route path="/items/new" element={<ItemAddPage />} />
-                <Route path="/item-form" element={<ItemFormPage />} />
-                <Route path="/item-form/:id" element={<ItemFormPage />} />
+                <Route path="/items/:id/edit" element={<ItemEditPage />} />
                 <Route path="/outfit-form" element={<OutfitFormPage />} />
             </Routes>
         </BrowserRouter>
