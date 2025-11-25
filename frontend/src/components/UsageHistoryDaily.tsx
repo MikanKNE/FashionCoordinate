@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { getUsageByDate } from "../api/usage_history";
 import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/Button";
 
 function formatDateLocal(d: Date) {
     const y = d.getFullYear();
@@ -55,16 +56,16 @@ export default function UsageHistoryDaily({
                 {/* 中央：日付と ◁▷ */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">
                     <button
-                        className="px-2 py-1 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
+                        className="px-2 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
                         onClick={() => moveDate(-1)}
                     >
                         ◁
                     </button>
 
-                    <h2 className="text-lg font-semibold">{date}</h2>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{date}</h2>
 
                     <button
-                        className="px-2 py-1 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
+                        className="px-2 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
                         onClick={() => moveDate(1)}
                     >
                         ▷
@@ -73,12 +74,12 @@ export default function UsageHistoryDaily({
 
                 {/* 右端：登録 / 編集ボタン */}
                 <div className="ml-auto">
-                    <button
+                    <Button
                         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                         onClick={handleEdit}
                     >
                         {items.length > 0 ? "編集" : "登録"}
-                    </button>
+                    </Button>
                 </div>
             </div>
 

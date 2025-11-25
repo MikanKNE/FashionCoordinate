@@ -25,19 +25,19 @@ export default function DashboardItemList() {
     return (
         <div className="flex flex-col items-center">
             <h2 className="text-lg font-semibold mb-3">アイテム一覧</h2>
-            <ItemCard item={currentItem} />
+            <ItemCard item={currentItem} className="w-64"/>
             <div className="flex mt-4 gap-2">
                 <button
                     onClick={handlePrev}
                     disabled={currentIndex === 0}
-                    className="px-4 py-2 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
+                    className="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
                 >
                     ◁
                 </button>
                 <button
                     onClick={handleNext}
                     disabled={currentIndex === items.length - 1}
-                    className="px-4 py-2 rounded bg-gray-200 text-gray-700 disabled:opacity-50"
+                    className="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
                 >
                     ▷
                 </button>
