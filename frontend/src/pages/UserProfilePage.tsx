@@ -196,16 +196,20 @@ export default function UserProfilePage() {
                 value={password}
                 placeholder="変更する場合のみ入力"
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border rounded px-3 py-2"
+                autoComplete="new-password"
+                className="w-full border rounded px-3 py-2 bg-white dark:bg-slate-800"
               />
+
               <label className="block font-medium">確認用パスワード</label>
               <input
                 type="password"
                 value={passwordConfirm}
                 placeholder="もう一度入力"
                 onChange={(e) => setPasswordConfirm(e.target.value)}
-                className="w-full border rounded px-3 py-2"
+                autoComplete="new-password"
+                className="w-full border rounded px-3 py-2 bg-white dark:bg-slate-800"
               />
+
               <Button variant="primary" onClick={handleUpdatePassword}>
                 パスワードを更新
               </Button>
