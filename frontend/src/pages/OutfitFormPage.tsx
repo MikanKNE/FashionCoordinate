@@ -173,7 +173,7 @@ export default function OutfitFormPage() {
                             className={`px-3 py-1 border rounded ${mode === "coordination" ? "bg-blue-500 text-white" : ""}`}
                             onClick={() => setMode("coordination")}
                         >
-                            コーデから選択
+                            コーディネートから選択
                         </button>
                     </div>
 
@@ -188,7 +188,7 @@ export default function OutfitFormPage() {
                                     {coordinations.map((c) => (
                                         <div
                                             key={c.coordination_id}
-                                            className="border rounded p-2 mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            className="border border-gray-300 rounded p-2 mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                                             onClick={() => setSelectedItems(c.items)}
                                         >
                                             <p className="text-sm font-medium mb-1">{c.name}</p>

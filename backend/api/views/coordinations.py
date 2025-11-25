@@ -27,38 +27,42 @@ def coordinations_list_create(request):
 
     if request.method == 'GET':
         try:
-            # ユーザーごとのコーディネーションのみ取得
-            response = supabase.table("coordinations").select("*").eq("user_id", user_id).execute()
-            return Response({"status": "success", "data": response.data})
+            # coordinations + coordination_items + items をネストして取得
+            response = supabase.table("coordinations").select("""
+                coordination_id,
+                name,
+                is_favorite,
+                coordination_items (
+                    item_id,
+                    items (
+                        item_id,
+                        name,
+                        image_url
+                    )
+                )
+            """).eq("user_id", user_id).order("coordination_id", desc=True).execute()
+
+            data = response.data
+
+            # フロント用に整形
+            coordinations = []
+            for c in data:
+                items = []
+                for ci in c.get("coordination_items", []):
+                    if ci.get("items"):
+                        items.append(ci["items"])
+
+                coordinations.append({
+                    "id": c["coordination_id"],
+                    "name": c["name"],
+                    "is_favorite": c.get("is_favorite", False),
+                    "items": items,
+                })
+
+            return Response({"status": "success", "data": coordinations})
+
         except Exception as e:
             print("GET /coordinations エラー:", e)
-            traceback.print_exc()
-            return Response({"status": "error", "message": str(e)}, status=500)
-
-    elif request.method == 'POST':
-        data = request.data.copy()
-        data.setdefault("is_favorite", False)
-        items = data.pop("items", [])
-
-        if not isinstance(items, list):
-            return Response({"status": "error", "message": "items は配列である必要がある"}, status=400)
-
-        try:
-            data["user_id"] = user_id  # ユーザーIDをセット
-            inserted = supabase.table("coordinations").insert(data).execute()
-            if not inserted.data:
-                return Response({"status": "error", "message": "Failed to create coordination"}, status=500)
-
-            coordination_id = inserted.data[0]["coordination_id"]
-
-            if items:
-                link_rows = [{"coordination_id": coordination_id, "item_id": item_id} for item_id in items]
-                supabase.table("coordination_items").insert(link_rows).execute()
-
-            return Response({"status": "success", "coordination_id": coordination_id, "data": inserted.data})
-
-        except Exception as e:
-            print("POST /coordinations エラー:", e)
             traceback.print_exc()
             return Response({"status": "error", "message": str(e)}, status=500)
 

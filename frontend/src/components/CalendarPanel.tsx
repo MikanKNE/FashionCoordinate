@@ -49,7 +49,7 @@ export default function CalendarPanel({
       <div className="relative mb-3 h-8">
 
         {/* 中央：◁ 日付 ▷ */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2">
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">
           <button
             className="px-3 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
             onClick={() => changeMonth(-1)}
@@ -68,7 +68,6 @@ export default function CalendarPanel({
             ▷
           </button>
         </div>
-
       </div>
 
       {/* 曜日ヘッダー */}

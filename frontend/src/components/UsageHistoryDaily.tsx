@@ -49,12 +49,11 @@ export default function UsageHistoryDaily({
     };
 
     return (
-        <div className="p-4 bg-white rounded-xl shadow">
+        <div className="space-y-4">
             {/* ヘッダー */}
             <div className="relative flex items-center mb-4">
-
                 {/* 中央：日付と ◁▷ */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2">
+                <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">
                     <button
                         className="px-2 py-1 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
                         onClick={() => moveDate(-1)}
@@ -81,7 +80,6 @@ export default function UsageHistoryDaily({
                         {items.length > 0 ? "編集" : "登録"}
                     </button>
                 </div>
-
             </div>
 
             {/* 内容 */}
@@ -90,30 +88,30 @@ export default function UsageHistoryDaily({
                 <p className="text-gray-500">この日の服装記録はありません</p>
             )}
 
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
                 {items.map((h) => (
                     <div
                         key={h.history_id}
-                        className="border p-3 rounded-lg flex items-center gap-4"
+                        className="relative rounded-2xl shadow-md bg-white dark:bg-gray-800 cursor-pointer transition-all hover:scale-[1.03] hover:shadow-lg p-3 flex items-center gap-4"
                     >
+                        {/* 左：画像 */}
                         {h.items?.image_url ? (
                             <img
                                 src={h.items.image_url}
                                 alt={h.items.name}
-                                className="w-16 h-16 rounded object-cover"
+                                className="w-16 h-16 rounded-xl object-cover"
                             />
                         ) : (
-                            <div className="w-16 h-16 bg-gray-200 rounded" />
+                            <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center text-gray-400 text-xs">
+                                No Image
+                            </div>
                         )}
 
-                        <div>
+                        {/* 右：アイテム名・天気・気温 */}
+                        <div className="flex flex-col items-start">
                             <p className="font-semibold">{h.items?.name}</p>
-                            <p className="text-sm text-gray-600">
-                                天気：{h.weather ?? "-"}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                                気温：{h.temperature ?? "-"}℃
-                            </p>
+                            <p className="text-sm text-gray-600">天気：{h.weather ?? "-"}</p>
+                            <p className="text-sm text-gray-600">気温：{h.temperature ?? "-"}℃</p>
                         </div>
                     </div>
                 ))}
