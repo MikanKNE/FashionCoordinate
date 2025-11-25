@@ -6,7 +6,7 @@ from .views.usage_history import usage_list_create, usage_detail, usage_by_date
 from .views.coordination_items import coordination_items_manage, get_all_coordination_items
 from .views.subcategories import subcategories_list
 from .views.storages import storages_list_create, storage_detail
-from .views.users import users_list_create, user_detail
+from .views.users import users_list_create, user_detail, user_update_email, user_update_password
 from .views.protected_view import protected_view
 
 
@@ -37,6 +37,8 @@ urlpatterns = [
     # users
     path("users/", users_list_create),
     path("users/<uuid:user_id>/", user_detail),
+    path("users/<uuid:user_id>/email/", user_update_email),
+    path("users/<uuid:user_id>/password/", user_update_password),
 
     # protected view
     path("protected/", protected_view),

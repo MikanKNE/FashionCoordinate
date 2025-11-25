@@ -7,6 +7,8 @@ interface ItemCardProps {
     onClick?: () => void;
     selected?: boolean;
     compact?: boolean;
+    disableHover?: boolean;
+    className?: string;
 }
 
 const ItemCard: React.FC<ItemCardProps> = ({
@@ -14,18 +16,21 @@ const ItemCard: React.FC<ItemCardProps> = ({
     onClick,
     selected = false,
     compact = false,
+    disableHover = false,
+    className = "",
 }) => {
     return (
         <div
             onClick={onClick}
             className={`relative rounded-2xl shadow-md transition-all cursor-pointer 
-                hover:scale-[1.03] hover:shadow-lg
+                ${disableHover ? "" : "hover:scale-[1.03] hover:shadow-lg"}
                 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100
                 ${selected
                     ? "ring-2 ring-blue-400 dark:ring-blue-300"
                     : "border border-gray-200 dark:border-gray-500/70"
                 }
                 ${compact ? "p-2" : "p-3"}
+                ${className ?? ""}
             `}
             style={{
                 display: "flex",

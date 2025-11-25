@@ -1,7 +1,8 @@
+// frontend/src/components/CoordinationForm.tsx
 import type { FC } from "react";
-import type { Item } from "../types";
-import { useState } from "react";
-import { createCoordination } from "../api/coordinations";
+import type { Item, Coordination } from "../types";
+import { useState, useEffect } from "react";
+import { createCoordination, updateCoordination } from "../api/coordinations";
 import { Button } from "./ui/Button";
 
 export interface CoordinationFormData {
@@ -11,33 +12,62 @@ export interface CoordinationFormData {
 
 interface Props {
     selectedItems: Item[];
+    coordination?: Coordination; // ← 編集用に追加
+    onSubmitSuccess?: () => void; // 登録/更新成功時に親が処理できるように
 }
 
-const CoordinationForm: FC<Props> = ({ selectedItems }) => {
+const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSuccess }) => {
     const [form, setForm] = useState<CoordinationFormData>({
         name: "",
         is_favorite: false,
     });
     const [status, setStatus] = useState<string>("");
 
+    // 編集時に既存値を初期セット
+    useEffect(() => {
+        if (coordination) {
+            setForm({
+                name: coordination.name,
+                is_favorite: coordination.is_favorite,
+            });
+        }
+    }, [coordination]);
+
     const handleSubmit = async () => {
         if (selectedItems.length === 0) {
             setStatus("アイテムを選択してください");
             return;
         }
+
         try {
-            const res = await createCoordination({
-                ...form,
-                items: selectedItems.map((i) => i.item_id),
-            });
-            if (res.status === "success") {
-                setStatus("登録完了！");
-                setForm({ name: "", is_favorite: false });
+            if (coordination) {
+                // 編集更新
+                const res = await updateCoordination(coordination.coordination_id, {
+                    ...form,
+                    items: selectedItems.map((i) => i.item_id),
+                });
+                if (res.status === "success") {
+                    setStatus("更新完了！");
+                    onSubmitSuccess?.();
+                } else {
+                    setStatus("更新失敗: " + (res.message ?? ""));
+                }
             } else {
-                setStatus("登録失敗: " + (res.message ?? ""));
+                // 新規作成
+                const res = await createCoordination({
+                    ...form,
+                    items: selectedItems.map((i) => i.item_id),
+                });
+                if (res.status === "success") {
+                    setStatus("登録完了！");
+                    setForm({ name: "", is_favorite: false });
+                    onSubmitSuccess?.();
+                } else {
+                    setStatus("登録失敗: " + (res.message ?? ""));
+                }
             }
         } catch (err) {
-            setStatus("登録エラー: " + (err instanceof Error ? err.message : ""));
+            setStatus("エラー: " + (err instanceof Error ? err.message : ""));
         }
     };
 
@@ -60,17 +90,14 @@ const CoordinationForm: FC<Props> = ({ selectedItems }) => {
                     type="checkbox"
                     checked={form.is_favorite}
                     onChange={(e) =>
-                        setForm({
-                            ...form,
-                            is_favorite: e.target.checked,
-                        })
+                        setForm({ ...form, is_favorite: e.target.checked })
                     }
                 />
                 お気に入り
             </label>
 
             <Button variant="primary" onClick={handleSubmit}>
-                登録
+                {coordination ? "更新" : "登録"}
             </Button>
 
             {status && <p>{status}</p>}

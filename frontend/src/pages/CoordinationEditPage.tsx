@@ -1,0 +1,43 @@
+// frontend/src/pages/CoordinationEditPage.tsx
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import CoordinationEditor from "../components/CoordinationEditor";
+import { getCoordination } from "../api/coordinations";
+import type { Coordination } from "../types";
+
+export default function CoordinationEditPage() {
+  const { id } = useParams<{ id: string }>();
+  const [coordination, setCoordination] = useState<Coordination | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetch = async () => {
+      try {
+        const res = await getCoordination(Number(id));
+        setCoordination(res?.data ?? null);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, [id]);
+
+  if (loading) return <p>読み込み中...</p>;
+  if (!coordination) return <p>コーディネーションが見つかりません</p>;
+
+  return (
+    <>
+      <Header />
+      <div className="min-h-screen p-6 text-slate-800 dark:text-slate-100">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-2xl font-bold mb-4">コーディネート編集</h1>
+          <CoordinationEditor coordination={coordination} />
+        </div>
+      </div>
+    </>
+  );
+}
