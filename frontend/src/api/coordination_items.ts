@@ -1,11 +1,9 @@
 // frontend/src/api/coordination_items.ts
 import { API_BASE } from "./index";
 
-/**
- * コーディネーションにアイテムを追加
- * @param coordination_id コーディネーションID
- * @param item_id アイテムID
- */
+// ===========================
+// コーディネーションにアイテムを追加
+// ===========================
 export async function addItemToCoordination(coordination_id: number, item_id: number) {
     const res = await fetch(`${API_BASE}/coordination_items/`, {
         method: "POST",
@@ -15,11 +13,9 @@ export async function addItemToCoordination(coordination_id: number, item_id: nu
     return res.json();
 }
 
-/**
- * コーディネーションからアイテムを削除
- * @param coordination_id コーディネーションID
- * @param item_id アイテムID
- */
+// ===========================
+// コーディネーションからアイテムを削除
+// ===========================
 export async function removeItemFromCoordination(coordination_id: number, item_id: number) {
     const res = await fetch(`${API_BASE}/coordination_items/`, {
         method: "DELETE",
@@ -29,10 +25,10 @@ export async function removeItemFromCoordination(coordination_id: number, item_i
     return res.json();
 }
 
-/**
- * 指定コーディネーションのアイテム一覧を取得
- * （バックエンドで join して返す場合は不要）
- */
+// ===========================
+// 指定コーディネーションのアイテム一覧取得
+// （バックエンドで join して返す場合は不要）
+// ===========================
 export async function getItemsOfCoordination(coordination_id: number) {
     const res = await fetch(`${API_BASE}/coordinations/${coordination_id}/`);
     const data = await res.json();
@@ -40,9 +36,9 @@ export async function getItemsOfCoordination(coordination_id: number) {
     return data;
 }
 
-/**
- * コーディネーションとアイテムの中間テーブルを全件取得
- */
+// ===========================
+// コーディネーションとアイテムの中間テーブル全件取得
+// ===========================
 export async function getAllCoordinationItems() {
     const res = await fetch(`${API_BASE}/coordination_items/all/`);
     const data = await res.json();

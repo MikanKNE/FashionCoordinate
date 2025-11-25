@@ -1,7 +1,9 @@
 // frontend/src/api/coordinations.ts
 import { supabase } from "../lib/supabaseClient";
 
+// ===========================
 // ヘッダー作成ヘルパー
+// ===========================
 async function authHeaders() {
     const {
         data: { session },
@@ -15,9 +17,9 @@ async function authHeaders() {
     };
 }
 
-// ----------------------------
+// ===========================
 // コーディネーション作成（coordinations + coordination_items まとめ登録）
-// ----------------------------
+// ===========================
 export const createCoordination = async (payload: {
     name: string;
     is_favorite?: boolean;
@@ -33,9 +35,9 @@ export const createCoordination = async (payload: {
     return res.json();
 };
 
-// ----------------------------
+// ===========================
 // 一覧取得
-// ----------------------------
+// ===========================
 export const getCoordinations = async () => {
     const headers = await authHeaders();
     const res = await fetch("/api/coordinations/", { headers });
@@ -43,9 +45,9 @@ export const getCoordinations = async () => {
     return res.json();
 };
 
-// ----------------------------
+// ===========================
 // 単体取得
-// ----------------------------
+// ===========================
 export const getCoordination = async (coordination_id: number) => {
     const headers = await authHeaders();
     const res = await fetch(`/api/coordinations/${coordination_id}/`, { headers });
@@ -53,9 +55,9 @@ export const getCoordination = async (coordination_id: number) => {
     return res.json();
 };
 
-// ----------------------------
+// ===========================
 // 更新
-// ----------------------------
+// ===========================
 export const updateCoordination = async (coordination_id: number, data: any) => {
     const headers = await authHeaders();
     const res = await fetch(`/api/coordinations/${coordination_id}/`, {
@@ -67,9 +69,9 @@ export const updateCoordination = async (coordination_id: number, data: any) => 
     return res.json();
 };
 
-// ----------------------------
+// ===========================
 // 削除
-// ----------------------------
+// ===========================
 export const deleteCoordination = async (coordination_id: number) => {
     const headers = await authHeaders();
     const res = await fetch(`/api/coordinations/${coordination_id}/`, {

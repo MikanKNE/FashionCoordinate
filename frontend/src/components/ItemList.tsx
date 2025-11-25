@@ -1,7 +1,9 @@
 // src/components/ItemList.tsx
-import type { Item } from "../types";
-import ItemCard from "./ItemCard";
 import Card from "./ui/Card";
+
+import ItemCard from "./ItemCard";
+
+import type { Item } from "../types";
 
 type Props = {
     items: Item[];

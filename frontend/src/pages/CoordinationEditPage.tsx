@@ -1,9 +1,12 @@
 // frontend/src/pages/CoordinationEditPage.tsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
-import CoordinationEditor from "../components/CoordinationEditor";
+
 import { getCoordination } from "../api/coordinations";
+
+import CoordinationEditor from "../components/CoordinationEditor";
+import Header from "../components/Header";
+
 import type { Coordination } from "../types";
 
 export default function CoordinationEditPage() {

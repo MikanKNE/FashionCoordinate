@@ -1,7 +1,10 @@
 // frontend/src/components/UsageHistoryDaily.tsx
 import { useEffect, useState } from "react";
-import { getUsageByDate } from "../api/usage_history";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
+import { getUsageByDate } from "../api/usage_history";
+
 import { Button } from "./ui/Button";
 
 function formatDateLocal(d: Date) {

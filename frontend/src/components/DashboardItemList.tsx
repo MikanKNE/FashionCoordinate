@@ -1,5 +1,7 @@
 // frontend/src/components/DashboardItemList.tsx
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+
 import ItemCard from "./ItemCard";
 
 export default function DashboardItemList() {

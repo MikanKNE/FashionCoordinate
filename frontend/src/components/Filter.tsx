@@ -1,10 +1,13 @@
 // frontend/src/components/Filter.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import type { MultiFilters, AccordionState, Subcategory, Item } from "../types";
-import Card from "./ui/Card";
+
 import { getItems } from "../api/items";
 import { getSubcategories } from "../api/subcategories";
+
+import Card from "./ui/Card";
+
+import type { MultiFilters, AccordionState, Subcategory, Item } from "../types";
 
 interface FilterProps {
     filters: MultiFilters;

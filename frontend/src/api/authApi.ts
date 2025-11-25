@@ -1,6 +1,9 @@
+// frontend/src/api/authApi.ts
 import { supabase } from '../lib/supabaseClient'
 
-// 保護されたDjango APIにアクセスする関数
+// ===========================
+// 保護されたAPIデータ取得（ログインユーザーのみ）
+// ===========================
 export const fetchProtectedData = async () => {
     const { data } = await supabase.auth.getSession()
     const token = data.session?.access_token

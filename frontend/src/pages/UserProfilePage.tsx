@@ -1,13 +1,17 @@
 // frontend/src/pages/UserProfilePage.tsx
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+
 import { getUserDetail, updateUser, updateEmail, updatePassword } from "../api/users";
 import { getStorages, createStorage, deleteStorage } from "../api/storages";
-import type { User, Storage } from "../types";
-import Header from "../components/Header";
-import Card from "../components/ui/Card";
+
 import { Button } from "../components/ui/Button";
-import toast from "react-hot-toast";
+import Card from "../components/ui/Card";
+
+import Header from "../components/Header";
+import { useAuth } from "../context/AuthContext";
+
+import type { User, Storage } from "../types";
 
 export default function UserProfilePage() {
   const { user: authUser } = useAuth();

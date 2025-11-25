@@ -1,7 +1,10 @@
 // frontend/src/api/storages.ts
-import { supabase } from "../lib/supabaseClient";
 import { API_BASE } from "./index";
+import { supabase } from "../lib/supabaseClient";
 
+// ===========================
+// 認証ヘッダー取得
+// ===========================
 async function authHeaders() {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
@@ -13,14 +16,18 @@ async function authHeaders() {
     };
 }
 
-// 一覧
+// ===========================
+// ストレージ一覧取得
+// ===========================
 export const getStorages = async () => {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/`, { headers });
     return res.json();
 };
 
-// 新規作成
+// ===========================
+// ストレージ新規作成
+// ===========================
 export const createStorage = async (storage_location: string) => {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/`, {
@@ -31,14 +38,18 @@ export const createStorage = async (storage_location: string) => {
     return res.json();
 };
 
-// 1件取得
+// ===========================
+// ストレージ1件取得
+// ===========================
 export const getStorage = async (id: number) => {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/${id}/`, { headers });
     return res.json();
 };
 
-// 更新
+// ===========================
+// ストレージ更新
+// ===========================
 export const updateStorage = async (id: number, data: any) => {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/${id}/`, {
@@ -49,7 +60,9 @@ export const updateStorage = async (id: number, data: any) => {
     return res.json();
 };
 
-// 削除
+// ===========================
+// ストレージ削除
+// ===========================
 export const deleteStorage = async (id: number) => {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/${id}/`, {

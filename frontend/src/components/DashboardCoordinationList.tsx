@@ -1,7 +1,10 @@
 // frontend/src/components/DashboardCoordinationList.tsx
 import { useEffect, useState } from "react";
-import { getCoordinations } from "../api/coordinations";
+import toast from "react-hot-toast";
+
 import { getAllCoordinationItems } from "../api/coordination_items";
+import { getCoordinations } from "../api/coordinations";
+
 import type { Coordination, Item, CoordinationItem } from "../types";
 
 export default function DashboardCoordinationList() {

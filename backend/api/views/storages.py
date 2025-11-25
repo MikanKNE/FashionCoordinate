@@ -4,8 +4,10 @@ from rest_framework.response import Response
 from ..supabase_client import supabase
 import traceback
 
+# ==========================
+# JWT → user_id 抽出共通処理
+# ==========================
 def get_user_id_from_request(request):
-    """他ファイルと同じ user_id 取得ロジック"""
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return None, Response({"status": "error", "message": "Authorization header missing"}, status=401)

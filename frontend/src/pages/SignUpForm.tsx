@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
 
 const SignUpForm = () => {
     const [email, setEmail] = useState('')

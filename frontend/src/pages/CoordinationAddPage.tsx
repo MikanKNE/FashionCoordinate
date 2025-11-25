@@ -1,5 +1,6 @@
 // frontend/src/pages/CoordinationAddPage.tsx
 import React from "react";
+
 import Header from "../components/Header";
 import CoordinationEditor from "../components/CoordinationEditor";
 

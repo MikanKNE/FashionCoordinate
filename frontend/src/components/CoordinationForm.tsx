@@ -1,9 +1,13 @@
 // frontend/src/components/CoordinationForm.tsx
 import type { FC } from "react";
-import type { Item, Coordination } from "../types";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+
 import { createCoordination, updateCoordination } from "../api/coordinations";
+
 import { Button } from "./ui/Button";
+
+import type { Item, Coordination } from "../types";
 
 export interface CoordinationFormData {
     name: string;

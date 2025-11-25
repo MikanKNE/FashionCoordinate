@@ -1,18 +1,21 @@
 // frontend/src/pages/OutfitFormPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import { supabase } from "../lib/supabaseClient";
 
-import Header from "../components/Header";
+import { getItems } from "../api/items";
+
+import { Button } from "../components/ui/Button";
 import Card from "../components/ui/Card";
+
+import Header from "../components/Header";
 import ItemCard from "../components/ItemCard";
 import Filter from "../components/Filter";
 
 import type { Item, MultiFilters } from "../types";
-import { getItems } from "../api/items";
-import { Button } from "../components/ui/Button";
 
-import toast from "react-hot-toast";
 
 type SelectionMode = "items" | "coordination";
 

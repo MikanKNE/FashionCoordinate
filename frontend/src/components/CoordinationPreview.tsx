@@ -1,6 +1,8 @@
 // frontend/src/components/CoordinationPreview.tsx
-import type { Item } from "../types";
 import type { FC } from "react";
+import toast from "react-hot-toast";
+
+import type { Item } from "../types";
 
 interface Props {
     items: Item[];

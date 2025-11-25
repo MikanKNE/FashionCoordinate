@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from ..supabase_client import supabase
 import traceback
 
+# ====================================================
+# サブカテゴリー一覧取得
+# ====================================================
 @api_view(["GET"])
 def subcategories_list(request):
     try:

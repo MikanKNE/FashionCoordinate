@@ -1,10 +1,13 @@
 // frontend/src/components/ItemDetailModal.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getItemDetail, deleteItem } from "../api/items";
-import { Button } from "./ui/Button";
-import type { Item } from "../types";
 import toast from "react-hot-toast";
+
+import { getItemDetail, deleteItem } from "../api/items";
+
+import { Button } from "./ui/Button";
+
+import type { Item } from "../types";
 
 interface Props {
     itemId: number | null;

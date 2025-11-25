@@ -2,7 +2,9 @@
 import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
 
-// JWT ヘッダー生成
+// ===========================
+// 認証ヘッダー取得
+// ===========================
 async function authHeaders() {
     const {
         data: { session },

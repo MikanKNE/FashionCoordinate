@@ -2,7 +2,9 @@
 import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
 
+// ===========================
 // ヘッダー作成ヘルパー
+// ===========================
 async function authHeaders() {
     const {
         data: { session },
@@ -16,7 +18,9 @@ async function authHeaders() {
     };
 }
 
+// ===========================
 // 全アイテム取得
+// ===========================
 export async function getItems() {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/`, { headers });
@@ -24,7 +28,9 @@ export async function getItems() {
     return res.json();
 }
 
+// ===========================
 // アイテム作成
+// ===========================
 export async function createItem(item: any) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/`, {
@@ -36,7 +42,9 @@ export async function createItem(item: any) {
     return res.json();
 }
 
+// ===========================
 // アイテム更新
+// ===========================
 export async function updateItem(item_id: number, item: any) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
@@ -48,7 +56,9 @@ export async function updateItem(item_id: number, item: any) {
     return res.json();
 }
 
+// ===========================
 // アイテム詳細取得
+// ===========================
 export async function getItemDetail(item_id: number) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, { headers });
@@ -56,7 +66,9 @@ export async function getItemDetail(item_id: number) {
     return res.json();
 }
 
+// ===========================
 // アイテム削除
+// ===========================
 export async function deleteItem(item_id: number) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, { method: "DELETE", headers });
@@ -64,7 +76,9 @@ export async function deleteItem(item_id: number) {
     return res.json();
 }
 
+// ===========================
 // お気に入り状態を更新
+// ===========================
 export async function toggleFavorite(item_id: number, is_favorite: boolean) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {

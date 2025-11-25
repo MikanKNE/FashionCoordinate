@@ -1,5 +1,6 @@
 // frontend/src/components/ItemCard.tsx
-import { Button } from "./ui/Button";
+import toast from "react-hot-toast";
+
 import type { Item } from "../types";
 
 interface ItemCardProps {
