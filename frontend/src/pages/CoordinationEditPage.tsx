@@ -30,7 +30,7 @@ export default function CoordinationEditPage() {
   }, [id]);
 
   if (loading) return <p>読み込み中...</p>;
-  if (!coordination) return <p>コーディネーションが見つかりません</p>;
+  if (!coordination) return <p>コーディネートが見つかりません</p>;
 
   return (
     <>

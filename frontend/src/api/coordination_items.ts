@@ -2,7 +2,7 @@
 import { API_BASE } from "./index";
 
 // ===========================
-// コーディネーションにアイテムを追加
+// コーディネートにアイテムを追加
 // ===========================
 export async function addItemToCoordination(coordination_id: number, item_id: number) {
     const res = await fetch(`${API_BASE}/coordination_items/`, {
@@ -14,7 +14,7 @@ export async function addItemToCoordination(coordination_id: number, item_id: nu
 }
 
 // ===========================
-// コーディネーションからアイテムを削除
+// コーディネートからアイテムを削除
 // ===========================
 export async function removeItemFromCoordination(coordination_id: number, item_id: number) {
     const res = await fetch(`${API_BASE}/coordination_items/`, {
@@ -26,7 +26,7 @@ export async function removeItemFromCoordination(coordination_id: number, item_i
 }
 
 // ===========================
-// 指定コーディネーションのアイテム一覧取得
+// 指定コーディネートのアイテム一覧取得
 // （バックエンドで join して返す場合は不要）
 // ===========================
 export async function getItemsOfCoordination(coordination_id: number) {
@@ -37,7 +37,7 @@ export async function getItemsOfCoordination(coordination_id: number) {
 }
 
 // ===========================
-// コーディネーションとアイテムの中間テーブル全件取得
+// コーディネートとアイテムの中間テーブル全件取得
 // ===========================
 export async function getAllCoordinationItems() {
     const res = await fetch(`${API_BASE}/coordination_items/all/`);

@@ -187,7 +187,7 @@ export default function OutfitFormPage() {
                                 <Filter filters={filters} setFilters={setFilters} />
                             ) : (
                                 <Card>
-                                    <h4 className="text-lg font-semibold mb-4">コーデ一覧</h4>
+                                    <h4 className="text-lg font-semibold mb-4">コーディネート一覧</h4>
                                     {coordinations.map((c) => (
                                         <div
                                             key={c.coordination_id}

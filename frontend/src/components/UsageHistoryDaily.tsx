@@ -114,8 +114,8 @@ export default function UsageHistoryDaily({
                         {/* 右：アイテム名・天気・気温 */}
                         <div className="flex flex-col items-start">
                             <p className="font-semibold">{h.items?.name}</p>
-                            <p className="text-sm text-gray-600">天気：{h.weather ?? "-"}</p>
-                            <p className="text-sm text-gray-600">気温：{h.temperature ?? "-"}℃</p>
+                            {/* <p className="text-sm text-gray-600">天気：{h.weather ?? "-"}</p>
+                            <p className="text-sm text-gray-600">気温：{h.temperature ?? "-"}℃</p> */}
                         </div>
                     </div>
                 ))}

@@ -18,7 +18,7 @@ async function authHeaders() {
 }
 
 // ===========================
-// コーディネーション作成（coordinations + coordination_items まとめ登録）
+// コーディネート作成（coordinations + coordination_items まとめ登録）
 // ===========================
 export const createCoordination = async (payload: {
     name: string;
@@ -31,7 +31,7 @@ export const createCoordination = async (payload: {
         headers,
         body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error("コーディネーション作成に失敗しました");
+    if (!res.ok) throw new Error("コーディネート作成に失敗しました");
     return res.json();
 };
 
@@ -41,7 +41,7 @@ export const createCoordination = async (payload: {
 export const getCoordinations = async () => {
     const headers = await authHeaders();
     const res = await fetch("/api/coordinations/", { headers });
-    if (!res.ok) throw new Error("コーディネーション取得に失敗しました");
+    if (!res.ok) throw new Error("コーディネート取得に失敗しました");
     return res.json();
 };
 
@@ -51,7 +51,7 @@ export const getCoordinations = async () => {
 export const getCoordination = async (coordination_id: number) => {
     const headers = await authHeaders();
     const res = await fetch(`/api/coordinations/${coordination_id}/`, { headers });
-    if (!res.ok) throw new Error("コーディネーション詳細の取得に失敗しました");
+    if (!res.ok) throw new Error("コーディネート詳細の取得に失敗しました");
     return res.json();
 };
 
@@ -65,7 +65,7 @@ export const updateCoordination = async (coordination_id: number, data: any) => 
         headers,
         body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("コーディネーション更新に失敗しました");
+    if (!res.ok) throw new Error("コーディネート更新に失敗しました");
     return res.json();
 };
 
@@ -78,6 +78,6 @@ export const deleteCoordination = async (coordination_id: number) => {
         method: "DELETE",
         headers,
     });
-    if (!res.ok) throw new Error("コーディネーション削除に失敗しました");
+    if (!res.ok) throw new Error("コーディネート削除に失敗しました");
     return res.json();
 };

@@ -5,7 +5,7 @@ from ..supabase_client import supabase
 import traceback
 
 # ====================================================
-# 全コーディネーションアイテム取得
+# 全コーディネートアイテム取得
 # ====================================================
 @api_view(['GET'])
 def get_all_coordination_items(request):
@@ -24,7 +24,7 @@ def get_all_coordination_items(request):
 
 
 # ====================================================
-# コーディネーションアイテム追加 / 削除
+# コーディネートアイテム追加 / 削除
 # ====================================================
 @api_view(['POST', 'DELETE'])
 def coordination_items_manage(request):

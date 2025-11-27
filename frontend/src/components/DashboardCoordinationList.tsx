@@ -42,7 +42,7 @@ export default function DashboardCoordinationList() {
 
                 setCoordinations(listWithItems);
             } catch (err) {
-                console.error("コーディネーション取得エラー:", err);
+                console.error("コーディネート取得エラー:", err);
             }
         };
 

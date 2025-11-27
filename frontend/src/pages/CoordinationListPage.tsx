@@ -39,7 +39,7 @@ export default function CoordinationListPage() {
         setLoading(true);
         setError(null);
         try {
-            // コーディネーション一覧
+            // コーディネート一覧
             const res = await getCoordinations();
             setCoordinations(res?.data ?? []);
 
@@ -62,7 +62,7 @@ export default function CoordinationListPage() {
             setCoordinationItems(ciList);
         } catch (e) {
             console.error(e);
-            setError("コーディネーション一覧の取得に失敗しました");
+            setError("コーディネート一覧の取得に失敗しました");
         } finally {
             setLoading(false);
         }
@@ -91,7 +91,7 @@ export default function CoordinationListPage() {
         return true;
     };
 
-    // フィルターに合うアイテムを含むコーディネーションのみ
+    // フィルターに合うアイテムを含むコーディネートのみ
     const filteredCoordinations = coordinations.filter(c => {
         const items = getItemsForCoordination(c.coordination_id);
         return items.some(item => matchesFilter(item, filters));
@@ -104,7 +104,7 @@ export default function CoordinationListPage() {
                 <div className="max-w-6xl mx-auto">
                     {/* ヘッダー＆新規作成ボタン */}
                     <div className="flex items-center justify-between mb-4">
-                        <h1 className="text-2xl font-bold">コーディネーション一覧</h1>
+                        <h1 className="text-2xl font-bold">コーディネート一覧</h1>
                         <Button
                             className="max-w-xs"
                             onClick={() => navigate("/coordination/new")}
@@ -120,7 +120,7 @@ export default function CoordinationListPage() {
                             <Filter filters={filters} setFilters={setFilters} />
                         </aside>
 
-                        {/* 右：コーディネーションカード */}
+                        {/* 右：コーディネートカード */}
                         <main className="col-span-8">
                             {loading && <p>読み込み中...</p>}
                             {/* {error && <p className="text-red-500">{error}</p>} */}
@@ -162,7 +162,7 @@ export default function CoordinationListPage() {
                                         );
                                     })
                                 ) : (
-                                    <p className="text-gray-500 mt-4">条件に合うコーディネーションがありません</p>
+                                    <p className="text-gray-500 mt-4">条件に合うコーディネートがありません</p>
                                 )}
                             </div>
                         </main>

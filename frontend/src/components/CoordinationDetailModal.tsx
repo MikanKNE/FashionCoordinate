@@ -27,7 +27,7 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
     const fetchDetail = async () => {
         setLoading(true);
         try {
-            // コーディネーション本体取得
+            // コーディネート本体取得
             const res = await getCoordination(coordination.coordination_id);
             const data = res?.data ?? { ...coordination, items: [] };
 

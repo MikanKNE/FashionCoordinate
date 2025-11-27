@@ -20,7 +20,7 @@ def get_user_id_from_request(request):
     return user.user.id, None
 
 # ====================================================
-# コーディネーション一覧取得 / 新規作成（items 付き）
+# コーディネート一覧取得 / 新規作成（items 付き）
 # ====================================================
 @api_view(['GET', 'POST'])
 def coordinations_list_create(request):
@@ -30,7 +30,7 @@ def coordinations_list_create(request):
 
     if request.method == 'GET':
         try:
-            # ユーザーごとのコーディネーションのみ取得
+            # ユーザーごとのコーディネートのみ取得
             response = supabase.table("coordinations").select("*").eq("user_id", user_id).execute()
             return Response({"status": "success", "data": response.data})
         except Exception as e:
@@ -66,7 +66,7 @@ def coordinations_list_create(request):
             return Response({"status": "error", "message": str(e)}, status=500)
 
 # ====================================================
-# コーディネーション取得・更新・削除（items は別API）
+# コーディネート取得・更新・削除（items は別API）
 # ====================================================
 @api_view(['GET', 'PUT', 'DELETE'])
 def coordination_detail(request, coordination_id):
