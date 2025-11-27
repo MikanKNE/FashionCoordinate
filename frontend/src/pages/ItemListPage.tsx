@@ -108,7 +108,7 @@ export default function ItemListPage() {
                         {/* 右：ItemList */}
                         <main className="col-span-8">
                             {loading && <p>読み込み中...</p>}
-                            {error && <p className="text-red-500">{error}</p>}
+                            {/* {error && <p className="text-red-500">{error}</p>} */}
 
                             <ItemList
                                 items={filteredItems}

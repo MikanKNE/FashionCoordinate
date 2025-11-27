@@ -116,14 +116,14 @@ export default function CoordinationListPage() {
                     {/* 左右レイアウト */}
                     <div className="grid grid-cols-10 gap-6">
                         {/* 左：Filter */}
-                        <aside className="col-span-2 sticky top-0 mt-6">
+                        <aside className="col-span-2 sticky top-0">
                             <Filter filters={filters} setFilters={setFilters} />
                         </aside>
 
                         {/* 右：コーディネーションカード */}
                         <main className="col-span-8">
                             {loading && <p>読み込み中...</p>}
-                            {error && <p className="text-red-500">{error}</p>}
+                            {/* {error && <p className="text-red-500">{error}</p>} */}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {filteredCoordinations.length > 0 ? (

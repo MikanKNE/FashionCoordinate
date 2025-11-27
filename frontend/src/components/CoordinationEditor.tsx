@@ -60,7 +60,7 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
         }
       } catch (e) {
         console.error(e);
-        toast.error("アイテム取得に失敗しました");
+        // toast.error("アイテム取得に失敗しました");
       } finally {
         setLoading(false);
       }
@@ -112,7 +112,7 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
       <main className="md:col-span-2">
         <Card className="p-4">
           {loading && <div>読み込み中...</div>}
-          {error && <div className="text-red-500">{error}</div>}
+          {/* {error && <div className="text-red-500">{error}</div>} */}
 
           {!loading && !error && (
             <>

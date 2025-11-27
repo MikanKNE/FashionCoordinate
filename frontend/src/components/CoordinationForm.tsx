@@ -1,6 +1,7 @@
 // frontend/src/components/CoordinationForm.tsx
 import type { FC } from "react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { createCoordination, updateCoordination } from "../api/coordinations";
@@ -26,6 +27,7 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
         is_favorite: false,
     });
     const [status, setStatus] = useState<string>("");
+    const navigate = useNavigate();
 
     // 編集時に既存値を初期セット
     useEffect(() => {
@@ -102,6 +104,9 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
 
             <Button variant="primary" onClick={handleSubmit}>
                 {coordination ? "更新" : "登録"}
+            </Button>
+            <Button type="button" onClick={() => navigate("/item-list")}>
+                キャンセル
             </Button>
 
             {status && <p>{status}</p>}

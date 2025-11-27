@@ -50,7 +50,7 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
             setDetail({ ...data, items });
         } catch (e) {
             console.error(e);
-            toast.error("詳細の取得に失敗しました");
+            // toast.error("詳細の取得に失敗しました");
         } finally {
             setLoading(false);
         }

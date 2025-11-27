@@ -50,7 +50,7 @@ export default function Filter({ filters, setFilters }: FilterProps) {
                 setAllItems(itemsArr);
             } catch (e) {
                 console.error(e);
-                toast.error("アイテム取得に失敗しました");
+                // toast.error("アイテム取得に失敗しました");
             } finally {
                 setLoading(false);
             }
@@ -215,7 +215,7 @@ export default function Filter({ filters, setFilters }: FilterProps) {
             <h4 className="text-lg font-semibold mb-3">フィルター</h4>
 
             {loading && <div>読み込み中...</div>}
-            {error && <div className="text-red-500">{error}</div>}
+            {/* {error && <div className="text-red-500">{error}</div>} */}
 
             {!loading && !error && (
                 <>
