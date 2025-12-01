@@ -105,7 +105,7 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
             <Button variant="primary" onClick={handleSubmit}>
                 {coordination ? "更新" : "登録"}
             </Button>
-            <Button type="button" onClick={() => navigate("/item-list")}>
+            <Button type="button" onClick={() => navigate("/coordination-list")}>
                 キャンセル
             </Button>
 

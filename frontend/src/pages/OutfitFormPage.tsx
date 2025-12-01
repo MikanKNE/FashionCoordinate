@@ -162,7 +162,7 @@ export default function OutfitFormPage() {
             <Header />
             <div className="min-h-screen p-6 text-slate-800 dark:text-slate-100">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-2xl font-bold mb-4">{date ? `${date} の服装登録` : "今日の服装登録"}</h1>
+                    <h1 className="text-2xl font-bold mb-4">{date ? `${date} の服装記録` : "今日の服装記録"}</h1>
 
                     {/* モード切替 */}
                     <div className="mb-4 flex gap-2">

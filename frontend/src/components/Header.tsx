@@ -48,7 +48,7 @@ export default function Header() {
                     ホーム
                 </Link>
                 <Link to="/item-list" style={{ color: "#fff", textDecoration: "none" }}>
-                    アイテム一覧
+                    アイテム
                 </Link>
                 <Link to="/coordination-list" style={{ color: "#fff", textDecoration: "none" }}>
                     コーディネート
