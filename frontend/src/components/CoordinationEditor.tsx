@@ -60,7 +60,7 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
         }
       } catch (e) {
         console.error(e);
-        // toast.error("アイテム取得に失敗しました");
+        toast.error("アイテム取得に失敗しました");
       } finally {
         setLoading(false);
       }

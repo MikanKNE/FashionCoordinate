@@ -103,7 +103,7 @@ export default function ItemForm({
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-1">名前</p>
+                        <p className="text-sm font-semibold mb-1">名前 <span className="text-red-500">*</span></p>
                         <input
                             type="text"
                             placeholder="名前"
@@ -115,7 +115,7 @@ export default function ItemForm({
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-1">カテゴリ</p>
+                        <p className="text-sm font-semibold mb-1">カテゴリ <span className="text-red-500">*</span></p>
                         <select
                             value={values.category}
                             onChange={(e) => handleCategoryChange(e.target.value)}

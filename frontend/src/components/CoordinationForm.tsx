@@ -40,6 +40,12 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
     }, [coordination]);
 
     const handleSubmit = async () => {
+        if (!form.name.trim()) {
+            setStatus("コーディネート名を入力してください");
+            return;
+        }
+
+        // アイテム選択チェック
         if (selectedItems.length === 0) {
             setStatus("アイテムを選択してください");
             return;
@@ -79,14 +85,15 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
 
     return (
         <div className="mt-4 space-y-2">
+            <label>コーディネート名<span className="text-red-500">*</span></label>
             <input
                 type="text"
-                placeholder="コーディネート名"
                 value={form.name}
                 className="w-full p-2 rounded
                         bg-white text-gray-900 border border-gray-300
                         dark:bg-gray-800 dark:text-white dark:border-gray-600
                         focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                required
                 onChange={(e) =>
                     setForm({ ...form, name: e.target.value })
                 }

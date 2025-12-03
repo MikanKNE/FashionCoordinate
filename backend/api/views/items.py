@@ -33,10 +33,21 @@ def items_list_create(request):
         # ---------------- POST ----------------
         elif request.method == 'POST':
             data = request.data.copy()
-            data.setdefault("last_used_date", None)
-            data.setdefault("wear_count", 0)
-            data["user_id"] = user_id  # ユーザーIDをセット
 
+            # --- バリデーション ---
+            if not data.get("name"):
+                return Response({"status": "error", "message": "名前は必須です"}, status=400)
+
+            valid_categories = ["服", "靴", "アクセサリー", "帽子", "バッグ"]
+            if data.get("category") not in valid_categories:
+                return Response({"status": "error", "message": "カテゴリが不正です"}, status=400)
+
+            # --- デフォルト値セット ---
+            data["user_id"] = user_id
+            data["season_tag"] = data.get("season_tag") or []
+            data["tpo_tags"] = data.get("tpo_tags") or []
+
+            # --- DB挿入 ---
             inserted = supabase.table("items").insert(data).execute()
             return Response({"status": "success", "data": inserted.data})
 
@@ -76,7 +87,19 @@ def item_detail(request, item_id):
             return Response({"status": "success", "data": existing.data[0]})
 
         elif request.method == 'PUT':
-            data = request.data
+            data = request.data.copy()
+
+            # --- バリデーション（PUT時も） ---
+            if "name" in data and not data.get("name"):
+                return Response({"status": "error", "message": "名前は必須です"}, status=400)
+            if "category" in data:
+                valid_categories = ["服", "靴", "アクセサリー", "帽子", "バッグ"]
+                if data.get("category") not in valid_categories:
+                    return Response({"status": "error", "message": "カテゴリが不正です"}, status=400)
+
+            data["season_tag"] = data.get("season_tag") or []
+            data["tpo_tags"] = data.get("tpo_tags") or []
+
             updated = supabase.table("items").update(data).eq("item_id", item_id).eq("user_id", user_id).execute()
             return Response({"status": "success", "data": updated.data})
 
