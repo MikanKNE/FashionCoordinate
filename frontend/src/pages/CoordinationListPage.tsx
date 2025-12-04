@@ -123,12 +123,12 @@ export default function CoordinationListPage() {
                         {/* 右：コーディネートカード */}
                         <main className="col-span-8">
                             {loading && <p>読み込み中...</p>}
-                            {/* {error && <p className="text-red-500">{error}</p>} */}
+                            {error && <p className="text-red-500">{error}</p>}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {filteredCoordinations.length > 0 ? (
                                     filteredCoordinations.map(c => {
-                                        const items = getItemsForCoordination(c.coordination_id).slice(0, 2);
+                                        const items = getItemsForCoordination(c.coordination_id).slice(0, 3);
                                         return (
                                             <Card
                                                 key={c.coordination_id}
@@ -174,6 +174,7 @@ export default function CoordinationListPage() {
                             coordination={selected}
                             isOpen={!!selected}
                             onClose={() => setSelected(null)}
+                            onDeleted={fetchList}
                         />
                     )}
                 </div>

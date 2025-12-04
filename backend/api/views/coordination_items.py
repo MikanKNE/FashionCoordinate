@@ -9,11 +9,6 @@ import traceback
 # ====================================================
 @api_view(['GET'])
 def get_all_coordination_items(request):
-    """
-    例：
-    GET /api/coordination_items/all/
-    全ての coordination_items を返す
-    """
     try:
         response = supabase.table("coordination_items").select("*").execute()
         return Response({"status": "success", "data": response.data})

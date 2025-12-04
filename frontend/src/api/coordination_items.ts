@@ -10,6 +10,8 @@ export async function addItemToCoordination(coordination_id: number, item_id: nu
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ coordination_id, item_id }),
     });
+
+    if (!res.ok) throw new Error("アイテム追加に失敗しました");
     return res.json();
 }
 
@@ -22,25 +24,27 @@ export async function removeItemFromCoordination(coordination_id: number, item_i
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ coordination_id, item_id }),
     });
+
+    if (!res.ok) throw new Error("アイテム削除に失敗しました");
     return res.json();
 }
 
 // ===========================
-// 指定コーディネートのアイテム一覧取得
-// （バックエンドで join して返す場合は不要）
+// コーディネートに属する全アイテム取得
 // ===========================
 export async function getItemsOfCoordination(coordination_id: number) {
     const res = await fetch(`${API_BASE}/coordinations/${coordination_id}/`);
-    const data = await res.json();
-    // 返ってくる data.data.items がアイテム配列として返る想定
-    return data;
+    if (!res.ok) throw new Error("アイテム一覧取得に失敗しました");
+
+    return res.json();
 }
 
 // ===========================
-// コーディネートとアイテムの中間テーブル全件取得
+// 中間テーブル全件取得
 // ===========================
 export async function getAllCoordinationItems() {
     const res = await fetch(`${API_BASE}/coordination_items/all/`);
-    const data = await res.json();
-    return data;
+    if (!res.ok) throw new Error("中間テーブル一覧取得に失敗しました");
+
+    return res.json();
 }

@@ -73,6 +73,9 @@ def coordination_detail(request, coordination_id):
     user_id, err_response = get_user_id_from_request(request)
     if err_response:
         return err_response
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return Response({"status": "error"}, 401)
 
     try:
         existing = supabase.table("coordinations").select("*").eq("coordination_id", coordination_id).eq("user_id", user_id).execute()

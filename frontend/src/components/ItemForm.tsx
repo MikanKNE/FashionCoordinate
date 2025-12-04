@@ -13,7 +13,7 @@ export interface ItemFormValues {
     category: CategoryType | "";
     subcategory_id: number | null;
     storage_id: number | null;
-    image_base64: string;   // ← 画像データはこれに統一
+    image_base64: string;
     color: string;
     material: string;
     pattern: string;
@@ -222,8 +222,8 @@ export default function ItemForm({
                                     type="button"
                                     key={s}
                                     className={`px-2 py-1 rounded border ${values.season_tag.includes(s as SeasonType)
-                                            ? "bg-blue-500 text-white"
-                                            : "bg-gray-100 dark:bg-gray-700"
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-gray-100 dark:bg-gray-700"
                                         }`}
                                     onClick={() =>
                                         toggleArrayValue(
@@ -247,8 +247,8 @@ export default function ItemForm({
                                     type="button"
                                     key={t}
                                     className={`px-2 py-1 rounded border ${values.tpo_tags.includes(t as TpoType)
-                                            ? "bg-green-500 text-white"
-                                            : "bg-gray-100 dark:bg-gray-700"
+                                        ? "bg-green-500 text-white"
+                                        : "bg-gray-100 dark:bg-gray-700"
                                         }`}
                                     onClick={() =>
                                         toggleArrayValue(
@@ -269,8 +269,8 @@ export default function ItemForm({
                         <button
                             type="button"
                             className={`text-2xl ${values.is_favorite
-                                    ? "text-yellow-400"
-                                    : "text-gray-400"
+                                ? "text-yellow-400"
+                                : "text-gray-400"
                                 } transition-colors`}
                             onClick={() =>
                                 handleChange("is_favorite", !values.is_favorite)

@@ -7,7 +7,10 @@ import { getItemDetail, deleteItem } from "../api/items";
 
 import { Button } from "./ui/Button";
 
+import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
+
 import type { Item } from "../types";
+
 
 interface Props {
     itemId: number | null;
@@ -19,8 +22,10 @@ interface Props {
 export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated }: Props) {
     const [item, setItem] = useState<Item | null>(null);
     const [loading, setLoading] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
     const navigate = useNavigate();
 
+    // アイテム詳細取得
     const fetchItem = async (id: number) => {
         setLoading(true);
         try {
@@ -38,14 +43,18 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
         fetchItem(itemId);
     }, [itemId, isOpen]);
 
+    // 削除処理
     const handleDelete = async () => {
         if (!item?.item_id) return;
-        if (!confirm("本当に削除しますか？")) return;
 
         try {
             await deleteItem(item.item_id);
             toast.success("アイテムを削除しました");
+
+            // 閉じる
             onClose();
+
+            // 更新通知
             if (onItemUpdated) onItemUpdated();
         } catch (err) {
             console.error(err);
@@ -53,6 +62,7 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
         }
     };
 
+    // クリックで閉じる処理
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) onClose();
     };
@@ -60,74 +70,91 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
     if (!isOpen) return null;
 
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm"
-            onClick={handleOverlayClick}
-        >
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg w-96 relative animate-fadeIn border border-gray-300 dark:border-white/20">
+        <>
+            {/* 背景オーバーレイ */}
+            <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+                onClick={handleOverlayClick}
+            >
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg w-96 relative animate-fadeIn border border-gray-300 dark:border-white/20">
 
-                {/* 閉じるボタン */}
-                <button
-                    className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white"
-                    onClick={onClose}
-                >
-                    ✕
-                </button>
+                    {/* 閉じるボタン */}
+                    <button
+                        className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white"
+                        onClick={onClose}
+                    >
+                        ✕
+                    </button>
 
-                {loading ? (
-                    <p className="text-center text-gray-700 dark:text-gray-100">読み込み中...</p>
-                ) : item ? (
-                    <>
-                        {/* 画像 */}
-                        <img
-                            src={item.image_url || "/noimage.png"}
-                            alt={item.name}
-                            className="w-full h-48 object-cover rounded-md mb-4 border border-gray-200 dark:border-white/20"
-                        />
+                    {loading ? (
+                        <p className="text-center text-gray-700 dark:text-gray-100">
+                            読み込み中...
+                        </p>
+                    ) : item ? (
+                        <>
+                            {/* 画像 */}
+                            <img
+                                src={item.image_url || "/noimage.png"}
+                                alt={item.name}
+                                className="w-full h-48 object-cover rounded-md mb-4 border border-gray-200 dark:border-white/20"
+                            />
 
-                        {/* タイトル＋お気に入り */}
-                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                            {item.name}
-                            <span className="text-yellow-400 text-2xl">
-                                {item.is_favorite ? "⭐" : "☆"}
-                            </span>
-                        </h2>
+                            {/* タイトル */}
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                {item.name}
+                                <span className="text-yellow-400 text-2xl">
+                                    {item.is_favorite ? "⭐" : "☆"}
+                                </span>
+                            </h2>
 
-                        {/* 詳細情報 */}
-                        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                            <p>カテゴリ: {item.category || "未設定"} [ {item.subcategories?.name || "未設定"} ]</p>
-                            <p>保存場所: {item.storages?.storage_location || "未設定"}</p>
-                            <p>シーズン: {item.season_tag.length > 0 ? item.season_tag.join(", ") : "未設定"}</p>
-                            <p>TPO: {item.tpo_tags.length > 0 ? item.tpo_tags.join(", ") : "未設定"}</p>
-                            <p>カラー: {item.color || "未設定"}</p>
-                            <p>素材: {item.material || "未設定"}</p>
-                            <p>柄: {item.pattern || "未設定"}</p>
-                            <p>使用回数: {item.wear_count ?? 0} 回</p>
-                            <p>最終使用日: {item.last_used_date || "未使用"}</p>
-                        </div>
+                            {/* 詳細情報 */}
+                            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                <p>カテゴリ: {item.category || "未設定"} [ {item.subcategories?.name || "未設定"} ]</p>
+                                <p>保存場所: {item.storages?.storage_location || "未設定"}</p>
+                                <p>シーズン: {item.season_tag.length > 0 ? item.season_tag.join(", ") : "未設定"}</p>
+                                <p>TPO: {item.tpo_tags.length > 0 ? item.tpo_tags.join(", ") : "未設定"}</p>
+                                <p>カラー: {item.color || "未設定"}</p>
+                                <p>素材: {item.material || "未設定"}</p>
+                                <p>柄: {item.pattern || "未設定"}</p>
+                                <p>使用回数: {item.wear_count ?? 0} 回</p>
+                                <p>最終使用日: {item.last_used_date || "未使用"}</p>
+                            </div>
 
-                        {/* 編集 & 削除ボタン */}
-                        <div className="flex gap-2 mt-4">
-                            <Button
-                                variant="primary"
-                                className="flex-1"
-                                onClick={() => navigate(`/items/${item.item_id}/edit`)}
-                            >
-                                編集
-                            </Button>
-                            <Button
-                                variant="danger"
-                                className="flex-1"
-                                onClick={handleDelete}
-                            >
-                                削除
-                            </Button>
-                        </div>
-                    </>
-                ) : (
-                    <p>アイテムが見つかりません</p>
-                )}
+                            {/* ボタン */}
+                            <div className="flex gap-2 mt-4">
+                                <Button
+                                    variant="primary"
+                                    className="flex-1"
+                                    onClick={() => navigate(`/items/${item.item_id}/edit`)}
+                                >
+                                    編集
+                                </Button>
+
+                                <Button
+                                    variant="danger"
+                                    className="flex-1"
+                                    onClick={() => setShowConfirm(true)}
+                                >
+                                    削除
+                                </Button>
+                            </div>
+                        </>
+                    ) : (
+                        <p>アイテムが見つかりません</p>
+                    )}
+                </div>
             </div>
-        </div>
+
+            {/* ★ コンポーネント化した削除モーダル ★ */}
+            <ConfirmDeleteModal
+                isOpen={showConfirm}
+                title="本当に削除しますか？"
+                onConfirm={async () => {
+                    await handleDelete();
+                    setShowConfirm(false);
+                }}
+                onCancel={() => setShowConfirm(false)}
+            />
+        </>
     );
 }

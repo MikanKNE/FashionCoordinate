@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { getAllCoordinationItems } from "../api/coordination_items";
-import { getCoordination } from "../api/coordinations";
+import { getCoordination, deleteCoordination } from "../api/coordinations";
 import { getItems } from "../api/items";
 
 import { Button } from "./ui/Button";
 
 import ItemCard from "./ItemCard";
+import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
 
 import type { Coordination, CoordinationItem, Item } from "../types";
 
@@ -17,11 +18,15 @@ interface Props {
     coordination: Coordination;
     isOpen: boolean;
     onClose: () => void;
+    onDeleted?: () => void;
 }
 
-export default function CoordinationDetailModal({ coordination, isOpen, onClose }: Props) {
+export default function CoordinationDetailModal({ coordination, isOpen, onClose, onDeleted }: Props) {
     const [detail, setDetail] = useState<Coordination | null>(null);
     const [loading, setLoading] = useState(false);
+
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
     const navigate = useNavigate();
 
     const fetchDetail = async () => {
@@ -33,16 +38,17 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
 
             // 中間テーブルからアイテム取得
             const ciRes = await getAllCoordinationItems();
-            const ciList: CoordinationItem[] = ciRes?.data?.filter(
-                (ci: CoordinationItem) => ci.coordination_id === coordination.coordination_id
-            ) ?? [];
+            const ciList: CoordinationItem[] =
+                ciRes?.data?.filter(
+                    (ci: CoordinationItem) => ci.coordination_id === coordination.coordination_id
+                ) ?? [];
 
             // アイテム全件取得
             const itemsRes = await getItems();
             const itemsMap = new Map<number, Item>();
             itemsRes?.data?.forEach((item: Item) => itemsMap.set(item.item_id, item));
 
-            // 中間テーブルと紐付け
+            // 紐付け
             const items: Item[] = ciList
                 .map((ci: CoordinationItem) => itemsMap.get(ci.item_id))
                 .filter(Boolean) as Item[];
@@ -50,7 +56,7 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
             setDetail({ ...data, items });
         } catch (e) {
             console.error(e);
-            // toast.error("詳細の取得に失敗しました");
+            toast.error("詳細の取得に失敗しました");
         } finally {
             setLoading(false);
         }
@@ -61,13 +67,13 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
         fetchDetail();
     }, [isOpen]);
 
-    const handleDelete = async () => {
-        if (!confirm("本当に削除しますか？")) return;
+    const confirmDelete = async () => {
         try {
-            await fetch(`/api/coordinations/${coordination.coordination_id}`, {
-                method: "DELETE",
-            });
+            await deleteCoordination(coordination.coordination_id);
+
             toast.success("削除しました");
+            onDeleted?.();
+            setDeleteModalOpen(false);
             onClose();
         } catch (err) {
             console.error(err);
@@ -106,7 +112,9 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
                     <>
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                             {detail.name}
-                            <span className="text-yellow-500">{detail.is_favorite ? "★" : "☆"}</span>
+                            <span className="text-yellow-500">
+                                {detail.is_favorite ? "★" : "☆"}
+                            </span>
                         </h2>
 
                         {/* アイテム一覧 */}
@@ -121,10 +129,11 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
                                     />
                                 ))
                             ) : (
-                                <p className="text-gray-400 mt-2 col-span-2 text-center">アイテムなし</p>
+                                <p className="text-gray-400 mt-2 col-span-2 text-center">
+                                    アイテムなし
+                                </p>
                             )}
                         </div>
-
 
                         {/* ボタン */}
                         <div className="flex gap-2 mt-5">
@@ -136,10 +145,12 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
                             >
                                 編集
                             </Button>
+
+                            {/* ★ 削除モーダルを開く */}
                             <Button
                                 variant="danger"
                                 className="flex-1"
-                                onClick={handleDelete}
+                                onClick={() => setDeleteModalOpen(true)}
                             >
                                 削除
                             </Button>
@@ -147,6 +158,14 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
                     </>
                 )}
             </div>
+
+            {/* ★ 削除確認モーダル */}
+            <ConfirmDeleteModal
+                isOpen={deleteModalOpen}
+                title="コーディネートを削除しますか？"
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteModalOpen(false)}
+            />
         </div>
     );
 }

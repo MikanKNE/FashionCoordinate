@@ -50,7 +50,7 @@ export default function Filter({ filters, setFilters }: FilterProps) {
                 setAllItems(itemsArr);
             } catch (e) {
                 console.error(e);
-                // toast.error("アイテム取得に失敗しました");
+                toast.error("フィルター用アイテムの取得に失敗しました");
             } finally {
                 setLoading(false);
             }

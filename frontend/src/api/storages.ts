@@ -3,7 +3,7 @@ import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
 
 // ===========================
-// 認証ヘッダー取得
+// 認証ヘッダー生成
 // ===========================
 async function authHeaders() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -17,57 +17,67 @@ async function authHeaders() {
 }
 
 // ===========================
-// ストレージ一覧取得
+// 一覧取得
 // ===========================
-export const getStorages = async () => {
+export async function getStorages() {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/`, { headers });
+
+    if (!res.ok) throw new Error("ストレージ取得に失敗しました");
     return res.json();
-};
+}
 
 // ===========================
-// ストレージ新規作成
+// 作成
 // ===========================
-export const createStorage = async (storage_location: string) => {
+export async function createStorage(storage_location: string) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/`, {
         method: "POST",
         headers,
         body: JSON.stringify({ storage_location }),
     });
+
+    if (!res.ok) throw new Error("ストレージ作成に失敗しました");
     return res.json();
-};
+}
 
 // ===========================
-// ストレージ1件取得
+// 詳細取得
 // ===========================
-export const getStorage = async (id: number) => {
+export async function getStorage(id: number) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/${id}/`, { headers });
+
+    if (!res.ok) throw new Error("ストレージ詳細取得に失敗しました");
     return res.json();
-};
+}
 
 // ===========================
-// ストレージ更新
+// 更新
 // ===========================
-export const updateStorage = async (id: number, data: any) => {
+export async function updateStorage(id: number, data: any) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/${id}/`, {
         method: "PUT",
         headers,
         body: JSON.stringify(data),
     });
+
+    if (!res.ok) throw new Error("ストレージ更新に失敗しました");
     return res.json();
-};
+}
 
 // ===========================
-// ストレージ削除
+// 削除
 // ===========================
-export const deleteStorage = async (id: number) => {
+export async function deleteStorage(id: number) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/storages/${id}/`, {
         method: "DELETE",
         headers,
     });
+
+    if (!res.ok) throw new Error("ストレージ削除に失敗しました");
     return res.json();
-};
+}

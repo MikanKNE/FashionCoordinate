@@ -17,8 +17,8 @@ export interface CoordinationFormData {
 
 interface Props {
     selectedItems: Item[];
-    coordination?: Coordination; // ← 編集用に追加
-    onSubmitSuccess?: () => void; // 登録/更新成功時に親が処理できるように
+    coordination?: Coordination;
+    onSubmitSuccess?: () => void;
 }
 
 const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSuccess }) => {
@@ -40,6 +40,12 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
     }, [coordination]);
 
     const handleSubmit = async () => {
+        if (!form.name.trim()) {
+            setStatus("コーディネート名を入力してください");
+            return;
+        }
+
+        // アイテム選択チェック
         if (selectedItems.length === 0) {
             setStatus("アイテムを選択してください");
             return;
@@ -55,6 +61,7 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
                 if (res.status === "success") {
                     setStatus("更新完了！");
                     onSubmitSuccess?.();
+                    navigate("/coordination-list");
                 } else {
                     setStatus("更新失敗: " + (res.message ?? ""));
                 }
@@ -68,6 +75,7 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
                     setStatus("登録完了！");
                     setForm({ name: "", is_favorite: false });
                     onSubmitSuccess?.();
+                    navigate("/coordination-list");
                 } else {
                     setStatus("登録失敗: " + (res.message ?? ""));
                 }
@@ -79,14 +87,15 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
 
     return (
         <div className="mt-4 space-y-2">
+            <label>コーディネート名<span className="text-red-500">*</span></label>
             <input
                 type="text"
-                placeholder="コーディネート名"
                 value={form.name}
                 className="w-full p-2 rounded
                         bg-white text-gray-900 border border-gray-300
                         dark:bg-gray-800 dark:text-white dark:border-gray-600
                         focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
+                required
                 onChange={(e) =>
                     setForm({ ...form, name: e.target.value })
                 }
