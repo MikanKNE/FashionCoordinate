@@ -8,7 +8,7 @@ from .views.subcategories import subcategories_list
 from .views.storages import storages_list_create, storage_detail
 from .views.users import users_list_create, user_detail, user_update_email, user_update_password
 from .views.protected_view import protected_view
-
+from .views.test_upload import test_upload
 
 urlpatterns = [
     # items
@@ -45,4 +45,6 @@ urlpatterns = [
 
     # usage by date
     path("usage_history/date/<str:date_str>/", usage_by_date),
+
+    path("test-upload/", test_upload),
 ]

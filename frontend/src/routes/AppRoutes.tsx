@@ -11,6 +11,7 @@ import ItemListPage from "../pages/ItemListPage";
 import ItemAddPage from "../pages/ItemAddPage";
 import ItemEditPage from "../pages/ItemEditPage";
 import OutfitFormPage from "../pages/OutfitFormPage";
+import TestUploadPage from "../pages/TestUploadPage";
 
 export default function AppRoutes() {
     return (
@@ -27,6 +28,7 @@ export default function AppRoutes() {
                 <Route path="/items/new" element={<ItemAddPage />} />
                 <Route path="/items/:id/edit" element={<ItemEditPage />} />
                 <Route path="/outfit-form" element={<OutfitFormPage />} />
+                <Route path="/test-upload" element={<TestUploadPage />} />
             </Routes>
         </BrowserRouter>
     );
