@@ -3,14 +3,12 @@ import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
 
 // ===========================
-// ヘッダー作成ヘルパー
+// JWT ヘッダー作成
 // ===========================
 async function authHeaders() {
-    const {
-        data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
-    if (!token) throw new Error("ユーザーがログインしていません");
+    if (!token) throw new Error("Not logged in");
 
     return {
         "Content-Type": "application/json",
@@ -24,45 +22,51 @@ async function authHeaders() {
 export async function getItems() {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/`, { headers });
-    if (!res.ok) throw new Error("アイテム取得に失敗しました");
+    if (!res.ok) throw new Error("Failed to fetch items");
     return res.json();
 }
 
 // ===========================
-// アイテム作成
+// アイテム作成（image_base64）
 // ===========================
 export async function createItem(item: any) {
     const headers = await authHeaders();
+
     const res = await fetch(`${API_BASE}/items/`, {
         method: "POST",
         headers,
         body: JSON.stringify(item),
     });
-    if (!res.ok) throw new Error("アイテム作成に失敗しました");
+
+    if (!res.ok) throw new Error("Failed to create item");
     return res.json();
 }
+
 
 // ===========================
 // アイテム更新
 // ===========================
 export async function updateItem(item_id: number, item: any) {
     const headers = await authHeaders();
+
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
         method: "PUT",
         headers,
         body: JSON.stringify(item),
     });
-    if (!res.ok) throw new Error("アイテム更新に失敗しました");
+
+    if (!res.ok) throw new Error("Failed to update item");
     return res.json();
 }
 
+
 // ===========================
-// アイテム詳細取得
+// アイテム取得
 // ===========================
 export async function getItemDetail(item_id: number) {
     const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, { headers });
-    if (!res.ok) throw new Error("アイテム詳細の取得に失敗しました");
+    if (!res.ok) throw new Error("Failed to fetch item detail");
     return res.json();
 }
 
@@ -71,21 +75,10 @@ export async function getItemDetail(item_id: number) {
 // ===========================
 export async function deleteItem(item_id: number) {
     const headers = await authHeaders();
-    const res = await fetch(`${API_BASE}/items/${item_id}/`, { method: "DELETE", headers });
-    if (!res.ok) throw new Error("アイテム削除に失敗しました");
-    return res.json();
-}
-
-// ===========================
-// お気に入り状態を更新
-// ===========================
-export async function toggleFavorite(item_id: number, is_favorite: boolean) {
-    const headers = await authHeaders();
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ is_favorite }),
+        method: "DELETE",
+        headers
     });
-    if (!res.ok) throw new Error("お気に入り状態の更新に失敗しました");
+    if (!res.ok) throw new Error("Failed to delete item");
     return res.json();
 }

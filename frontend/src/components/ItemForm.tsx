@@ -13,7 +13,7 @@ export interface ItemFormValues {
     category: CategoryType | "";
     subcategory_id: number | null;
     storage_id: number | null;
-    image_url: string;
+    image_base64: string;   // ← 画像データはこれに統一
     color: string;
     material: string;
     pattern: string;
@@ -52,14 +52,31 @@ export default function ItemForm({
         setValues(prev => {
             const subs = subcategoryList.filter(s => s.category === value);
             const other = subs.find(s => s.name === "その他");
-            return { ...prev, category: value as CategoryType, subcategory_id: other?.subcategory_id || null };
+            return {
+                ...prev,
+                category: value as CategoryType,
+                subcategory_id: other?.subcategory_id || null,
+            };
         });
     };
 
-    const isSubcategoryDisabled = (cat: string) => !["服", "靴", "アクセサリー"].includes(cat);
+    const isSubcategoryDisabled = (cat: string) =>
+        !["服", "靴", "アクセサリー"].includes(cat);
 
     const handleChange = (field: keyof ItemFormValues, val: any) => {
         setValues(prev => ({ ...prev, [field]: val }));
+    };
+
+    /** 画像ファイルを Base64 に変換 */
+    const handleImageFile = (file: File | null) => {
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result as string;
+            setValues(prev => ({ ...prev, image_base64: base64 }));
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -80,30 +97,28 @@ export default function ItemForm({
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
                 {/* 左カラム */}
                 <div className="flex flex-col gap-4">
+
                     <div>
                         <p className="text-sm font-semibold mb-1">画像</p>
                         <div className="flex justify-center">
                             <img
-                                src={values.image_url || "/noimage.png"}
-                                alt={values.name || "noimage"}
+                                src={values.image_base64 || "/noimage.png"}
+                                alt="preview"
                                 className="w-40 h-40 object-cover rounded-xl border"
                             />
                         </div>
-                    </div>
-
-                    <div>
-                        <p className="text-sm font-semibold mb-1">画像URL</p>
                         <input
-                            type="text"
-                            placeholder="画像URL"
-                            value={values.image_url}
-                            onChange={(e) => handleChange("image_url", e.target.value)}
-                            className="border p-2 rounded w-full"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageFile(e.target.files?.[0] || null)}
+                            className="mt-2"
                         />
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-1">名前</p>
+                        <p className="text-sm font-semibold mb-1">
+                            名前 <span className="text-red-500">*</span>
+                        </p>
                         <input
                             type="text"
                             placeholder="名前"
@@ -115,7 +130,9 @@ export default function ItemForm({
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-1">カテゴリ</p>
+                        <p className="text-sm font-semibold mb-1">
+                            カテゴリ <span className="text-red-500">*</span>
+                        </p>
                         <select
                             value={values.category}
                             onChange={(e) => handleCategoryChange(e.target.value)}
@@ -137,13 +154,14 @@ export default function ItemForm({
                             className={selectClass}
                             disabled={!values.category || isSubcategoryDisabled(values.category)}
                         >
-                            {values.category && subcategoryList
-                                .filter(s => s.category === values.category)
-                                .map(s => (
-                                    <option key={s.subcategory_id} value={s.subcategory_id}>
-                                        {s.name}
-                                    </option>
-                                ))}
+                            {values.category &&
+                                subcategoryList
+                                    .filter(s => s.category === values.category)
+                                    .map(s => (
+                                        <option key={s.subcategory_id} value={s.subcategory_id}>
+                                            {s.name}
+                                        </option>
+                                    ))}
                         </select>
                     </div>
 
@@ -170,7 +188,6 @@ export default function ItemForm({
                         <p className="text-sm font-semibold mb-1">カラー</p>
                         <input
                             type="text"
-                            placeholder="カラー"
                             value={values.color}
                             onChange={(e) => handleChange("color", e.target.value)}
                             className="border p-2 rounded w-full"
@@ -181,7 +198,6 @@ export default function ItemForm({
                         <p className="text-sm font-semibold mb-1">素材</p>
                         <input
                             type="text"
-                            placeholder="素材"
                             value={values.material}
                             onChange={(e) => handleChange("material", e.target.value)}
                             className="border p-2 rounded w-full"
@@ -192,7 +208,6 @@ export default function ItemForm({
                         <p className="text-sm font-semibold mb-1">柄</p>
                         <input
                             type="text"
-                            placeholder="柄"
                             value={values.pattern}
                             onChange={(e) => handleChange("pattern", e.target.value)}
                             className="border p-2 rounded w-full"
@@ -207,10 +222,16 @@ export default function ItemForm({
                                     type="button"
                                     key={s}
                                     className={`px-2 py-1 rounded border ${values.season_tag.includes(s as SeasonType)
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-100 dark:bg-gray-700"
+                                            ? "bg-blue-500 text-white"
+                                            : "bg-gray-100 dark:bg-gray-700"
                                         }`}
-                                    onClick={() => toggleArrayValue(s as SeasonType, values.season_tag, val => handleChange("season_tag", val))}
+                                    onClick={() =>
+                                        toggleArrayValue(
+                                            s as SeasonType,
+                                            values.season_tag,
+                                            val => handleChange("season_tag", val)
+                                        )
+                                    }
                                 >
                                     {s}
                                 </button>
@@ -226,10 +247,16 @@ export default function ItemForm({
                                     type="button"
                                     key={t}
                                     className={`px-2 py-1 rounded border ${values.tpo_tags.includes(t as TpoType)
-                                        ? "bg-green-500 text-white"
-                                        : "bg-gray-100 dark:bg-gray-700"
+                                            ? "bg-green-500 text-white"
+                                            : "bg-gray-100 dark:bg-gray-700"
                                         }`}
-                                    onClick={() => toggleArrayValue(t as TpoType, values.tpo_tags, val => handleChange("tpo_tags", val))}
+                                    onClick={() =>
+                                        toggleArrayValue(
+                                            t as TpoType,
+                                            values.tpo_tags,
+                                            val => handleChange("tpo_tags", val)
+                                        )
+                                    }
                                 >
                                     {t}
                                 </button>
@@ -241,8 +268,13 @@ export default function ItemForm({
                         <p className="text-sm font-semibold mb-1">お気に入り</p>
                         <button
                             type="button"
-                            className={`text-2xl ${values.is_favorite ? "text-yellow-400" : "text-gray-400"} transition-colors`}
-                            onClick={() => handleChange("is_favorite", !values.is_favorite)}
+                            className={`text-2xl ${values.is_favorite
+                                    ? "text-yellow-400"
+                                    : "text-gray-400"
+                                } transition-colors`}
+                            onClick={() =>
+                                handleChange("is_favorite", !values.is_favorite)
+                            }
                         >
                             ★
                         </button>

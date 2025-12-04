@@ -1,3 +1,4 @@
+// frontend/src/pages/ItemAddPage.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -28,26 +29,32 @@ export default function ItemAddPage() {
         })();
     }, []);
 
+    // ⚠ image_url は使用しない（backend は image_base64 に対応するため）
     const initialValues: ItemFormValues = {
         name: "",
         category: "",
         subcategory_id: null,
         storage_id: null,
-        image_url: "",
         color: "",
         material: "",
         pattern: "",
         season_tag: [],
         tpo_tags: [],
         is_favorite: false,
+        image_base64: "", // ← フォームで入力した画像を保持する
     };
 
     const handleSubmit = async (values: ItemFormValues) => {
         setLoading(true);
         try {
+            // Backend は image_base64 で受け取るためそのまま送信
             await createItem(values);
+
             toast.success("アイテムを追加しました");
             navigate("/item-list");
+        } catch (err) {
+            console.error(err);
+            toast.error("アイテム追加に失敗しました");
         } finally {
             setLoading(false);
         }
@@ -60,6 +67,7 @@ export default function ItemAddPage() {
                 <div className="w-full max-w-6xl mb-4">
                     <h1 className="text-2xl font-bold">アイテム追加</h1>
                 </div>
+
                 <ItemForm
                     initialValues={initialValues}
                     subcategoryList={subcategoryList}
