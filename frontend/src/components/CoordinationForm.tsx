@@ -17,8 +17,8 @@ export interface CoordinationFormData {
 
 interface Props {
     selectedItems: Item[];
-    coordination?: Coordination; // ← 編集用に追加
-    onSubmitSuccess?: () => void; // 登録/更新成功時に親が処理できるように
+    coordination?: Coordination;
+    onSubmitSuccess?: () => void;
 }
 
 const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSuccess }) => {
@@ -61,6 +61,7 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
                 if (res.status === "success") {
                     setStatus("更新完了！");
                     onSubmitSuccess?.();
+                    navigate("/coordination-list");
                 } else {
                     setStatus("更新失敗: " + (res.message ?? ""));
                 }
@@ -74,6 +75,7 @@ const CoordinationForm: FC<Props> = ({ selectedItems, coordination, onSubmitSucc
                     setStatus("登録完了！");
                     setForm({ name: "", is_favorite: false });
                     onSubmitSuccess?.();
+                    navigate("/coordination-list");
                 } else {
                     setStatus("登録失敗: " + (res.message ?? ""));
                 }

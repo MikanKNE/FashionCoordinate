@@ -112,7 +112,6 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
       <main className="md:col-span-2">
         <Card className="p-4">
           {loading && <div>読み込み中...</div>}
-          {/* {error && <div className="text-red-500">{error}</div>} */}
 
           {!loading && !error && (
             <>

@@ -174,6 +174,7 @@ export default function CoordinationListPage() {
                             coordination={selected}
                             isOpen={!!selected}
                             onClose={() => setSelected(null)}
+                            onDeleted={fetchList}
                         />
                     )}
                 </div>

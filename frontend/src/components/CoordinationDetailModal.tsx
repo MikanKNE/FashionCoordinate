@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { getAllCoordinationItems } from "../api/coordination_items";
-import { getCoordination } from "../api/coordinations";
+import { getCoordination, deleteCoordination } from "../api/coordinations";
 import { getItems } from "../api/items";
 
 import { Button } from "./ui/Button";
@@ -18,9 +18,10 @@ interface Props {
     coordination: Coordination;
     isOpen: boolean;
     onClose: () => void;
+    onDeleted?: () => void;
 }
 
-export default function CoordinationDetailModal({ coordination, isOpen, onClose }: Props) {
+export default function CoordinationDetailModal({ coordination, isOpen, onClose, onDeleted }: Props) {
     const [detail, setDetail] = useState<Coordination | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -66,14 +67,12 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose 
         fetchDetail();
     }, [isOpen]);
 
-    // ★ 削除確定実行
     const confirmDelete = async () => {
         try {
-            await fetch(`/api/coordinations/${coordination.coordination_id}`, {
-                method: "DELETE",
-            });
+            await deleteCoordination(coordination.coordination_id);
 
             toast.success("削除しました");
+            onDeleted?.();
             setDeleteModalOpen(false);
             onClose();
         } catch (err) {

@@ -1,13 +1,12 @@
 // frontend/src/api/coordinations.ts
 import { supabase } from "../lib/supabaseClient";
+import { API_BASE } from "./index";
 
 // ===========================
-// ヘッダー作成ヘルパー
+// 認証ヘッダー生成
 // ===========================
 async function authHeaders() {
-    const {
-        data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     if (!token) throw new Error("ログインが必要です");
 
@@ -18,66 +17,71 @@ async function authHeaders() {
 }
 
 // ===========================
-// コーディネート作成（coordinations + coordination_items まとめ登録）
+// コーディネート作成
 // ===========================
-export const createCoordination = async (payload: {
+export async function createCoordination(payload: {
     name: string;
     is_favorite?: boolean;
-    items?: number[]; // item_id[]
-}) => {
+    items?: number[];
+}) {
     const headers = await authHeaders();
-    const res = await fetch("/api/coordinations/", {
+    const res = await fetch(`${API_BASE}/coordinations/`, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
     });
+
     if (!res.ok) throw new Error("コーディネート作成に失敗しました");
     return res.json();
-};
+}
 
 // ===========================
 // 一覧取得
 // ===========================
-export const getCoordinations = async () => {
+export async function getCoordinations() {
     const headers = await authHeaders();
-    const res = await fetch("/api/coordinations/", { headers });
+    const res = await fetch(`${API_BASE}/coordinations/`, { headers });
+
     if (!res.ok) throw new Error("コーディネート取得に失敗しました");
     return res.json();
-};
+}
 
 // ===========================
-// 単体取得
+// 詳細取得
 // ===========================
-export const getCoordination = async (coordination_id: number) => {
+export async function getCoordination(coordination_id: number) {
     const headers = await authHeaders();
-    const res = await fetch(`/api/coordinations/${coordination_id}/`, { headers });
+    const res = await fetch(`${API_BASE}/coordinations/${coordination_id}/`, { headers });
+
     if (!res.ok) throw new Error("コーディネート詳細の取得に失敗しました");
     return res.json();
-};
+}
 
 // ===========================
 // 更新
 // ===========================
-export const updateCoordination = async (coordination_id: number, data: any) => {
+export async function updateCoordination(coordination_id: number, data: any) {
     const headers = await authHeaders();
-    const res = await fetch(`/api/coordinations/${coordination_id}/`, {
+    const res = await fetch(`${API_BASE}/coordinations/${coordination_id}/`, {
         method: "PUT",
         headers,
         body: JSON.stringify(data),
     });
+
     if (!res.ok) throw new Error("コーディネート更新に失敗しました");
     return res.json();
-};
+}
 
 // ===========================
 // 削除
 // ===========================
-export const deleteCoordination = async (coordination_id: number) => {
+export async function deleteCoordination(coordination_id: number) {
     const headers = await authHeaders();
-    const res = await fetch(`/api/coordinations/${coordination_id}/`, {
+    const res = await fetch(`${API_BASE}/coordinations/${coordination_id}/`, {
         method: "DELETE",
         headers,
     });
+
     if (!res.ok) throw new Error("コーディネート削除に失敗しました");
     return res.json();
-};
+}
