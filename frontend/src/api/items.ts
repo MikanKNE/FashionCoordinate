@@ -1,6 +1,7 @@
 // frontend/src/api/items.ts
 import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
+import type { ItemFormValues } from "../components/ItemForm";
 
 // ===========================
 // JWT ヘッダー作成
@@ -11,7 +12,6 @@ async function authHeaders() {
     if (!token) throw new Error("Not logged in");
 
     return {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
     };
 }
@@ -27,38 +27,82 @@ export async function getItems() {
 }
 
 // ===========================
-// アイテム作成（image_base64）
+// アイテム作成
 // ===========================
-export async function createItem(item: any) {
+export async function createItem(values: ItemFormValues) {
     const headers = await authHeaders();
+
+    const form = new FormData();
+    form.append("name", values.name);
+    form.append("category", values.category);
+    form.append("subcategory_id", String(values.subcategory_id ?? ""));
+    form.append("storage_id", String(values.storage_id ?? ""));
+    form.append("color", values.color);
+    form.append("material", values.material);
+    form.append("pattern", values.pattern);
+    form.append("season_tag", JSON.stringify(values.season_tag));
+    form.append("tpo_tags", JSON.stringify(values.tpo_tags));
+    form.append("is_favorite", String(values.is_favorite));
+
+    if (values.image_file) {
+        form.append("image", values.image_file);
+    }
 
     const res = await fetch(`${API_BASE}/items/`, {
         method: "POST",
         headers,
-        body: JSON.stringify(item),
+        body: form,
     });
 
-    if (!res.ok) throw new Error("Failed to create item");
+    if (!res.ok) {
+        console.error(await res.text());
+        throw new Error("Failed to create item");
+    }
+
     return res.json();
 }
-
 
 // ===========================
 // アイテム更新
 // ===========================
-export async function updateItem(item_id: number, item: any) {
+// ===========================
+// アイテム更新（完成版）
+// ===========================
+export async function updateItem(item_id: number, values: ItemFormValues) {
     const headers = await authHeaders();
 
+    // FormData を作成
+    const form = new FormData();
+    form.append("name", values.name);
+    form.append("category", values.category);
+    form.append("subcategory_id", String(values.subcategory_id ?? ""));
+    form.append("storage_id", String(values.storage_id ?? ""));
+    form.append("color", values.color);
+    form.append("material", values.material);
+    form.append("pattern", values.pattern);
+    form.append("season_tag", JSON.stringify(values.season_tag));
+    form.append("tpo_tags", JSON.stringify(values.tpo_tags));
+    form.append("is_favorite", String(values.is_favorite));
+
+    // 新しい画像が選択されたときのみ送信
+    if (values.image_file) {
+        form.append("image", values.image_file);
+    }
+
+    // Content-Type は入れない！
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
         method: "PUT",
-        headers,
-        body: JSON.stringify(item),
+        headers, // Authorization だけ入る
+        body: form,
     });
 
-    if (!res.ok) throw new Error("Failed to update item");
+    if (!res.ok) {
+        console.error(await res.text());
+        throw new Error("Failed to update item");
+    }
+
     return res.json();
 }
-
 
 // ===========================
 // アイテム取得

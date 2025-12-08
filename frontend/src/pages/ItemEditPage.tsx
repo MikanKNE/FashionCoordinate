@@ -29,6 +29,7 @@ export default function ItemEditPage() {
                     getStorages(),
                     getItemDetail(itemId),
                 ]);
+
                 setSubcategoryList(subs.data || []);
                 setStorageList(sts.data || []);
 
@@ -40,6 +41,7 @@ export default function ItemEditPage() {
                         subcategory_id: item.subcategory_id || null,
                         storage_id: item.storage_id || null,
                         image_url: item.image_url || "",
+                        image_file: null,
                         color: item.color || "",
                         material: item.material || "",
                         pattern: item.pattern || "",
@@ -71,17 +73,18 @@ export default function ItemEditPage() {
     return (
         <>
             <Header />
-            <div className="min-h-screen p-6 text-gray-900 dark:text-gray-100 flex flex-col items-center">
-                <div className="w-full max-w-6xl mb-4">
-                    <h1 className="text-2xl font-bold">アイテム編集</h1>
+            <div className="min-h-screen p-6 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-900">
+                <div className="max-w-4xl mx-auto">
+                    <h1 className="text-2xl font-bold mb-4">アイテム編集</h1>
+
+                    <ItemForm
+                        initialValues={initialValues}
+                        subcategoryList={subcategoryList}
+                        storageList={storageList}
+                        loading={loading}
+                        onSubmit={handleSubmit}
+                    />
                 </div>
-                <ItemForm
-                    initialValues={initialValues}
-                    subcategoryList={subcategoryList}
-                    storageList={storageList}
-                    loading={loading}
-                    onSubmit={handleSubmit}
-                />
             </div>
         </>
     );

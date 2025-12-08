@@ -10,43 +10,33 @@ import mimetypes
 # ===============================
 # 画像アップロード関数
 # ===============================
-def upload_image_base64(base64_data, file_prefix="item"):
+def upload_image_file(file, file_prefix="item"):
     try:
-        print("=== upload_image_base64 called ===")
-        print("base64 length:", len(base64_data))
+        print("=== upload_image_file called ===")
 
-        # base64ヘッダー除去
-        if "," in base64_data:
-            base64_data = base64_data.split(",")[1]
-
-        image_bytes = base64.b64decode(base64_data)
-
-        # ファイル名作成
         file_id = str(uuid.uuid4())
-        file_path = f"{file_prefix}/{file_id}.jpg"
+        extension = file.name.split('.')[-1].lower()
+        file_path = f"{file_prefix}/{file_id}.{extension}"
 
-        print("Uploading to:", file_path)
+        print("Uploading:", file_path)
 
-        # Storage にアップロード
-        res = supabase.storage.from_("item_image").upload(file_path, image_bytes)
-
-        print("UPLOAD RESULT:", res)
+        res = supabase.storage.from_("item_image").upload(
+            file_path,
+            file.read(),
+            {
+                "content-type": file.content_type
+            }
+        )
 
         if isinstance(res, dict) and res.get("error"):
-            print("UPLOAD ERROR:", res["error"])
             raise ValueError(res["error"]["message"])
 
-        # 公開URLを取得
         public_url = supabase.storage.from_("item_image").get_public_url(file_path)
 
-        print("PUBLIC URL:", public_url)
-
         return public_url
-
     except Exception as e:
-        print("upload_image_base64 error:", e)
+        print("upload_image_file error:", e)
         raise e
-
 
 # ====================================================
 # アイテム一覧取得 / 新規作成
@@ -58,6 +48,7 @@ def items_list_create(request):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             return Response({"status": "error", "message": "Authorization header missing"}, status=401)
+
         token = auth_header.split(" ")[1]
         user = supabase.auth.get_user(token)
         if not user or not user.user:
@@ -74,18 +65,10 @@ def items_list_create(request):
             )
             return Response({"status": "success", "data": response.data})
 
-        # ---------------- POST ----------------
+        # ---------------- POST（FormData） ----------------
         elif request.method == 'POST':
-            data = request.data.copy()
-
-            # ==== ここからデバッグログ追加 ====
-            print("\n===== DEBUG: POST /items/ =====")
-            print("request.data keys:", list(request.data.keys()))
-            print("image_base64 in request:", "image_base64" in request.data)
-            print("image_base64 length:", len(request.data.get("image_base64", "")))
-            print("raw image_base64 preview:", str(request.data.get("image_base64", ""))[:50])
-            print("================================\n")
-            # ==== ここまで ====
+            data = request.POST.copy()
+            file = request.FILES.get("image")
 
             # --- バリデーション ---
             if not data.get("name"):
@@ -95,16 +78,16 @@ def items_list_create(request):
             if data.get("category") not in valid_categories:
                 return Response({"status": "error", "message": "カテゴリが不正です"}, status=400)
 
+            # JSON文字列 → Python配列
+            import json
+            data["season_tag"] = json.loads(data.get("season_tag", "[]"))
+            data["tpo_tags"] = json.loads(data.get("tpo_tags", "[]"))
+
             data["user_id"] = user_id
-            data["season_tag"] = data.get("season_tag") or []
-            data["tpo_tags"] = data.get("tpo_tags") or []
 
-            # --- 画像アップロード対応 ---
-            image_base64 = data.pop("image_base64", None)
-            if image_base64:
-                data["image_url"] = upload_image_base64(image_base64)
+            if file:
+                data["image_url"] = upload_image_file(file)
 
-            # --- DB挿入 ---
             inserted = supabase.table("items").insert(data).execute()
             return Response({"status": "success", "data": inserted.data})
 
@@ -113,23 +96,25 @@ def items_list_create(request):
         traceback.print_exc()
         return Response({"status": "error", "message": str(e)}, status=500)
 
-
 # ====================================================
 # アイテム取得 / 更新 / 削除
 # ====================================================
 @api_view(['GET', 'PUT', 'DELETE'])
 def item_detail(request, item_id):
     try:
-        # JWTでユーザー取得
+        # --- JWT認証 ---
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             return Response({"status": "error", "message": "Authorization header missing"}, status=401)
+
         token = auth_header.split(" ")[1]
         user = supabase.auth.get_user(token)
         if not user or not user.user:
             return Response({"status": "error", "message": "Invalid token"}, status=401)
+
         user_id = user.user.id
 
+        # --- 既存データ取得 ---
         existing = (
             supabase.table("items")
             .select("*, subcategories:subcategory_id(name), storages:storage_id(storage_location)")
@@ -137,30 +122,36 @@ def item_detail(request, item_id):
             .eq("user_id", user_id)
             .execute()
         )
+
         if not existing.data:
             return Response({"status": "error", "message": "Item not found"}, status=404)
 
+        # ---------------- GET ----------------
         if request.method == 'GET':
             return Response({"status": "success", "data": existing.data[0]})
 
+        # ---------------- PUT（FormData） ----------------
         elif request.method == 'PUT':
-            data = request.data.copy()
+            data = request.POST.copy()
+            file = request.FILES.get("image")
 
             # --- バリデーション ---
             if "name" in data and not data.get("name"):
                 return Response({"status": "error", "message": "名前は必須です"}, status=400)
+
             if "category" in data:
                 valid_categories = ["服", "靴", "アクセサリー", "帽子", "バッグ"]
                 if data.get("category") not in valid_categories:
                     return Response({"status": "error", "message": "カテゴリが不正です"}, status=400)
 
-            data["season_tag"] = data.get("season_tag") or []
-            data["tpo_tags"] = data.get("tpo_tags") or []
+            # JSON文字列 → Python配列
+            import json
+            data["season_tag"] = json.loads(data.get("season_tag", "[]"))
+            data["tpo_tags"] = json.loads(data.get("tpo_tags", "[]"))
 
-            # --- 画像更新対応 ---
-            new_image = data.pop("image_base64", None)
-            if new_image:
-                data["image_url"] = upload_image_base64(new_image)
+            # --- 新しい画像があればアップロード ---
+            if file:
+                data["image_url"] = upload_image_file(file)
 
             updated = (
                 supabase.table("items")
@@ -172,6 +163,7 @@ def item_detail(request, item_id):
 
             return Response({"status": "success", "data": updated.data})
 
+        # ---------------- DELETE ----------------
         elif request.method == 'DELETE':
             supabase.table("items").delete().eq("item_id", item_id).eq("user_id", user_id).execute()
             return Response({"status": "success", "message": "Item deleted"})

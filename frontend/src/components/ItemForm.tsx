@@ -13,7 +13,8 @@ export interface ItemFormValues {
     category: CategoryType | "";
     subcategory_id: number | null;
     storage_id: number | null;
-    image_base64: string;
+    image_file: File | null;
+    image_url?: string;        // ← 追加（編集時に必要）
     color: string;
     material: string;
     pattern: string;
@@ -38,20 +39,52 @@ export default function ItemForm({
     onSubmit,
 }: Props) {
     const [values, setValues] = useState<ItemFormValues>(initialValues);
+
+    // ◇ ここが重要！初期プレビューを決める
+    const [preview, setPreview] = useState<string>(
+        initialValues.image_file
+            ? "" // 後で useEffect で読ませる
+            : initialValues.image_url || "/noimage.png"
+    );
+
     const navigate = useNavigate();
 
+    /* 編集時に画像 URL や初期値が変わったらプレビュー初期化 */
     useEffect(() => {
         setValues(initialValues);
+
+        setPreview(initialValues.image_url || "/noimage.png");
     }, [initialValues]);
 
-    const toggleArrayValue = <T,>(value: T, list: T[], setter: (s: T[]) => void) => {
-        setter(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+    /* ファイル選択時：preview 更新 */
+    const handleImageFile = (file: File | null) => {
+        setValues((prev) => ({ ...prev, image_file: file }));
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => setPreview(reader.result as string);
+            reader.readAsDataURL(file);
+        } else {
+            setPreview(initialValues.image_url || "/noimage.png");
+        }
+    };
+
+    const toggleArrayValue = <T,>(
+        value: T,
+        list: T[],
+        setter: (s: T[]) => void
+    ) => {
+        setter(
+            list.includes(value)
+                ? list.filter((v) => v !== value)
+                : [...list, value]
+        );
     };
 
     const handleCategoryChange = (value: string) => {
-        setValues(prev => {
-            const subs = subcategoryList.filter(s => s.category === value);
-            const other = subs.find(s => s.name === "その他");
+        setValues((prev) => {
+            const subs = subcategoryList.filter((s) => s.category === value);
+            const other = subs.find((s) => s.name === "その他");
             return {
                 ...prev,
                 category: value as CategoryType,
@@ -64,19 +97,7 @@ export default function ItemForm({
         !["服", "靴", "アクセサリー"].includes(cat);
 
     const handleChange = (field: keyof ItemFormValues, val: any) => {
-        setValues(prev => ({ ...prev, [field]: val }));
-    };
-
-    /** 画像ファイルを Base64 に変換 */
-    const handleImageFile = (file: File | null) => {
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            const base64 = reader.result as string;
-            setValues(prev => ({ ...prev, image_base64: base64 }));
-        };
-        reader.readAsDataURL(file);
+        setValues((prev) => ({ ...prev, [field]: val }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -98,19 +119,21 @@ export default function ItemForm({
                 {/* 左カラム */}
                 <div className="flex flex-col gap-4">
 
+                    {/* プレビュー部分 */}
                     <div>
                         <p className="text-sm font-semibold mb-1">画像</p>
                         <div className="flex justify-center">
                             <img
-                                src={values.image_base64 || "/noimage.png"}
-                                alt="preview"
+                                src={preview}
                                 className="w-40 h-40 object-cover rounded-xl border"
                             />
                         </div>
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => handleImageFile(e.target.files?.[0] || null)}
+                            onChange={(e) =>
+                                handleImageFile(e.target.files?.[0] || null)
+                            }
                             className="mt-2"
                         />
                     </div>

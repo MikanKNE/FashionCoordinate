@@ -29,25 +29,23 @@ export default function ItemAddPage() {
         })();
     }, []);
 
-    // ⚠ image_url は使用しない（backend は image_base64 に対応するため）
     const initialValues: ItemFormValues = {
         name: "",
         category: "",
         subcategory_id: null,
         storage_id: null,
+        image_file: null,
         color: "",
         material: "",
         pattern: "",
         season_tag: [],
         tpo_tags: [],
         is_favorite: false,
-        image_base64: "", // ← フォームで入力した画像を保持する
     };
 
     const handleSubmit = async (values: ItemFormValues) => {
         setLoading(true);
         try {
-            // Backend は image_base64 で受け取るためそのまま送信
             await createItem(values);
 
             toast.success("アイテムを追加しました");
