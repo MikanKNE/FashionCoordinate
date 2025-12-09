@@ -14,7 +14,7 @@ export interface ItemFormValues {
     subcategory_id: number | null;
     storage_id: number | null;
     image_file: File | null;
-    image_url?: string;        // ← 追加（編集時に必要）
+    image_url?: string;
     color: string;
     material: string;
     pattern: string;
@@ -40,10 +40,9 @@ export default function ItemForm({
 }: Props) {
     const [values, setValues] = useState<ItemFormValues>(initialValues);
 
-    // ◇ ここが重要！初期プレビューを決める
     const [preview, setPreview] = useState<string>(
         initialValues.image_file
-            ? "" // 後で useEffect で読ませる
+            ? ""
             : initialValues.image_url || "/noimage.png"
     );
 

@@ -1,7 +1,9 @@
 // frontend/src/components/ItemCard.tsx
-import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 
 import type { Item } from "../types";
+import { API_BASE } from "../api";
+import toast from "react-hot-toast";
 
 interface ItemCardProps {
     item: Item;
@@ -20,6 +22,37 @@ const ItemCard: React.FC<ItemCardProps> = ({
     disableHover = false,
     className = "",
 }) => {
+
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!item?.item_id) return;
+
+        let isMounted = true;
+
+        const fetchSignedUrl = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/items/${item.item_id}/image/`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                const data = await res.json();
+
+                if (isMounted) {
+                    setImageUrl(data.url ?? null);
+                }
+            } catch (err) {
+                console.error("Failed to load image:", err);
+                if (isMounted) setImageUrl(null);
+            }
+        };
+
+        fetchSignedUrl();
+
+        return () => { isMounted = false };
+    }, [item.item_id]);
+
     return (
         <div
             onClick={onClick}
@@ -41,9 +74,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
             }}
         >
             <div className="w-full mb-2">
-                {item.image_url ? (
+                {imageUrl ? (
                     <img
-                        src={item.image_url}
+                        src={imageUrl}
                         alt={item.name}
                         className={`w-full object-cover rounded-xl ${compact ? "h-24" : "h-36"}`}
                     />

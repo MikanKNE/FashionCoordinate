@@ -11,6 +11,7 @@ import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
 
 import type { Item } from "../types";
 
+import { API_BASE } from "../api/index";
 
 interface Props {
     itemId: number | null;
@@ -26,21 +27,42 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
     const navigate = useNavigate();
 
     // アイテム詳細取得
-    const fetchItem = async (id: number) => {
+    const fetchItem = async (id: number): Promise<Item | null> => {
         setLoading(true);
         try {
             const res = await getItemDetail(id);
+
             setItem(res?.data ?? null);
+
+            return res?.data ?? null;
         } catch (e) {
             console.error(e);
             setItem(null);
+            return null;
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
+
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     useEffect(() => {
         if (!isOpen || itemId == null) return;
-        fetchItem(itemId);
+
+        const loadData = async () => {
+            const detail = await fetchItem(itemId);
+            if (!detail) return;
+
+            const res = await fetch(`${API_BASE}/items/${detail.item_id}/image/`, {
+                method: "GET",
+                credentials: "include",
+            });
+
+            const data = await res.json();
+            setImageUrl(data.url ?? null);
+        };
+
+        loadData();
     }, [itemId, isOpen]);
 
     // 削除処理
@@ -51,10 +73,8 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
             await deleteItem(item.item_id);
             toast.success("アイテムを削除しました");
 
-            // 閉じる
             onClose();
 
-            // 更新通知
             if (onItemUpdated) onItemUpdated();
         } catch (err) {
             console.error(err);
@@ -93,11 +113,19 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
                     ) : item ? (
                         <>
                             {/* 画像 */}
-                            <img
-                                src={item.image_url || "/noimage.png"}
-                                alt={item.name}
-                                className="w-full h-48 object-cover rounded-md mb-4 border border-gray-200 dark:border-white/20"
-                            />
+                            <div className="w-full mb-3 flex justify-center">
+                                {imageUrl ? (
+                                    <img
+                                        src={imageUrl}
+                                        alt={item.name}
+                                        className="w-64 h-64 object-cover rounded-xl"
+                                    />
+                                ) : (
+                                    <div className="w-64 h-64 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
+                                        No Image
+                                    </div>
+                                )}
+                            </div>
 
                             {/* タイトル */}
                             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -145,7 +173,7 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
                 </div>
             </div>
 
-            {/* ★ コンポーネント化した削除モーダル ★ */}
+            {/* 削除モーダル */}
             <ConfirmDeleteModal
                 isOpen={showConfirm}
                 title="本当に削除しますか？"
