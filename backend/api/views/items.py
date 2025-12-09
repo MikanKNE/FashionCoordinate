@@ -3,9 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from ..supabase_client import supabase
 import traceback
-import base64
 import uuid
-import mimetypes
 
 # ===============================
 # 画像アップロード関数
@@ -85,6 +83,13 @@ def items_list_create(request):
 
             data["user_id"] = user_id
 
+            # 数値カラムの空文字を None に変換
+            int_fields = ["subcategory_id", "storage_id", "price", "size"]
+            for f in int_fields:
+                if data.get(f) == "":
+                    data[f] = None
+
+            # --- 画像アップロード ---
             if file:
                 data["image_url"] = upload_image_file(file)
 
@@ -148,6 +153,12 @@ def item_detail(request, item_id):
             import json
             data["season_tag"] = json.loads(data.get("season_tag", "[]"))
             data["tpo_tags"] = json.loads(data.get("tpo_tags", "[]"))
+
+            # 数値カラムの空文字を None に変換（PUT でも必要）
+            int_fields = ["subcategory_id", "storage_id", "price", "size"]
+            for f in int_fields:
+                if data.get(f) == "":
+                    data[f] = None
 
             # --- 新しい画像があればアップロード ---
             if file:
