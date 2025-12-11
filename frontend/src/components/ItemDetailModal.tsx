@@ -53,6 +53,7 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
             const detail = await fetchItem(itemId);
             if (!detail) return;
 
+            // detail.item_id が確実に存在してから image API を叩く
             const res = await fetch(`${API_BASE}/items/${detail.item_id}/image/`, {
                 method: "GET",
                 credentials: "include",

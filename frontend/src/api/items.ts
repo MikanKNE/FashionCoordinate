@@ -65,13 +65,9 @@ export async function createItem(values: ItemFormValues) {
 // ===========================
 // アイテム更新
 // ===========================
-// ===========================
-// アイテム更新（完成版）
-// ===========================
 export async function updateItem(item_id: number, values: ItemFormValues) {
     const headers = await authHeaders();
 
-    // FormData を作成
     const form = new FormData();
     form.append("name", values.name);
     form.append("category", values.category);
@@ -84,15 +80,13 @@ export async function updateItem(item_id: number, values: ItemFormValues) {
     form.append("tpo_tags", JSON.stringify(values.tpo_tags));
     form.append("is_favorite", String(values.is_favorite));
 
-    // 新しい画像が選択されたときのみ送信
     if (values.image_file) {
         form.append("image", values.image_file);
     }
 
-    // Content-Type は入れない！
     const res = await fetch(`${API_BASE}/items/${item_id}/`, {
         method: "PUT",
-        headers, // Authorization だけ入る
+        headers,
         body: form,
     });
 
@@ -125,4 +119,22 @@ export async function deleteItem(item_id: number) {
     });
     if (!res.ok) throw new Error("Failed to delete item");
     return res.json();
+}
+
+// ===========================
+// 署名付きURLを取得
+// ===========================
+export async function getItemImageUrl(item_id: number) {
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/items/${item_id}/image/`, {
+        headers,
+    });
+
+    if (!res.ok) {
+        console.error(await res.text());
+        throw new Error("Failed to get signed image URL");
+    }
+
+    const json = await res.json();
+    return json.url as string; // 署名付きURL
 }

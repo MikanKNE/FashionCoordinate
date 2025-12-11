@@ -29,9 +29,8 @@ def upload_image_file(file, file_prefix="item"):
         if isinstance(res, dict) and res.get("error"):
             raise ValueError(res["error"]["message"])
 
-        public_url = supabase.storage.from_("item_image").get_public_url(file_path)
+        return file_path
 
-        return public_url
     except Exception as e:
         print("upload_image_file error:", e)
         raise e
@@ -42,7 +41,7 @@ def upload_image_file(file, file_prefix="item"):
 @api_view(['GET', 'POST'])
 def items_list_create(request):
     try:
-        # --- JWTでユーザー取得 ---
+        # --- 認証 ---
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             return Response({"status": "error", "message": "Authorization header missing"}, status=401)
@@ -51,6 +50,7 @@ def items_list_create(request):
         user = supabase.auth.get_user(token)
         if not user or not user.user:
             return Response({"status": "error", "message": "Invalid token"}, status=401)
+
         user_id = user.user.id
 
         # ---------------- GET ----------------
@@ -63,12 +63,11 @@ def items_list_create(request):
             )
             return Response({"status": "success", "data": response.data})
 
-        # ---------------- POST（FormData） ----------------
+        # ---------------- POST ----------------
         elif request.method == 'POST':
             data = request.POST.copy()
             file = request.FILES.get("image")
 
-            # --- バリデーション ---
             if not data.get("name"):
                 return Response({"status": "error", "message": "名前は必須です"}, status=400)
 
@@ -76,24 +75,24 @@ def items_list_create(request):
             if data.get("category") not in valid_categories:
                 return Response({"status": "error", "message": "カテゴリが不正です"}, status=400)
 
-            # JSON文字列 → Python配列
             import json
             data["season_tag"] = json.loads(data.get("season_tag", "[]"))
             data["tpo_tags"] = json.loads(data.get("tpo_tags", "[]"))
 
             data["user_id"] = user_id
 
-            # 数値カラムの空文字を None に変換
+            # 数値の空文字はNone
             int_fields = ["subcategory_id", "storage_id", "price", "size"]
             for f in int_fields:
                 if data.get(f) == "":
                     data[f] = None
 
-            # --- 画像アップロード ---
+            # 画像アップロード
             if file:
                 data["image_url"] = upload_image_file(file)
 
             inserted = supabase.table("items").insert(data).execute()
+
             return Response({"status": "success", "data": inserted.data})
 
     except Exception as e:
@@ -107,7 +106,7 @@ def items_list_create(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 def item_detail(request, item_id):
     try:
-        # --- JWT認証 ---
+        # --- 認証 ---
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             return Response({"status": "error", "message": "Authorization header missing"}, status=401)
@@ -119,7 +118,7 @@ def item_detail(request, item_id):
 
         user_id = user.user.id
 
-        # --- 既存データ取得 ---
+        # --- データ取得 ---
         existing = (
             supabase.table("items")
             .select("*, subcategories:subcategory_id(name), storages:storage_id(storage_location)")
@@ -135,12 +134,11 @@ def item_detail(request, item_id):
         if request.method == 'GET':
             return Response({"status": "success", "data": existing.data[0]})
 
-        # ---------------- PUT（FormData） ----------------
+        # ---------------- PUT ----------------
         elif request.method == 'PUT':
             data = request.POST.copy()
             file = request.FILES.get("image")
 
-            # --- バリデーション ---
             if "name" in data and not data.get("name"):
                 return Response({"status": "error", "message": "名前は必須です"}, status=400)
 
@@ -149,18 +147,15 @@ def item_detail(request, item_id):
                 if data.get("category") not in valid_categories:
                     return Response({"status": "error", "message": "カテゴリが不正です"}, status=400)
 
-            # JSON文字列 → Python配列
             import json
             data["season_tag"] = json.loads(data.get("season_tag", "[]"))
             data["tpo_tags"] = json.loads(data.get("tpo_tags", "[]"))
 
-            # 数値カラムの空文字を None に変換（PUT でも必要）
             int_fields = ["subcategory_id", "storage_id", "price", "size"]
             for f in int_fields:
                 if data.get(f) == "":
                     data[f] = None
 
-            # --- 新しい画像があればアップロード ---
             if file:
                 data["image_url"] = upload_image_file(file)
 

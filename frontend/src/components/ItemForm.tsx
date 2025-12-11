@@ -5,10 +5,11 @@ import toast from "react-hot-toast";
 
 import { Button } from "./ui/Button";
 import Card from "./ui/Card";
-
 import type { CategoryType, SeasonType, TpoType } from "../types";
+import { API_BASE } from "../api/index";
 
 export interface ItemFormValues {
+    item_id?: number;
     name: string;
     category: CategoryType | "";
     subcategory_id: number | null;
@@ -52,8 +53,26 @@ export default function ItemForm({
     useEffect(() => {
         setValues(initialValues);
 
-        setPreview(initialValues.image_url || "/noimage.png");
+        // 署名付きURLの取得
+        const loadImage = async () => {
+            if (!initialValues.image_url) {
+                setPreview("/noimage.png");
+                return;
+            }
+
+            // GET /items/{id}/image/ で署名URLが返る
+            const res = await fetch(`${API_BASE}/items/${initialValues.item_id}/image/`, {
+                method: "GET",
+                credentials: "include",
+            });
+
+            const data = await res.json();
+            setPreview(data.url ?? "/noimage.png");
+        };
+
+        loadImage();
     }, [initialValues]);
+
 
     /* ファイル選択時：preview 更新 */
     const handleImageFile = (file: File | null) => {
