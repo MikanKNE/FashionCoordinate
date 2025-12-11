@@ -53,26 +53,44 @@ export default function ItemForm({
     useEffect(() => {
         setValues(initialValues);
 
-        // 署名付きURLの取得
         const loadImage = async () => {
+            if (initialValues.image_file) {
+                setPreview("");
+                return;
+            }
+
             if (!initialValues.image_url) {
                 setPreview("/noimage.png");
                 return;
             }
 
-            // GET /items/{id}/image/ で署名URLが返る
-            const res = await fetch(`${API_BASE}/items/${initialValues.item_id}/image/`, {
-                method: "GET",
-                credentials: "include",
-            });
+            setPreview(initialValues.image_url);
 
-            const data = await res.json();
-            setPreview(data.url ?? "/noimage.png");
+            try {
+                const res = await fetch(
+                    `${API_BASE}/items/${initialValues.item_id}/image/`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
+
+                const data = await res.json();
+
+                // 署名付きURLが取得できたらそれを表示
+                if (data.url) {
+                    setPreview(data.url);
+                } else {
+                    setPreview("/noimage.png");
+                }
+            } catch (err) {
+                console.error("署名URL取得失敗:", err);
+                setPreview("/noimage.png");
+            }
         };
 
         loadImage();
     }, [initialValues]);
-
 
     /* ファイル選択時：preview 更新 */
     const handleImageFile = (file: File | null) => {

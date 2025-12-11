@@ -36,6 +36,7 @@ export default function ItemEditPage() {
                 const item = itemRes.data;
                 if (item) {
                     setInitialValues({
+                        item_id: item.item_id,
                         name: item.name,
                         category: item.category || "",
                         subcategory_id: item.subcategory_id || null,

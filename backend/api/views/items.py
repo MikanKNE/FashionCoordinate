@@ -156,7 +156,12 @@ def item_detail(request, item_id):
                 if data.get(f) == "":
                     data[f] = None
 
+            # ---- 古い画像削除 + 新規アップロード ----
             if file:
+                old_image_url = existing.data[0].get("image_url")
+                if old_image_url:
+                    delete_image_file(old_image_url)
+
                 data["image_url"] = upload_image_file(file)
 
             updated = (
@@ -171,6 +176,10 @@ def item_detail(request, item_id):
 
         # ---------------- DELETE ----------------
         elif request.method == 'DELETE':
+            old_image_url = existing.data[0].get("image_url")
+            if old_image_url:
+                delete_image_file(old_image_url)
+
             supabase.table("items").delete().eq("item_id", item_id).eq("user_id", user_id).execute()
             return Response({"status": "success", "message": "Item deleted"})
 
@@ -178,3 +187,21 @@ def item_detail(request, item_id):
         print("item_detail エラー:", e)
         traceback.print_exc()
         return Response({"status": "error", "message": str(e)}, status=500)
+
+# ====================================================
+# Supabase 画像削除関数
+# ====================================================
+def delete_image_file(file_path):
+    try:
+        if not file_path:
+            return
+
+        print("Deleting from bucket:", file_path)
+
+        res = supabase.storage.from_("item_image").remove([file_path])
+
+        if isinstance(res, dict) and res.get("error"):
+            raise ValueError(res["error"]["message"])
+
+    except Exception as e:
+        print("delete_image_file error:", e)
