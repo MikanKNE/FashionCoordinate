@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-
 import { getUsageByDate } from "../api/usage_history";
-
+import { API_BASE } from "../api/index";
 import { Button } from "./ui/Button";
+import type { UsageHistory } from "../types";
 
 function formatDateLocal(d: Date) {
     const y = d.getFullYear();
@@ -25,18 +25,45 @@ export default function UsageHistoryDaily({
     const [items, setItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
+    async function getSignedUrl(item_id: number) {
+        const res = await fetch(`${API_BASE}/items/${item_id}/image/`);
+        const json = await res.json();
+        return json.url || null;
+    }
+
     const load = async (d: string) => {
         setLoading(true);
         try {
             const res = await getUsageByDate(d);
-            if (res.status === "success") setItems(res.data);
-            else setItems([]);
+
+            if (res.status === "success") {
+                const rows = res.data;
+
+                // 各アイテムに signed URL を付与
+                const withSigned = await Promise.all(
+                    rows.map(async (h) => {
+                        const signed = await getSignedUrl(h.item_id);
+                        return {
+                            ...h,
+                            items: {
+                                ...h.items,
+                                image_url: signed,
+                            },
+                        };
+                    })
+                );
+
+                setItems(withSigned);
+            } else {
+                setItems([]);
+            }
         } catch (e) {
             console.error(e);
             setItems([]);
         }
         setLoading(false);
     };
+
 
     useEffect(() => {
         load(date);
