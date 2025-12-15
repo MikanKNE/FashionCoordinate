@@ -9,6 +9,7 @@ from .views.storages import storages_list_create, storage_detail
 from .views.users import users_list_create, user_detail, user_update_email, user_update_password
 from .views.protected_view import protected_view
 from .views.items_image import item_image
+from .views.item_image_batch import item_image_batch
 
 urlpatterns = [
     # items
@@ -47,4 +48,6 @@ urlpatterns = [
     path("usage_history/date/<str:date_str>/", usage_by_date),
 
     path("items/<int:item_id>/image/", item_image),
+
+    path("api/items/images/", item_image_batch),
 ]

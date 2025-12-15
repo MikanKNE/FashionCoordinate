@@ -1,9 +1,6 @@
 // frontend/src/components/ItemCard.tsx
-import { useEffect, useState } from "react";
-
 import type { Item } from "../types";
-import { API_BASE } from "../api";
-import toast from "react-hot-toast";
+import { ItemImage } from "./ItemImage";
 
 interface ItemCardProps {
     item: Item;
@@ -22,37 +19,6 @@ const ItemCard: React.FC<ItemCardProps> = ({
     disableHover = false,
     className = "",
 }) => {
-
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!item?.item_id) return;
-
-        let isMounted = true;
-
-        const fetchSignedUrl = async () => {
-            try {
-                const res = await fetch(`${API_BASE}/items/${item.item_id}/image/`, {
-                    method: "GET",
-                    credentials: "include",
-                });
-
-                const data = await res.json();
-
-                if (isMounted) {
-                    setImageUrl(data.url ?? null);
-                }
-            } catch (err) {
-                console.error("Failed to load image:", err);
-                if (isMounted) setImageUrl(null);
-            }
-        };
-
-        fetchSignedUrl();
-
-        return () => { isMounted = false };
-    }, [item.item_id]);
-
     return (
         <div
             onClick={onClick}
@@ -64,7 +30,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
                     : "border border-gray-200 dark:border-gray-500/70"
                 }
                 ${compact ? "p-2" : "p-3"}
-                ${className ?? ""}
+                ${className}
             `}
             style={{
                 display: "flex",
@@ -73,23 +39,20 @@ const ItemCard: React.FC<ItemCardProps> = ({
                 textAlign: "center",
             }}
         >
+            {/* 画像 */}
             <div className="w-full mb-2">
-                {imageUrl ? (
-                    <img
-                        src={imageUrl}
-                        alt={item.name}
-                        className={`w-full object-cover rounded-xl ${compact ? "h-24" : "h-36"}`}
-                    />
-                ) : (
-                    <div
-                        className={`w-full ${compact ? "h-24" : "h-36"} rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 text-sm`}
-                    >
-                        No Image
-                    </div>
-                )}
+                <ItemImage
+                    itemId={item.item_id}
+                    alt={item.name}
+                    className={`w-full rounded-xl object-cover ${compact ? "h-24" : "h-36"}`}
+                />
             </div>
 
-            <h3 className={`font-medium ${compact ? "text-sm" : "text-base"}`}>{item.name}</h3>
+            {/* テキスト */}
+            <h3 className={`font-medium ${compact ? "text-sm" : "text-base"}`}>
+                {item.name}
+            </h3>
+
             {item.category && (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                     {item.category}

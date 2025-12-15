@@ -1,59 +1,47 @@
 // frontend/src/components/DashboardCoordinationList.tsx
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-
 import { getAllCoordinationItems } from "../api/coordination_items";
 import { getCoordinations } from "../api/coordinations";
-import { API_BASE } from "../api/index";
 import type { Coordination, Item, CoordinationItem } from "../types";
+import { ItemImage } from "./ItemImage";
 
 export default function DashboardCoordinationList() {
     const [coordinations, setCoordinations] = useState<Coordination[]>([]);
-
-    async function getSignedUrl(item_id: number | null | undefined) {
-        if (!item_id) return null;
-
-        const res = await fetch(`${API_BASE}/items/${item_id}/image/`);
-        const json = await res.json();
-        return json.url || null;
-    }
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const res = await getCoordinations();
-                const coordinationList: Coordination[] = Array.isArray(res) ? res : res.data;
+                const coordinationList: Coordination[] = Array.isArray(res)
+                    ? res
+                    : res.data;
+
                 const top3 = coordinationList.slice(0, 3);
 
                 const allCoordItemsRes = await getAllCoordinationItems();
-                const allCoordItems: CoordinationItem[] = allCoordItemsRes.data;
+                const allCoordItems: CoordinationItem[] =
+                    allCoordItemsRes.data;
 
                 const itemsByCoordId: Record<number, Item[]> = {};
 
-                await Promise.all(
-                    allCoordItems.map(async (ci) => {
-                        const signed = await getSignedUrl(ci.item_id);
+                allCoordItems.forEach((ci) => {
+                    const item: Item =
+                        ci.item ??
+                        {
+                            item_id: ci.item_id,
+                            name: "No Name",
+                            category: "",
+                            season_tag: [],
+                            tpo_tags: [],
+                            is_favorite: false,
+                        };
 
-                        const item: Item =
-                            ci.item
-                                ? { ...ci.item, image_url: signed }
-                                : {
-                                    item_id: ci.item_id,
-                                    name: "No Name",
-                                    category: "",
-                                    season_tag: [],
-                                    tpo_tags: [],
-                                    is_favorite: false,
-                                    image_url: signed,
-                                };
+                    if (!itemsByCoordId[ci.coordination_id]) {
+                        itemsByCoordId[ci.coordination_id] = [];
+                    }
 
-                        if (!itemsByCoordId[ci.coordination_id]) {
-                            itemsByCoordId[ci.coordination_id] = [];
-                        }
-
-                        itemsByCoordId[ci.coordination_id].push(item);
-                    })
-                );
+                    itemsByCoordId[ci.coordination_id].push(item);
+                });
 
                 const listWithItems: Coordination[] = top3.map((c) => ({
                     ...c,
@@ -71,7 +59,9 @@ export default function DashboardCoordinationList() {
 
     return (
         <div className="space-y-4">
-            <h2 className="text-lg font-semibold mb-3">コーディネート一覧</h2>
+            <h2 className="text-lg font-semibold mb-3">
+                コーディネート一覧
+            </h2>
 
             <div className="flex flex-col gap-4">
                 {coordinations.map((c) => (
@@ -83,23 +73,20 @@ export default function DashboardCoordinationList() {
                         <h3 className="font-medium text-base">
                             {c.name}
                             {c.is_favorite && (
-                                <span className="text-yellow-500 ml-1">★</span>
+                                <span className="text-yellow-500 ml-1">
+                                    ★
+                                </span>
                             )}
                         </h3>
 
-                        {/* 名前の横にアイテム画像 */}
+                        {/* アイテム画像 */}
                         <div className="flex items-center gap-2">
                             {c.items.slice(0, 3).map((item) => (
-                                <div
-                                    key={item.item_id}
-                                    className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center"
-                                >
-                                    <img
-                                        src={item.image_url}
-                                        alt={item.name}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
+                                <ItemImage
+                                    itemId={item.item_id}
+                                    alt={item.name}
+                                    className="w-16 h-16 rounded-xl object-cover"
+                                />
                             ))}
                         </div>
                     </div>
@@ -107,7 +94,9 @@ export default function DashboardCoordinationList() {
             </div>
 
             {coordinations.length === 0 && (
-                <p className="text-gray-500">コーディネートはまだ登録されていません</p>
+                <p className="text-gray-500">
+                    コーディネートはまだ登録されていません
+                </p>
             )}
         </div>
     );
