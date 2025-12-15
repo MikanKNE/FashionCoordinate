@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 import { getUsageByDate } from "../api/usage_history";
 import { API_BASE } from "../api/index";
 import { Button } from "./ui/Button";
-import type { UsageHistory } from "../types";
 
 function formatDateLocal(d: Date) {
     const y = d.getFullYear();

@@ -4,11 +4,19 @@ import toast from "react-hot-toast";
 
 import { getAllCoordinationItems } from "../api/coordination_items";
 import { getCoordinations } from "../api/coordinations";
-
+import { API_BASE } from "../api/index";
 import type { Coordination, Item, CoordinationItem } from "../types";
 
 export default function DashboardCoordinationList() {
     const [coordinations, setCoordinations] = useState<Coordination[]>([]);
+
+    async function getSignedUrl(item_id: number | null | undefined) {
+        if (!item_id) return null;
+
+        const res = await fetch(`${API_BASE}/items/${item_id}/image/`);
+        const json = await res.json();
+        return json.url || null;
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -21,19 +29,31 @@ export default function DashboardCoordinationList() {
                 const allCoordItems: CoordinationItem[] = allCoordItemsRes.data;
 
                 const itemsByCoordId: Record<number, Item[]> = {};
-                allCoordItems.forEach((ci) => {
-                    if (!itemsByCoordId[ci.coordination_id]) itemsByCoordId[ci.coordination_id] = [];
-                    itemsByCoordId[ci.coordination_id].push(
-                        ci.item ?? {
-                            item_id: ci.item_id,
-                            name: "No Name",
-                            category: "",
-                            season_tag: [],
-                            tpo_tags: [],
-                            is_favorite: false,
-                        } as Item
-                    );
-                });
+
+                await Promise.all(
+                    allCoordItems.map(async (ci) => {
+                        const signed = await getSignedUrl(ci.item_id);
+
+                        const item: Item =
+                            ci.item
+                                ? { ...ci.item, image_url: signed }
+                                : {
+                                    item_id: ci.item_id,
+                                    name: "No Name",
+                                    category: "",
+                                    season_tag: [],
+                                    tpo_tags: [],
+                                    is_favorite: false,
+                                    image_url: signed,
+                                };
+
+                        if (!itemsByCoordId[ci.coordination_id]) {
+                            itemsByCoordId[ci.coordination_id] = [];
+                        }
+
+                        itemsByCoordId[ci.coordination_id].push(item);
+                    })
+                );
 
                 const listWithItems: Coordination[] = top3.map((c) => ({
                     ...c,
