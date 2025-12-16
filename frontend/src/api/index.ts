@@ -10,3 +10,4 @@ export * from "./storages";
 export * from "./subcategories";
 export * from "./usage_history";
 export * from "./users";
+export * from "./declutter";

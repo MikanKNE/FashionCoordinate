@@ -10,6 +10,7 @@ from .views.users import users_list_create, user_detail, user_update_email, user
 from .views.protected_view import protected_view
 from .views.items_image import item_image
 from .views.item_image_batch import item_image_batch
+from .views.declutter import declutter_candidates
 
 urlpatterns = [
     # items
@@ -50,4 +51,6 @@ urlpatterns = [
     path("items/<int:item_id>/image/", item_image),
 
     path("api/items/images/", item_image_batch),
+
+    path("items/declutter_candidates/", declutter_candidates),
 ]
