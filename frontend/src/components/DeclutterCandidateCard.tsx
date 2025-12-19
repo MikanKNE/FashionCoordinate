@@ -18,17 +18,30 @@ export function DeclutterCandidateCard({ item }: Props) {
 
                 <span
                     className={`text-sm px-2 py-1 rounded
-            ${isStrong ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}
+            ${isStrong
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"}
           `}
                 >
                     {isStrong ? "強めの提案" : "検討候補"}
                 </span>
             </div>
 
-            {/* 理由 */}
-            <ul className="list-disc pl-5 text-sm text-gray-700">
-                {item.reasons.map((reason, i) => (
-                    <li key={i}>{reason}</li>
+            {/* スコア */}
+            <p className="text-sm font-medium">
+                断捨離スコア：
+                <span className="ml-1 text-red-600">
+                    {item.declutter_score}
+                </span>
+            </p>
+
+            {/* 理由（スコア内訳） */}
+            <ul className="space-y-1 text-sm text-gray-700">
+                {item.score_breakdown.map((s, i) => (
+                    <li key={i} className="flex justify-between">
+                        <span>・{s.reason}</span>
+                        <span className="text-gray-500">+{s.point}</span>
+                    </li>
                 ))}
             </ul>
 

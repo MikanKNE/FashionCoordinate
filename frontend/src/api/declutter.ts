@@ -2,16 +2,23 @@
 import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
 
+export type ScoreBreakdown = {
+    reason: string;
+    point: number;
+};
+
 export type DeclutterItem = {
-    item_id: number;
+    item_id: string;
     name: string;
     declutter_score: number;
     is_declutter_candidate: boolean;
-    reasons: string[];
+    score_breakdown: ScoreBreakdown[];
     stats: {
         usage_count: number;
         last_used_date: string | null;
         days_since_created: number;
+        days_since_last_use: number;
+        monthly_usage_rate: number;
     };
 };
 

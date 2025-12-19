@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from ..supabase_client import supabase
 from .coordinations import get_user_id_from_request
 
+
 @api_view(["GET"])
 def declutter_candidates(request):
     user_id, err_response = get_user_id_from_request(request)
@@ -36,28 +37,50 @@ def declutter_candidates(request):
 
     for row in rows:
         score = 0
-        reasons = []
+        score_breakdown = []
 
+        # -----------------------
+        # スコア加算用ヘルパー
+        # -----------------------
+        def add_score(reason: str, point: int):
+            nonlocal score
+            score += point
+            score_breakdown.append({
+                "reason": reason,
+                "point": point,
+            })
+
+        # -----------------------
+        # 登録期間
+        # -----------------------
         if row["days_since_created"] >= 60:
-            score += 2
+            add_score("登録から60日以上経過", 2)
         elif row["days_since_created"] >= 30:
-            score += 1
+            add_score("登録から30日以上経過", 1)
 
+        # -----------------------
+        # 最終使用日
+        # -----------------------
         if row["last_used_date"] is None:
-            score += 4
-            reasons.append("一度も使用されていません")
+            add_score("一度も使用されていません", 4)
         elif row["days_since_last_use"] >= 14:
-            score += 3
-            reasons.append("2週間以上使用されていません")
+            add_score("2週間以上使用されていません", 3)
 
+        # -----------------------
+        # 使用頻度
+        # -----------------------
         if row["monthly_usage_rate"] < 10:
-            score += 3
-            reasons.append("月平均の使用回数が少ないです")
+            add_score("月平均の使用回数が少ないです", 3)
 
+        # -----------------------
+        # お気に入り
+        # -----------------------
         if not row["is_favorite"]:
-            score += 1
-            reasons.append("お気に入り登録されていません")
+            add_score("お気に入り登録されていません", 1)
 
+        # -----------------------
+        # 候補判定
+        # -----------------------
         if score < 3:
             continue
 
@@ -66,11 +89,13 @@ def declutter_candidates(request):
             "name": row["name"],
             "declutter_score": score,
             "is_declutter_candidate": True,
-            "reasons": reasons,
+            "score_breakdown": score_breakdown,
             "stats": {
                 "usage_count": row["usage_count"],
                 "last_used_date": row["last_used_date"],
                 "days_since_created": row["days_since_created"],
+                "days_since_last_use": row["days_since_last_use"],
+                "monthly_usage_rate": row["monthly_usage_rate"],
             }
         })
 
