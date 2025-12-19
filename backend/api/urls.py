@@ -1,6 +1,6 @@
 # backend/api/urls.py
 from django.urls import path
-from .views import items_list_create, item_detail
+from .views.items import items_list_create, item_detail
 from .views.coordinations import coordinations_list_create, coordination_detail
 from .views.usage_history import usage_list_create, usage_detail, usage_by_date
 from .views.coordination_items import coordination_items_manage, get_all_coordination_items
@@ -11,6 +11,7 @@ from .views.protected_view import protected_view
 from .views.items_image import item_image
 from .views.item_image_batch import item_image_batch
 from .views.declutter import declutter_candidates
+from .views.image_analysis import image_analysis_preview
 
 urlpatterns = [
     # items
@@ -47,10 +48,10 @@ urlpatterns = [
 
     # usage by date
     path("usage_history/date/<str:date_str>/", usage_by_date),
-
     path("items/<int:item_id>/image/", item_image),
-
     path("api/items/images/", item_image_batch),
-
     path("items/declutter_candidates/", declutter_candidates),
+
+    # image analysis preview
+    path("image_analysis/preview/", image_analysis_preview),
 ]
