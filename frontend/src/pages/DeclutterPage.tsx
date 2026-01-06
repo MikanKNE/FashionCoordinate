@@ -1,3 +1,4 @@
+// src/pages/DeclutterPage.tsx
 import { useEffect, useState } from "react";
 import {
     getDeclutterCandidates,
@@ -17,26 +18,36 @@ export default function DeclutterPage() {
             .finally(() => setLoading(false));
     }, []);
 
+    const handleActionComplete = (itemId: number) => {
+        setItems(prev =>
+            prev.filter(item => item.item_id !== itemId)
+        );
+    };
+
     if (loading) {
         return <p>読み込み中...</p>;
-    }
-
-    if (items.length === 0) {
-        return <p className="text-gray-500">断捨離候補はありません</p>;
     }
 
     return (
         <>
             <Header />
+
             <div className="space-y-4">
                 <h1 className="text-2xl font-bold">断捨離の提案</h1>
 
-                {items.map(item => (
-                    <DeclutterCandidateCard
-                        key={item.item_id}
-                        item={item}
-                    />
-                ))}
+                {items.length === 0 ? (
+                    <p className="text-gray-500">
+                        断捨離候補はありません
+                    </p>
+                ) : (
+                    items.map(item => (
+                        <DeclutterCandidateCard
+                            key={item.item_id}
+                            item={item}
+                            onActionComplete={handleActionComplete}
+                        />
+                    ))
+                )}
             </div>
         </>
     );

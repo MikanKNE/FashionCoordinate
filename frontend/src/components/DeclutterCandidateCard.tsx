@@ -1,14 +1,36 @@
 // src/components/DeclutterCandidateCard.tsx
+import { useState } from "react";
 import Card from "./ui/Card";
 import { Button } from "./ui/Button";
 import type { DeclutterItem } from "../api";
+import { updateDeclutterAction } from "../api/declutter";
 
 type Props = {
     item: DeclutterItem;
+    onActionComplete: (itemId: number) => void;
 };
 
-export function DeclutterCandidateCard({ item }: Props) {
+export function DeclutterCandidateCard({
+    item,
+    onActionComplete,
+}: Props) {
+    const [loading, setLoading] = useState(false);
     const isStrong = item.declutter_score >= 10;
+
+    const handleAction = async (
+        action: "pending" | "favorite" | "discard"
+    ) => {
+        setLoading(true);
+        try {
+            await updateDeclutterAction(item.item_id, action);
+            onActionComplete(item.item_id);
+        } catch (e) {
+            console.error(e);
+            alert("操作に失敗しました");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <Card className="p-4 space-y-3">
@@ -18,10 +40,11 @@ export function DeclutterCandidateCard({ item }: Props) {
 
                 <span
                     className={`text-sm px-2 py-1 rounded
-            ${isStrong
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-700"}
-          `}
+                        ${
+                            isStrong
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                        }`}
                 >
                     {isStrong ? "強めの提案" : "検討候補"}
                 </span>
@@ -57,9 +80,29 @@ export function DeclutterCandidateCard({ item }: Props) {
 
             {/* アクション */}
             <div className="flex gap-2 pt-2">
-                <Button variant="secondary">残す</Button>
-                <Button variant="secondary">お気に入り</Button>
-                <Button variant="danger">処分予定</Button>
+                <Button
+                    variant="secondary"
+                    disabled={loading}
+                    onClick={() => handleAction("pending")}
+                >
+                    残す
+                </Button>
+
+                <Button
+                    variant="secondary"
+                    disabled={loading}
+                    onClick={() => handleAction("favorite")}
+                >
+                    お気に入り
+                </Button>
+
+                <Button
+                    variant="danger"
+                    disabled={loading}
+                    onClick={() => handleAction("discard")}
+                >
+                    処分予定
+                </Button>
             </div>
         </Card>
     );

@@ -1,6 +1,9 @@
-// frontend/src/api/declutter.ts
 import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
+
+/* =========================
+   型定義
+========================= */
 
 export type ScoreBreakdown = {
     reason: string;
@@ -8,7 +11,7 @@ export type ScoreBreakdown = {
 };
 
 export type DeclutterItem = {
-    item_id: string;
+    item_id: number;
     name: string;
     declutter_score: number;
     is_declutter_candidate: boolean;
@@ -21,6 +24,15 @@ export type DeclutterItem = {
         monthly_usage_rate: number;
     };
 };
+
+export type DeclutterAction =
+    | "pending"
+    | "favorite"
+    | "discard";
+
+/* =========================
+   断捨離候補取得
+========================= */
 
 export async function getDeclutterCandidates(): Promise<DeclutterItem[]> {
     const {
@@ -48,3 +60,41 @@ export async function getDeclutterCandidates(): Promise<DeclutterItem[]> {
 
     return res.json();
 }
+
+/* =========================
+   断捨離アクション（追加）
+========================= */
+
+export async function updateDeclutterAction(
+    itemId: number,
+    action: DeclutterAction
+): Promise<void> {
+    const {
+        data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+        throw new Error("未ログインです");
+    }
+
+    const res = await fetch(
+        `${API_BASE}/items/declutter/action/`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({
+                item_id: itemId,
+                action,
+            }),
+        }
+    );
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+    }
+}
+
