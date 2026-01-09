@@ -24,10 +24,9 @@ def declutter_candidates(request):
         return err_response
 
     try:
-        # item_usage_summary（VIEW）から取得
         res = (
             supabase
-            .table("item_usage_summary")
+            .table("item_usage_summary_for_suggestion")
             .select(
                 "item_id, name, is_favorite, status, status_updated_at, "
                 "usage_count, last_used_date, "
@@ -49,22 +48,6 @@ def declutter_candidates(request):
     results = []
 
     for row in rows:
-        # =================================================
-        # ステータスによる除外判定
-        # =================================================
-        item_status = row["status"]
-        status_updated_at = row["status_updated_at"]
-
-        # 処分予定・削除済みは常に除外
-        if item_status in ["discard", "deleted"]:
-            continue
-
-        # 保留（pending）は一定期間表示しない
-        if item_status == "pending" and status_updated_at:
-            updated_at = datetime.fromisoformat(status_updated_at)
-            if datetime.now(timezone.utc) - updated_at < timedelta(days=30):
-                continue
-
         # お気に入りは断捨離対象外
         if row["is_favorite"]:
             continue
