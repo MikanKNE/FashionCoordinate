@@ -77,3 +77,7 @@ export interface AccordionState {
     season_tag: boolean;
     tpo_tags: boolean;
 }
+
+export type CoordinationDetail = Coordination & {
+    items: Item[];
+};

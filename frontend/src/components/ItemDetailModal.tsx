@@ -30,11 +30,9 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
     const fetchItem = async (id: number): Promise<Item | null> => {
         setLoading(true);
         try {
-            const res = await getItemDetail(id);
-
-            setItem(res?.data ?? null);
-
-            return res?.data ?? null;
+            const data = await getItemDetail(id);
+            setItem(data ?? null);
+            return data ?? null;
         } catch (e) {
             console.error(e);
             setItem(null);

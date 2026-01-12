@@ -133,7 +133,7 @@ def item_detail(request, item_id):
         # ---------- 取得 ----------
         existing = (
             supabase.table("items")
-            .select("*")
+            .select("*, subcategories:subcategory_id(name), storages:storage_id(storage_location)")
             .eq("item_id", item_id)
             .eq("user_id", user_id)
             .neq("status", "deleted")
