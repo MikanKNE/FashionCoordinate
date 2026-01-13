@@ -24,7 +24,7 @@ export default function ItemEditPage() {
     useEffect(() => {
         (async () => {
             try {
-                const [subs, sts, itemRes] = await Promise.all([
+                const [subs, sts, item] = await Promise.all([
                     getSubcategories(),
                     getStorages(),
                     getItemDetail(itemId),
@@ -33,7 +33,6 @@ export default function ItemEditPage() {
                 setSubcategoryList(subs.data || []);
                 setStorageList(sts.data || []);
 
-                const item = itemRes.data;
                 if (item) {
                     setInitialValues({
                         item_id: item.item_id,
@@ -57,6 +56,7 @@ export default function ItemEditPage() {
             }
         })();
     }, [itemId]);
+
 
     if (!initialValues) return <p>読み込み中...</p>;
 

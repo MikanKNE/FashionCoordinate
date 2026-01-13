@@ -53,6 +53,9 @@ export default function Header() {
                 <Link to="/coordination-list" style={{ color: "#fff", textDecoration: "none" }}>
                     コーディネート
                 </Link>
+                <Link to="/declutter" style={{ color: "#fff", textDecoration: "none" }}>
+                    断捨離提案
+                </Link>
 
                 {!loading && (
                     <>

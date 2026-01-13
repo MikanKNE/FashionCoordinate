@@ -8,7 +8,6 @@ import { getCoordination, deleteCoordination } from "../api/coordinations";
 import { getItems } from "../api/items";
 
 import { Button } from "./ui/Button";
-
 import ItemCard from "./ItemCard";
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
 
@@ -21,39 +20,52 @@ interface Props {
     onDeleted?: () => void;
 }
 
-export default function CoordinationDetailModal({ coordination, isOpen, onClose, onDeleted }: Props) {
-    const [detail, setDetail] = useState<Coordination | null>(null);
+export default function CoordinationDetailModal({
+    coordination,
+    isOpen,
+    onClose,
+    onDeleted,
+}: Props) {
+    const [detail, setDetail] = useState<(Coordination & { items: Item[] }) | null>(null);
     const [loading, setLoading] = useState(false);
-
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const navigate = useNavigate();
 
+    // =========================
+    // 詳細取得
+    // =========================
     const fetchDetail = async () => {
         setLoading(true);
         try {
-            // コーディネート本体取得
+            // ① コーディネート本体
             const res = await getCoordination(coordination.coordination_id);
-            const data = res?.data ?? { ...coordination, items: [] };
+            const base: Coordination = res?.data ?? coordination;
 
-            // 中間テーブルからアイテム取得
+            // ② 中間テーブル
             const ciRes = await getAllCoordinationItems();
             const ciList: CoordinationItem[] =
-                ciRes?.data?.filter(
-                    (ci: CoordinationItem) => ci.coordination_id === coordination.coordination_id
+                (ciRes?.data as CoordinationItem[])?.filter(
+                    (ci: CoordinationItem) =>
+                        ci.coordination_id === coordination.coordination_id
                 ) ?? [];
 
-            // アイテム全件取得
-            const itemsRes = await getItems();
+            // ③ アイテム一覧（※ 配列）
+            const items: Item[] = await getItems();
             const itemsMap = new Map<number, Item>();
-            itemsRes?.data?.forEach((item: Item) => itemsMap.set(item.item_id, item));
+            items.forEach(item => {
+                itemsMap.set(item.item_id, item);
+            });
 
-            // 紐付け
-            const items: Item[] = ciList
-                .map((ci: CoordinationItem) => itemsMap.get(ci.item_id))
+            // ④ 紐付け
+            const linkedItems: Item[] = ciList
+                .map(ci => itemsMap.get(ci.item_id))
                 .filter(Boolean) as Item[];
 
-            setDetail({ ...data, items });
+            setDetail({
+                ...base,
+                items: linkedItems,
+            });
         } catch (e) {
             console.error(e);
             toast.error("詳細の取得に失敗しました");
@@ -63,14 +75,17 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose,
     };
 
     useEffect(() => {
-        if (!isOpen) return;
-        fetchDetail();
+        if (isOpen) {
+            fetchDetail();
+        }
     }, [isOpen]);
 
+    // =========================
+    // 削除
+    // =========================
     const confirmDelete = async () => {
         try {
             await deleteCoordination(coordination.coordination_id);
-
             toast.success("削除しました");
             onDeleted?.();
             setDeleteModalOpen(false);
@@ -90,46 +105,46 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose,
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center
-                        bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+                       bg-black/40 dark:bg-black/60 backdrop-blur-sm"
             onClick={handleOverlayClick}
         >
             <div
                 className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg
-                            w-96 relative animate-fadeIn border border-gray-300 dark:border-white/20"
+                           w-96 relative animate-fadeIn border border-gray-300 dark:border-white/20"
             >
-                {/* 閉じるボタン */}
+                {/* 閉じる */}
                 <button
-                    className="absolute top-3 right-3 text-gray-500 dark:text-gray-300
-                                hover:text-black dark:hover:text-white"
+                    className="absolute top-3 right-3 text-gray-500
+                               hover:text-black dark:hover:text-white"
                     onClick={onClose}
                 >
                     ✕
                 </button>
 
                 {loading || !detail ? (
-                    <p className="text-center text-gray-700 dark:text-gray-100">読み込み中...</p>
+                    <p className="text-center">読み込み中...</p>
                 ) : (
                     <>
-                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        <h2 className="text-xl font-semibold flex items-center gap-2">
                             {detail.name}
                             <span className="text-yellow-500">
                                 {detail.is_favorite ? "★" : "☆"}
                             </span>
                         </h2>
 
-                        {/* アイテム一覧 */}
+                        {/* アイテム */}
                         <div className="mt-4 grid grid-cols-2 gap-2">
-                            {detail.items.length ? (
+                            {detail.items.length > 0 ? (
                                 detail.items.map(item => (
                                     <ItemCard
                                         key={item.item_id}
                                         item={item}
-                                        compact={true}
-                                        disableHover={true}
+                                        compact
+                                        disableHover
                                     />
                                 ))
                             ) : (
-                                <p className="text-gray-400 mt-2 col-span-2 text-center">
+                                <p className="text-gray-400 col-span-2 text-center">
                                     アイテムなし
                                 </p>
                             )}
@@ -145,8 +160,6 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose,
                             >
                                 編集
                             </Button>
-
-                            {/* ★ 削除モーダルを開く */}
                             <Button
                                 variant="danger"
                                 className="flex-1"
@@ -159,7 +172,6 @@ export default function CoordinationDetailModal({ coordination, isOpen, onClose,
                 )}
             </div>
 
-            {/* ★ 削除確認モーダル */}
             <ConfirmDeleteModal
                 isOpen={deleteModalOpen}
                 title="コーディネートを削除しますか？"
