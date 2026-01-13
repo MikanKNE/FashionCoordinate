@@ -7,6 +7,7 @@ import { Button } from "./ui/Button";
 import Card from "./ui/Card";
 import type { CategoryType, SeasonType, TpoType } from "../types";
 import { API_BASE } from "../api/index";
+import { analyzeImage } from "../api/imageAnalysis";
 
 export interface ItemFormValues {
     item_id?: number;
@@ -40,6 +41,7 @@ export default function ItemForm({
     onSubmit,
 }: Props) {
     const [values, setValues] = useState<ItemFormValues>(initialValues);
+    const [analyzing, setAnalyzing] = useState(false);
 
     const [preview, setPreview] = useState<string>(
         initialValues.image_file
@@ -102,6 +104,35 @@ export default function ItemForm({
             reader.readAsDataURL(file);
         } else {
             setPreview(initialValues.image_url || "/noimage.png");
+        }
+    };
+
+    const analyzeImageWithAI = async () => {
+        if (!values.image_file) {
+            toast.error("画像を選択してください");
+            return;
+        }
+
+        setAnalyzing(true);
+
+        try {
+            const result = await analyzeImage(values.image_file);
+
+            // ★ 既存入力を壊さず「上書き」するだけ
+            setValues(prev => ({
+                ...prev,
+                color: result.color || prev.color,
+                material: result.material || prev.material,
+                pattern: result.pattern || prev.pattern,
+            }));
+
+            toast.success("AI解析結果を反映しました");
+
+        } catch (err) {
+            console.error(err);
+            toast.error("画像解析に失敗しました");
+        } finally {
+            setAnalyzing(false);
         }
     };
 
@@ -170,8 +201,16 @@ export default function ItemForm({
                             onChange={(e) =>
                                 handleImageFile(e.target.files?.[0] || null)
                             }
-                            className="mt-2"
+                            className="mt-2 w-full"
                         />
+                        <Button
+                            type="button"
+                            onClick={analyzeImageWithAI}
+                            disabled={analyzing || !values.image_file}
+                            className="mt-2 w-full"
+                        >
+                            {analyzing ? "AI解析中..." : "AIで色・素材・柄を自動入力"}
+                        </Button>
                     </div>
 
                     <div>
