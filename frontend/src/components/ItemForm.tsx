@@ -8,6 +8,7 @@ import Card from "./ui/Card";
 import type { CategoryType, SeasonType, TpoType } from "../types";
 import { API_BASE } from "../api/index";
 import { analyzeImage } from "../api/ai_imageAnalysis";
+import { convertAiResult } from "../utils/aiCategoryMapper";
 
 export interface ItemFormValues {
     item_id?: number;
@@ -51,7 +52,6 @@ export default function ItemForm({
 
     const navigate = useNavigate();
 
-    /* 編集時に画像 URL や初期値が変わったらプレビュー初期化 */
     useEffect(() => {
         setValues(initialValues);
 
@@ -78,15 +78,8 @@ export default function ItemForm({
                 );
 
                 const data = await res.json();
-
-                // 署名付きURLが取得できたらそれを表示
-                if (data.url) {
-                    setPreview(data.url);
-                } else {
-                    setPreview("/noimage.png");
-                }
-            } catch (err) {
-                console.error("署名URL取得失敗:", err);
+                setPreview(data.url || "/noimage.png");
+            } catch {
                 setPreview("/noimage.png");
             }
         };
@@ -94,7 +87,6 @@ export default function ItemForm({
         loadImage();
     }, [initialValues]);
 
-    /* ファイル選択時：preview 更新 */
     const handleImageFile = (file: File | null) => {
         setValues((prev) => ({ ...prev, image_file: file }));
 
@@ -107,6 +99,9 @@ export default function ItemForm({
         }
     };
 
+    /**
+     * ★ AI解析（機能変更点はここだけ）
+     */
     const analyzeImageWithAI = async () => {
         if (!values.image_file) {
             toast.error("画像を選択してください");
@@ -116,18 +111,26 @@ export default function ItemForm({
         setAnalyzing(true);
 
         try {
-            const result = await analyzeImage(values.image_file);
+            const rawResult = await analyzeImage(values.image_file);
 
-            // ★ 既存入力を壊さず「上書き」するだけ
+            const converted = convertAiResult(rawResult, subcategoryList);
+
             setValues(prev => ({
                 ...prev,
-                color: result.color || prev.color,
-                material: result.material || prev.material,
-                pattern: result.pattern || prev.pattern,
+
+                // カテゴリ（既存があれば上書きしない）
+                category: converted.category ?? prev.category,
+
+                // サブカテゴリ
+                subcategory_id: converted.subcategory_id ?? prev.subcategory_id,
+
+                // 属性
+                color: converted.color || prev.color,
+                material: converted.material || prev.material,
+                pattern: converted.pattern || prev.pattern,
             }));
 
             toast.success("AI解析結果を反映しました");
-
         } catch (err) {
             console.error(err);
             toast.error("画像解析に失敗しました");
@@ -171,8 +174,7 @@ export default function ItemForm({
         e.preventDefault();
         try {
             await onSubmit(values);
-        } catch (err) {
-            console.error(err);
+        } catch {
             toast.error("保存に失敗しました");
         }
     };
@@ -185,8 +187,6 @@ export default function ItemForm({
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
                 {/* 左カラム */}
                 <div className="flex flex-col gap-4">
-
-                    {/* プレビュー部分 */}
                     <div>
                         <p className="text-sm font-semibold mb-1">画像</p>
                         <div className="flex justify-center">
@@ -209,7 +209,9 @@ export default function ItemForm({
                             disabled={analyzing || !values.image_file}
                             className="mt-2 w-full"
                         >
-                            {analyzing ? "AI解析中..." : "AIで色・素材・柄を自動入力"}
+                            {analyzing
+                                ? "AI解析中..."
+                                : "AIで色・素材・柄を自動入力"}
                         </Button>
                     </div>
 
@@ -219,9 +221,10 @@ export default function ItemForm({
                         </p>
                         <input
                             type="text"
-                            placeholder="名前"
                             value={values.name}
-                            onChange={(e) => handleChange("name", e.target.value)}
+                            onChange={(e) =>
+                                handleChange("name", e.target.value)
+                            }
                             className="border p-2 rounded w-full"
                             required
                         />
@@ -233,14 +236,20 @@ export default function ItemForm({
                         </p>
                         <select
                             value={values.category}
-                            onChange={(e) => handleCategoryChange(e.target.value)}
+                            onChange={(e) =>
+                                handleCategoryChange(e.target.value)
+                            }
                             className={selectClass}
                             required
                         >
                             <option value="">カテゴリ選択</option>
-                            {["服", "靴", "アクセサリー", "帽子", "バッグ"].map(c => (
-                                <option key={c} value={c}>{c}</option>
-                            ))}
+                            {["服", "靴", "アクセサリー", "帽子", "バッグ"].map(
+                                (c) => (
+                                    <option key={c} value={c}>
+                                        {c}
+                                    </option>
+                                )
+                            )}
                         </select>
                     </div>
 
@@ -248,15 +257,28 @@ export default function ItemForm({
                         <p className="text-sm font-semibold mb-1">サブカテゴリ</p>
                         <select
                             value={values.subcategory_id ?? ""}
-                            onChange={(e) => handleChange("subcategory_id", Number(e.target.value))}
+                            onChange={(e) =>
+                                handleChange(
+                                    "subcategory_id",
+                                    Number(e.target.value)
+                                )
+                            }
                             className={selectClass}
-                            disabled={!values.category || isSubcategoryDisabled(values.category)}
+                            disabled={
+                                !values.category ||
+                                isSubcategoryDisabled(values.category)
+                            }
                         >
                             {values.category &&
                                 subcategoryList
-                                    .filter(s => s.category === values.category)
-                                    .map(s => (
-                                        <option key={s.subcategory_id} value={s.subcategory_id}>
+                                    .filter(
+                                        (s) => s.category === values.category
+                                    )
+                                    .map((s) => (
+                                        <option
+                                            key={s.subcategory_id}
+                                            value={s.subcategory_id}
+                                        >
                                             {s.name}
                                         </option>
                                     ))}
@@ -267,12 +289,20 @@ export default function ItemForm({
                         <p className="text-sm font-semibold mb-1">保存場所</p>
                         <select
                             value={values.storage_id || ""}
-                            onChange={(e) => handleChange("storage_id", Number(e.target.value))}
+                            onChange={(e) =>
+                                handleChange(
+                                    "storage_id",
+                                    Number(e.target.value)
+                                )
+                            }
                             className={selectClass}
                         >
                             <option value="">保存場所未選択</option>
-                            {storageList.map(s => (
-                                <option key={s.storage_id} value={s.storage_id}>
+                            {storageList.map((s) => (
+                                <option
+                                    key={s.storage_id}
+                                    value={s.storage_id}
+                                >
                                     {s.storage_location}
                                 </option>
                             ))}

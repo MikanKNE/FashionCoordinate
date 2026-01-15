@@ -2,19 +2,41 @@
 import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
 
-export interface Ai_ImageAnalysisResult {
+/**
+ * AI画像解析の正式レスポンス型
+ * confidence は参照用に保持するが、採用可否には使わない
+ */
+export interface AiImageAnalysisResult {
     category?: string;
+    subcategory?: string;
     color?: string;
     material?: string;
     pattern?: string;
-    season_tag?: string[];
-    tpo_tags?: string[];
+    confidence?: {
+        category?: number;
+        subcategory?: number;
+        color?: number;
+        material?: number;
+        pattern?: number;
+    };
+    auto_filled?: {
+        category?: boolean;
+        subcategory?: boolean;
+        color?: boolean;
+        material?: boolean;
+        pattern?: boolean;
+    };
 }
 
 async function authHeaders(): Promise<HeadersInit> {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+        data: { session },
+    } = await supabase.auth.getSession();
+
     const token = session?.access_token;
-    if (!token) throw new Error("Not logged in");
+    if (!token) {
+        throw new Error("Not logged in");
+    }
 
     return {
         Authorization: `Bearer ${token}`,
@@ -23,11 +45,12 @@ async function authHeaders(): Promise<HeadersInit> {
 
 /**
  * 画像解析API
+ * confidence の値に関係なく result をそのまま返す
  */
 export async function analyzeImage(
     file: File,
     mode: "preview" | "analyze" = "preview"
-): Promise<Ai_ImageAnalysisResult> {
+): Promise<AiImageAnalysisResult> {
     const headers = await authHeaders();
 
     const form = new FormData();
@@ -49,5 +72,5 @@ export async function analyzeImage(
         throw new Error(json.message || "Image analysis failed");
     }
 
-    return json.dummy_result ?? {};
+    return json.result as AiImageAnalysisResult;
 }
