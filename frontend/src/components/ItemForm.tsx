@@ -7,7 +7,7 @@ import { Button } from "./ui/Button";
 import Card from "./ui/Card";
 import type { CategoryType, SeasonType, TpoType } from "../types";
 import { API_BASE } from "../api/index";
-import { analyzeImage } from "../api/imageAnalysis";
+import { analyzeImage } from "../api/ai_imageAnalysis";
 
 export interface ItemFormValues {
     item_id?: number;

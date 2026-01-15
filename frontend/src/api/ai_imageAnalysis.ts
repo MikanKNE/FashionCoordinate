@@ -1,8 +1,8 @@
-// frontend/src/api/imageAnalysis.ts
+// frontend/src/api/ai_imageAnalysis.ts
 import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
 
-export interface ImageAnalysisResult {
+export interface Ai_ImageAnalysisResult {
     category?: string;
     color?: string;
     material?: string;
@@ -27,13 +27,13 @@ async function authHeaders(): Promise<HeadersInit> {
 export async function analyzeImage(
     file: File,
     mode: "preview" | "analyze" = "preview"
-): Promise<ImageAnalysisResult> {
+): Promise<Ai_ImageAnalysisResult> {
     const headers = await authHeaders();
 
     const form = new FormData();
     form.append("file", file);
 
-    const res = await fetch(`${API_BASE}/image_analysis/${mode}/`, {
+    const res = await fetch(`${API_BASE}/ai_image_analysis/${mode}/`, {
         method: "POST",
         headers,
         body: form,
