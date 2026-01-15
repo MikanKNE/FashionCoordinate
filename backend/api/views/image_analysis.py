@@ -20,6 +20,7 @@ def image_analysis_preview(request):
         },
         "dummy_result": {
             "category": "服",
+            "subcategory": "トップス",
             "color": "黒",
             "pattern": "無地",
             "material": "綿"
