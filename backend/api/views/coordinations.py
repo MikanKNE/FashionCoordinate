@@ -87,6 +87,7 @@ def coordination_detail(request, coordination_id):
 
         elif request.method == 'PUT':
             data = request.data
+            data.pop("items", None)
             response = supabase.table("coordinations").update(data).eq("coordination_id", coordination_id).eq("user_id", user_id).execute()
             return Response({"status": "success", "data": response.data})
 
