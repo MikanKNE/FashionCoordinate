@@ -130,30 +130,28 @@ def item_detail(request, item_id):
 
         user_id = user.user.id
 
-        # ---------- 取得 ----------
-        existing = (
-            supabase.table("items")
-            .select("*, subcategories:subcategory_id(name), storages:storage_id(storage_location)")
+        # ---------- 対象アイテム取得 ----------
+        item_res = (
+            supabase
+            .table("items")
+            .select("*")
             .eq("item_id", item_id)
             .eq("user_id", user_id)
             .neq("status", "deleted")
             .execute()
         )
 
-        if not existing.data:
+        if not item_res.data:
             return Response({"message": "Item not found"}, status=404)
 
-        item = existing.data[0]
+        item = item_res.data[0]
 
-        # ---------- GET ----------
-        if request.method == "GET":
-            return Response(item)
-
-        # ---------- PUT ----------
+        # =========================
+        # PUT（更新）
+        # =========================
         if request.method == "PUT":
             data = request.POST.copy()
             file = request.FILES.get("image")
-            new_image_path = None
 
             data["season_tag"] = json.loads(data.get("season_tag", "[]"))
             data["tpo_tags"] = json.loads(data.get("tpo_tags", "[]"))
@@ -162,50 +160,55 @@ def item_detail(request, item_id):
                 if data.get(f) == "":
                     data[f] = None
 
-            if "status" in data and data["status"] not in ["active", "pending", "discard", "deleted"]:
-                return Response({"message": "不正なstatusです"}, status=400)
-
-            try:
-                # 新画像アップロード
-                if file:
-                    new_image_path = upload_image_file(file)
-                    data["image_url"] = new_image_path
-
-                # DB UPDATE
-                updated = (
-                    supabase.table("items")
-                    .update(data)
-                    .eq("item_id", item_id)
-                    .eq("user_id", user_id)
-                    .execute()
-                )
-
-                # UPDATE成功後に旧画像削除
-                if file and item.get("image_url"):
+            # 画像更新
+            if file:
+                if item.get("image_url"):
                     delete_image_file(item["image_url"])
 
-                return Response(updated.data)
+                image_path = upload_image_file(file)
+                data["image_url"] = image_path
 
-            except Exception as e:
-                # 新画像ロールバック
-                if new_image_path:
-                    delete_image_file(new_image_path)
-
-                print("PUT error:", e)
-                traceback.print_exc()
-                return Response({"message": "更新に失敗しました"}, status=500)
-
-        # ---------- DELETE（論理削除） ----------
-        if request.method == "DELETE":
             updated = (
-                supabase.table("items")
-                .update({"status": "deleted"})
+                supabase
+                .table("items")
+                .update(data)
                 .eq("item_id", item_id)
                 .eq("user_id", user_id)
                 .execute()
             )
+
             return Response(updated.data)
+
+        # =========================
+        # GET（詳細取得）
+        # =========================
+        if request.method == "GET":
+            usage_res = (
+                supabase
+                .table("item_usage_summary")
+                .select("usage_count, last_used_date")
+                .eq("item_id", item_id)
+                .eq("user_id", user_id)
+                .execute()
+            )
+
+            usage = usage_res.data[0] if usage_res.data else {}
+            item["wear_count"] = usage.get("usage_count", 0)
+            item["last_used_date"] = usage.get("last_used_date")
+
+            return Response(item)
+
+        # =========================
+        # DELETE（論理削除）
+        # =========================
+        if request.method == "DELETE":
+            supabase.table("items").update(
+                {"status": "deleted"}
+            ).eq("item_id", item_id).eq("user_id", user_id).execute()
+
+            return Response({"message": "deleted"})
 
     except Exception as e:
         traceback.print_exc()
         return Response({"message": str(e)}, status=500)
+

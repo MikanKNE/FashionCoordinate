@@ -143,8 +143,36 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
                                 <p>カラー: {item.color || "未設定"}</p>
                                 <p>素材: {item.material || "未設定"}</p>
                                 <p>柄: {item.pattern || "未設定"}</p>
-                                <p>使用回数: {item.wear_count ?? 0} 回</p>
-                                <p>最終使用日: {item.last_used_date || "未使用"}</p>
+
+                                <p>
+                                    使用回数: <span className="font-medium">{item.wear_count}</span> 回
+                                </p>
+
+                                <p>
+                                    最終使用日:{" "}
+                                    {item.last_used_date
+                                        ? item.last_used_date
+                                        : "未使用"}
+                                </p>
+
+                                <p className="flex items-center gap-2">
+                                    ステータス:
+                                    <span
+                                        className={`px-2 py-0.5 rounded text-xs font-medium
+                                            ${item.status === "discard"
+                                                ? "bg-red-100 text-red-700"
+                                                : item.status === "pending"
+                                                    ? "bg-yellow-100 text-yellow-700"
+                                                    : "bg-green-100 text-green-700"
+                                            }`}
+                                    >
+                                        {item.status === "discard"
+                                            ? "処分予定"
+                                            : item.status === "pending"
+                                                ? "保留中"
+                                                : "使用中"}
+                                    </span>
+                                </p>
                             </div>
 
                             {/* ボタン */}

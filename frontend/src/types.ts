@@ -2,23 +2,35 @@
 export interface Item {
     item_id: number;
     user_id?: string;
+
     name: string;
-    storage_id?: number;
-    storages?: { storage_location: string };
-    storage_name?: string;
     category: string;
+
     subcategory_id?: number;
-    subcategories?: { name: string };
-    subcategory_name?: string;
+    subcategories?: {
+        name: string;
+    };
+
+    storage_id?: number;
+    storages?: {
+        storage_location: string;
+    };
+
     image_url?: string;
+
     season_tag: string[];
     tpo_tags: string[];
+
     color?: string;
     material?: string;
     pattern?: string;
+
     is_favorite: boolean;
-    wear_count?: number;
-    last_used_date?: string;
+
+    // ===== 追加（重要）=====
+    status: "active" | "pending" | "discard";
+    wear_count: number;
+    last_used_date: string | null;
 }
 
 export type CategoryType = "服" | "靴" | "アクセサリー" | "帽子" | "バッグ";
