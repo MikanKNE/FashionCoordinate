@@ -1,7 +1,7 @@
 // src/types.ts
 export interface Item {
     item_id: number;
-    user_id?: string;
+    user_id: string;
     name: string;
     storage_id?: number;
     storages?: { storage_location: string };
@@ -13,9 +13,9 @@ export interface Item {
     image_url?: string;
     season_tag: string[];
     tpo_tags: string[];
-    color?: string;
-    material?: string;
-    pattern?: string;
+    color?: string[];
+    material?: string[];
+    pattern?: string[];
     is_favorite: boolean;
     wear_count?: number;
     last_used_date?: string;
