@@ -33,7 +33,11 @@ def declutter_candidates(request):
                 "days_since_created, days_since_last_use, monthly_usage_rate"
             )
             .eq("user_id", user_id)
-            .gte("days_since_created", 30)  # 最低登録期間（テスト条件）
+            .gte("days_since_created", 30)
+            .or_(
+                "days_since_last_use.is.null,"
+                "days_since_last_use.gte.1"     # 残す選択してから◯日表示しない(後で変更)
+            )
             .execute()
         )
 

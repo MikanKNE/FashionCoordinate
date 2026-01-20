@@ -212,3 +212,42 @@ def item_detail(request, item_id):
         traceback.print_exc()
         return Response({"message": str(e)}, status=500)
 
+@api_view(["GET"])
+def discard_items(request):
+    # 認証
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return Response({"message": "Authorization header missing"}, status=401)
+
+    token = auth_header.split(" ")[1]
+    user = supabase.auth.get_user(token)
+    user_id = user.user.id
+
+    res = (
+        supabase
+        .table("item_usage_summary")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("status", "discard")
+        .execute()
+    )
+
+    return Response(res.data)
+
+@api_view(["PATCH"])
+def bulk_delete_items(request):
+    auth_header = request.headers.get("Authorization")
+    token = auth_header.split(" ")[1]
+    user = supabase.auth.get_user(token)
+    user_id = user.user.id
+
+    item_ids = request.data.get("item_ids", [])
+    if not item_ids:
+        return Response({"message": "item_ids required"}, status=400)
+
+    supabase.table("items").update({
+        "status": "deleted",
+        "status_updated_at": "now()"
+    }).in_("item_id", item_ids).eq("user_id", user_id).execute()
+
+    return Response({"message": "deleted", "count": len(item_ids)})

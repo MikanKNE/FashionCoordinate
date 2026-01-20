@@ -1,6 +1,6 @@
 # backend/api/urls.py
 from django.urls import path
-from .views.items import items_list_create, item_detail
+from .views.items import items_list_create, item_detail, discard_items, bulk_delete_items
 from .views.coordinations import coordinations_list_create, coordination_detail
 from .views.usage_history import usage_list_create, usage_detail, usage_by_date
 from .views.coordination_items import coordination_items_manage, get_all_coordination_items
@@ -18,6 +18,8 @@ urlpatterns = [
     # items
     path("items/", items_list_create),
     path("items/<int:item_id>/", item_detail),
+    path("items/discard/", discard_items),
+    path("items/bulk-delete/", bulk_delete_items),
 
     # coordinations
     path("coordinations/", coordinations_list_create),
