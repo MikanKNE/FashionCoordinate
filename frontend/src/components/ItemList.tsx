@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function ItemList({ items, onItemClick }: Props) {
-    if (!items || items.length === 0) return <p>アイテムが登録されていません</p>;
+    if (!items || items.length === 0) return <p>該当するアイテムが登録されていません</p>;
 
     return (
         <Card className="m-6">

@@ -12,25 +12,30 @@ export function ItemImage({
 }) {
     const { url, loading } = useSignedImageUrl(itemId);
 
-    if (loading) {
-        return <div className={className} />;
-    }
-
-    if (!url) {
-        return (
-            <div
-                className={`${className} bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-400 text-xs`}
-            >
-                No Image
-            </div>
-        );
-    }
-
     return (
-        <img
-            src={url}
-            alt={alt}
-            className={className}
-        />
+        <div
+            className={`
+                ${className}
+                bg-gray-100 dark:bg-gray-800
+                flex items-center justify-center
+                overflow-hidden
+            `}
+        >
+            {loading && <div />}
+
+            {!loading && !url && (
+                <div className="text-gray-400 text-xs">
+                    No Image
+                </div>
+            )}
+
+            {!loading && url && (
+                <img
+                    src={url}
+                    alt={alt}
+                    className="w-full h-full object-contain"
+                />
+            )}
+        </div>
     );
 }

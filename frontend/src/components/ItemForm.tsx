@@ -34,6 +34,9 @@ interface Props {
     onSubmit: (values: ItemFormValues) => Promise<void>;
 }
 
+const DRAFT_VALUES_KEY = "item_draft_values";
+const DRAFT_PREVIEW_KEY = "item_draft_preview";
+
 export default function ItemForm({
     initialValues,
     subcategoryList,
@@ -41,58 +44,57 @@ export default function ItemForm({
     loading = false,
     onSubmit,
 }: Props) {
-    const [values, setValues] = useState<ItemFormValues>(initialValues);
-    const [analyzing, setAnalyzing] = useState(false);
-
-    const [preview, setPreview] = useState<string>(
-        initialValues.image_file
-            ? ""
-            : initialValues.image_url || "/noimage.png"
-    );
-
     const navigate = useNavigate();
 
+    const [values, setValues] = useState<ItemFormValues>(initialValues);
+    const [preview, setPreview] = useState<string>(
+        initialValues.image_url || "/noimage.png"
+    );
+    const [analyzing, setAnalyzing] = useState(false);
+
+    /**
+     * 初回マウント時：sessionStorage からドラフト復元
+     */
     useEffect(() => {
-        setValues(initialValues);
+        const savedValues = sessionStorage.getItem(DRAFT_VALUES_KEY);
+        const savedPreview = sessionStorage.getItem(DRAFT_PREVIEW_KEY);
 
-        const loadImage = async () => {
-            if (initialValues.image_file) {
-                setPreview("");
-                return;
-            }
+        if (savedValues) {
+            setValues(JSON.parse(savedValues));
+        } else {
+            setValues(initialValues);
+        }
 
-            if (!initialValues.image_url) {
-                setPreview("/noimage.png");
-                return;
-            }
-
-            setPreview(initialValues.image_url);
-
-            try {
-                const res = await fetch(
-                    `${API_BASE}/items/${initialValues.item_id}/image/`,
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
-
-                const data = await res.json();
-                setPreview(data.url || "/noimage.png");
-            } catch {
-                setPreview("/noimage.png");
-            }
-        };
-
-        loadImage();
+        if (savedPreview) {
+            setPreview(savedPreview);
+        }
     }, [initialValues]);
+
+    /**
+     * values が変わるたびにドラフト保存
+     */
+    useEffect(() => {
+        sessionStorage.setItem(DRAFT_VALUES_KEY, JSON.stringify(values));
+    }, [values]);
+
+    /**
+     * preview が変わるたびに保存
+     */
+    useEffect(() => {
+        if (preview) {
+            sessionStorage.setItem(DRAFT_PREVIEW_KEY, preview);
+        }
+    }, [preview]);
 
     const handleImageFile = (file: File | null) => {
         setValues((prev) => ({ ...prev, image_file: file }));
 
         if (file) {
             const reader = new FileReader();
-            reader.onload = () => setPreview(reader.result as string);
+            reader.onload = () => {
+                const result = reader.result as string;
+                setPreview(result);
+            };
             reader.readAsDataURL(file);
         } else {
             setPreview(initialValues.image_url || "/noimage.png");
@@ -100,7 +102,7 @@ export default function ItemForm({
     };
 
     /**
-     * ★ AI解析（機能変更点はここだけ）
+     * AI解析
      */
     const analyzeImageWithAI = async () => {
         if (!values.image_file) {
@@ -112,19 +114,13 @@ export default function ItemForm({
 
         try {
             const rawResult = await analyzeImage(values.image_file);
-
             const converted = convertAiResult(rawResult, subcategoryList);
 
-            setValues(prev => ({
+            setValues((prev) => ({
                 ...prev,
-
-                // カテゴリ（既存があれば上書きしない）
                 category: converted.category ?? prev.category,
-
-                // サブカテゴリ
-                subcategory_id: converted.subcategory_id ?? prev.subcategory_id,
-
-                // 属性
+                subcategory_id:
+                    converted.subcategory_id ?? prev.subcategory_id,
                 color: converted.color || prev.color,
                 material: converted.material || prev.material,
                 pattern: converted.pattern || prev.pattern,
@@ -174,9 +170,19 @@ export default function ItemForm({
         e.preventDefault();
         try {
             await onSubmit(values);
+
+            // 保存成功 → ドラフト破棄
+            sessionStorage.removeItem(DRAFT_VALUES_KEY);
+            sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
         } catch {
             toast.error("保存に失敗しました");
         }
+    };
+
+    const handleCancel = () => {
+        sessionStorage.removeItem(DRAFT_VALUES_KEY);
+        sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
+        navigate("/item-list");
     };
 
     const selectClass =
@@ -199,7 +205,9 @@ export default function ItemForm({
                             type="file"
                             accept="image/*"
                             onChange={(e) =>
-                                handleImageFile(e.target.files?.[0] || null)
+                                handleImageFile(
+                                    e.target.files?.[0] || null
+                                )
                             }
                             className="mt-2 w-full"
                         />
@@ -254,7 +262,9 @@ export default function ItemForm({
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-1">サブカテゴリ</p>
+                        <p className="text-sm font-semibold mb-1">
+                            サブカテゴリ
+                        </p>
                         <select
                             value={values.subcategory_id ?? ""}
                             onChange={(e) =>
@@ -272,7 +282,8 @@ export default function ItemForm({
                             {values.category &&
                                 subcategoryList
                                     .filter(
-                                        (s) => s.category === values.category
+                                        (s) =>
+                                            s.category === values.category
                                     )
                                     .map((s) => (
                                         <option
@@ -317,7 +328,9 @@ export default function ItemForm({
                         <input
                             type="text"
                             value={values.color}
-                            onChange={(e) => handleChange("color", e.target.value)}
+                            onChange={(e) =>
+                                handleChange("color", e.target.value)
+                            }
                             className="border p-2 rounded w-full"
                         />
                     </div>
@@ -327,7 +340,9 @@ export default function ItemForm({
                         <input
                             type="text"
                             value={values.material}
-                            onChange={(e) => handleChange("material", e.target.value)}
+                            onChange={(e) =>
+                                handleChange("material", e.target.value)
+                            }
                             className="border p-2 rounded w-full"
                         />
                     </div>
@@ -337,7 +352,9 @@ export default function ItemForm({
                         <input
                             type="text"
                             value={values.pattern}
-                            onChange={(e) => handleChange("pattern", e.target.value)}
+                            onChange={(e) =>
+                                handleChange("pattern", e.target.value)
+                            }
                             className="border p-2 rounded w-full"
                         />
                     </div>
@@ -349,15 +366,21 @@ export default function ItemForm({
                                 <button
                                     type="button"
                                     key={s}
-                                    className={`px-2 py-1 rounded border ${values.season_tag.includes(s as SeasonType)
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-100 dark:bg-gray-700"
+                                    className={`px-2 py-1 rounded border ${values.season_tag.includes(
+                                        s as SeasonType
+                                    )
+                                            ? "bg-blue-500 text-white"
+                                            : "bg-gray-100 dark:bg-gray-700"
                                         }`}
                                     onClick={() =>
                                         toggleArrayValue(
                                             s as SeasonType,
                                             values.season_tag,
-                                            val => handleChange("season_tag", val)
+                                            (val) =>
+                                                handleChange(
+                                                    "season_tag",
+                                                    val
+                                                )
                                         )
                                     }
                                 >
@@ -370,19 +393,28 @@ export default function ItemForm({
                     <div>
                         <p className="text-sm font-semibold mb-1">TPO</p>
                         <div className="flex gap-2 flex-wrap">
-                            {["フォーマル", "カジュアル", "ビジネス", "ルームウェア", "その他"].map((t) => (
+                            {[
+                                "フォーマル",
+                                "カジュアル",
+                                "ビジネス",
+                                "ルームウェア",
+                                "その他",
+                            ].map((t) => (
                                 <button
                                     type="button"
                                     key={t}
-                                    className={`px-2 py-1 rounded border ${values.tpo_tags.includes(t as TpoType)
-                                        ? "bg-green-500 text-white"
-                                        : "bg-gray-100 dark:bg-gray-700"
+                                    className={`px-2 py-1 rounded border ${values.tpo_tags.includes(
+                                        t as TpoType
+                                    )
+                                            ? "bg-green-500 text-white"
+                                            : "bg-gray-100 dark:bg-gray-700"
                                         }`}
                                     onClick={() =>
                                         toggleArrayValue(
                                             t as TpoType,
                                             values.tpo_tags,
-                                            val => handleChange("tpo_tags", val)
+                                            (val) =>
+                                                handleChange("tpo_tags", val)
                                         )
                                     }
                                 >
@@ -393,15 +425,20 @@ export default function ItemForm({
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold mb-1">お気に入り</p>
+                        <p className="text-sm font-semibold mb-1">
+                            お気に入り
+                        </p>
                         <button
                             type="button"
                             className={`text-2xl ${values.is_favorite
-                                ? "text-yellow-400"
-                                : "text-gray-400"
-                                } transition-colors`}
+                                    ? "text-yellow-400"
+                                    : "text-gray-400"
+                                }`}
                             onClick={() =>
-                                handleChange("is_favorite", !values.is_favorite)
+                                handleChange(
+                                    "is_favorite",
+                                    !values.is_favorite
+                                )
                             }
                         >
                             ★
@@ -412,7 +449,7 @@ export default function ItemForm({
                         <Button type="submit" disabled={loading}>
                             {loading ? "保存中..." : "保存"}
                         </Button>
-                        <Button type="button" onClick={() => navigate("/item-list")}>
+                        <Button type="button" onClick={handleCancel}>
                             キャンセル
                         </Button>
                     </div>

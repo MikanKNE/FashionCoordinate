@@ -76,6 +76,7 @@ export interface AccordionState {
     pattern: boolean;
     season_tag: boolean;
     tpo_tags: boolean;
+    name: string;
 }
 
 export type CoordinationDetail = Coordination & {

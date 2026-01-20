@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { getItems } from "../api/items";
 import { getSubcategories } from "../api/subcategories";
 
+import { Button } from "./ui/Button";
 import Card from "./ui/Card";
 
 import type { MultiFilters, AccordionState, Subcategory, Item } from "../types";
@@ -31,10 +32,10 @@ export default function Filter({ filters, setFilters }: FilterProps) {
         pattern: false,
         season_tag: false,
         tpo_tags: false,
+        name: "",
     });
     const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     const parentCategories = ["服", "靴", "アクセサリー", "帽子", "バッグ"];
 
@@ -87,14 +88,38 @@ export default function Filter({ filters, setFilters }: FilterProps) {
     }, []);
 
     // ------------------------------
-    // 色・素材・柄・季節・TPO を取得
+    // 色・素材・柄・季節・TPO を取得（未選択を末尾に追加）
     // ------------------------------
     const uniqueValues = useMemo(() => {
-        const colors = Array.from(new Set(allItems.map(i => i.color).filter(Boolean))) as string[];
-        const materials = Array.from(new Set(allItems.map(i => i.material).filter(Boolean))) as string[];
-        const patterns = Array.from(new Set(allItems.map(i => i.pattern).filter(Boolean))) as string[];
+        const addEmptyOption = (arr: string[]) => {
+            const nonEmpty = arr.filter(v => v && v.trim() !== "");
+            if (arr.length === 0 || nonEmpty.length === arr.length) return nonEmpty;
+            return [...nonEmpty, "未選択"];
+        };
+
+        const moveEmptyToEnd = (arr: string[]) => arr.filter(v => v !== "未選択").concat(arr.includes("未選択") ? ["未選択"] : []);
+
+        const colors = moveEmptyToEnd(
+            addEmptyOption(
+                Array.from(new Set(allItems.flatMap(i => (i.color ? i.color.split(",").map(c => c.trim()) : ["未選択"]))))
+            )
+        );
+
+        const materials = moveEmptyToEnd(
+            addEmptyOption(
+                Array.from(new Set(allItems.flatMap(i => (i.material ? i.material.split(",").map(c => c.trim()) : ["未選択"]))))
+            )
+        );
+
+        const patterns = moveEmptyToEnd(
+            addEmptyOption(
+                Array.from(new Set(allItems.flatMap(i => (i.pattern ? i.pattern.split(",").map(c => c.trim()) : ["未選択"]))))
+            )
+        );
+
         const seasons = Array.from(new Set(allItems.flatMap(i => i.season_tag || [])));
         const tpos = Array.from(new Set(allItems.flatMap(i => i.tpo_tags || [])));
+
         return { colors, materials, patterns, seasons, tpos };
     }, [allItems]);
 
@@ -126,6 +151,9 @@ export default function Filter({ filters, setFilters }: FilterProps) {
     const toggleAccordion = (key: keyof AccordionState) =>
         setAccordion(prev => ({ ...prev, [key]: !prev[key] }));
 
+    // ------------------------------
+    // チェックボックスレンダラー
+    // ------------------------------
     const renderCheckboxSection = (
         label: string,
         key: keyof AccordionState,
@@ -210,15 +238,51 @@ export default function Filter({ filters, setFilters }: FilterProps) {
         </div>
     );
 
+    // ------------------------------
+    // 名前検索用レンダラー
+    // ------------------------------
+    const renderNameSearch = () => (
+        <div className="mb-3">
+            <input
+                type="text"
+                placeholder="名前で検索"
+                className="w-full border border-gray-300 dark:border-white/20 rounded-md px-2 py-1 text-sm text-slate-800 dark:text-slate-100"
+                value={filters.name || ""}
+                onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+            />
+        </div>
+    );
+
     return (
         <Card>
-            <h4 className="text-lg font-semibold mb-3">フィルター</h4>
+            <div className="items-center justify-between mb-3">
+                <h4 className="text-lg font-semibold">アイテムフィルター</h4>
+                <Button
+                    variant="secondary"
+                    className="max-w-xs text-sm"
+                    onClick={() =>
+                        setFilters({
+                            subcategory_ids: [],
+                            color: [],
+                            material: [],
+                            pattern: [],
+                            season_tag: [],
+                            tpo_tags: [],
+                            name: "",
+                            is_favorite: undefined,
+                        })
+                    }
+                >
+                    全てクリア
+                </Button>
+            </div>
+
 
             {loading && <div>読み込み中...</div>}
-            {/* {error && <div className="text-red-500">{error}</div>} */}
 
-            {!loading && !error && (
+            {!loading && (
                 <>
+                    {renderNameSearch()}
                     {renderCategorySection()}
 
                     {renderCheckboxSection(
