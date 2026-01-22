@@ -11,3 +11,4 @@ export * from "./subcategories";
 export * from "./usage_history";
 export * from "./users";
 export * from "./declutter";
+export * from "./ai_imageAnalysis";

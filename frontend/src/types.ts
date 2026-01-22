@@ -1,8 +1,7 @@
 // src/types.ts
 export interface Item {
     item_id: number;
-    user_id?: string;
-
+    user_id: string;
     name: string;
     category: string;
 
@@ -20,11 +19,9 @@ export interface Item {
 
     season_tag: string[];
     tpo_tags: string[];
-
-    color?: string;
-    material?: string;
-    pattern?: string;
-
+    color?: string[];
+    material?: string[];
+    pattern?: string[];
     is_favorite: boolean;
 
     // ===== 追加（重要）=====
@@ -88,6 +85,7 @@ export interface AccordionState {
     pattern: boolean;
     season_tag: boolean;
     tpo_tags: boolean;
+    name: string;
 }
 
 export type CoordinationDetail = Coordination & {

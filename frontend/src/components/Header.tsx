@@ -42,7 +42,11 @@ export default function Header() {
                 alignItems: "center",
             }}
         >
-            <h2 style={{ margin: 0 }}>FashionCoordinate</h2>
+            <h2 style={{ margin: 0 }}>
+                <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
+                    FashionCoordinate
+                </Link>
+            </h2>
             <nav style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                 <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
                     ホーム

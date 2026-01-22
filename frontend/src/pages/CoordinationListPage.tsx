@@ -24,9 +24,9 @@ import type {
 
 export default function CoordinationListPage() {
     const [coordinations, setCoordinations] = useState<Coordination[]>([]);
-    const [coordinationItems, setCoordinationItems] = useState<
-        (CoordinationItem & { item?: Item })[]
-    >([]);
+    const [coordinationItems, setCoordinationItems] = useState<(
+        CoordinationItem & { item?: Item }
+    )[]>([]);
     const [selected, setSelected] = useState<Coordination | null>(null);
 
     const [filters, setFilters] = useState<MultiFilters>({
@@ -37,6 +37,7 @@ export default function CoordinationListPage() {
         season_tag: [],
         tpo_tags: [],
         is_favorite: undefined,
+        name: "", // 名前検索追加
     });
 
     const [loading, setLoading] = useState(true);
@@ -52,23 +53,21 @@ export default function CoordinationListPage() {
         setError(null);
 
         try {
-            // ① コーディネート一覧
+            // コーディネート一覧
             const coordinationRes = await getCoordinations();
             const coordinationList = coordinationRes?.data ?? [];
             setCoordinations(coordinationList);
 
-            // ② 中間テーブル
+            // 中間テーブル
             const ciRes = await getAllCoordinationItems();
             const ciListRaw: CoordinationItem[] = ciRes?.data ?? [];
 
-            // ③ アイテム一覧（※ 配列が返る前提）
+            // アイテム一覧
             const items: Item[] = await getItems();
             const itemsMap = new Map<number, Item>();
-            items.forEach(item => {
-                itemsMap.set(item.item_id, item);
-            });
+            items.forEach(item => itemsMap.set(item.item_id, item));
 
-            // ④ 中間テーブルに item を紐付け
+            // 中間テーブルに item を紐付け
             const ciList = ciListRaw.map(ci => ({
                 ...ci,
                 item: itemsMap.get(ci.item_id),
@@ -105,37 +104,25 @@ export default function CoordinationListPage() {
         if (!item) return false;
 
         if (filters.is_favorite && !item.is_favorite) return false;
-        if (
-            filters.subcategory_ids.length &&
-            !filters.subcategory_ids.includes(item.subcategory_id!)
-        )
-            return false;
-        if (filters.color.length && !filters.color.includes(item.color ?? ""))
-            return false;
-        if (
-            filters.material.length &&
-            !filters.material.includes(item.material ?? "")
-        )
-            return false;
-        if (
-            filters.pattern.length &&
-            !filters.pattern.includes(item.pattern ?? "")
-        )
-            return false;
-        if (
-            filters.season_tag.length &&
-            !item.season_tag.some(tag =>
-                filters.season_tag.includes(tag)
-            )
-        )
-            return false;
-        if (
-            filters.tpo_tags.length &&
-            !item.tpo_tags.some(tag =>
-                filters.tpo_tags.includes(tag)
-            )
-        )
-            return false;
+
+        // サブカテゴリ
+        if (filters.subcategory_ids.length && !filters.subcategory_ids.includes(item.subcategory_id!)) return false;
+
+        // 色・素材・パターンはカンマ区切り対応
+        const itemColors = item.color ? item.color.split(",").map(c => c.trim()) : ["未選択"];
+        if (filters.color.length && !filters.color.some(f => itemColors.includes(f))) return false;
+
+        const itemMaterials = item.material ? item.material.split(",").map(c => c.trim()) : ["未選択"];
+        if (filters.material.length && !filters.material.some(f => itemMaterials.includes(f))) return false;
+
+        const itemPatterns = item.pattern ? item.pattern.split(",").map(c => c.trim()) : ["未選択"];
+        if (filters.pattern.length && !filters.pattern.some(f => itemPatterns.includes(f))) return false;
+
+        if (filters.season_tag.length && !item.season_tag.some(tag => filters.season_tag.includes(tag))) return false;
+        if (filters.tpo_tags.length && !item.tpo_tags.some(tag => filters.tpo_tags.includes(tag))) return false;
+
+        // 名前検索（部分一致・大文字小文字無視）
+        if (filters.name && !item.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
 
         return true;
     };
@@ -156,102 +143,86 @@ export default function CoordinationListPage() {
             <Header />
 
             <div className="min-h-screen p-6 text-slate-800 dark:text-slate-100">
-                <div className="max-w-6xl mx-auto">
-                    {/* ヘッダー */}
-                    <div className="flex items-center justify-between mb-4">
-                        <h1 className="text-2xl font-bold">
-                            コーディネート一覧
-                        </h1>
-                        <Button
-                            className="max-w-xs"
-                            onClick={() => navigate("/coordination/new")}
-                        >
-                            ＋ 追加
-                        </Button>
-                    </div>
-
-                    <div className="grid grid-cols-10 gap-6">
-                        {/* 左：フィルター */}
-                        <aside className="col-span-2 sticky top-0">
-                            <Filter
-                                filters={filters}
-                                setFilters={setFilters}
-                            />
-                        </aside>
-
-                        {/* 右：一覧 */}
-                        <main className="col-span-8">
-                            {loading && <p>読み込み中...</p>}
-                            {error && (
-                                <p className="text-red-500">{error}</p>
-                            )}
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {filteredCoordinations.length > 0 ? (
-                                    filteredCoordinations.map(c => {
-                                        const items =
-                                            getItemsForCoordination(
-                                                c.coordination_id
-                                            ).slice(0, 3);
-
-                                        return (
-                                            <Card
-                                                key={c.coordination_id}
-                                                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition"
-                                                onClick={() => setSelected(c)}
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <div className="text-lg font-semibold">
-                                                        {c.name}
-                                                    </div>
-                                                    <div className="text-xl text-yellow-500">
-                                                        {c.is_favorite
-                                                            ? "★"
-                                                            : "☆"}
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-2 flex gap-2">
-                                                    {items.length > 0 ? (
-                                                        items.map(item => (
-                                                            <ItemCard
-                                                                key={
-                                                                    item.item_id
-                                                                }
-                                                                item={item}
-                                                                compact
-                                                                disableHover
-                                                                className="flex-1"
-                                                            />
-                                                        ))
-                                                    ) : (
-                                                        <div className="text-gray-400">
-                                                            アイテムなし
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </Card>
-                                        );
-                                    })
-                                ) : (
-                                    <p className="text-gray-500 mt-4">
-                                        条件に合うコーディネートがありません
-                                    </p>
-                                )}
-                            </div>
-                        </main>
-                    </div>
-
-                    {/* 詳細モーダル */}
-                    {selected && (
-                        <CoordinationDetailModal
-                            coordination={selected}
-                            isOpen={true}
-                            onClose={() => setSelected(null)}
-                            onDeleted={fetchList}
-                        />
-                    )}
+                {/* ヘッダー */}
+                <div className="flex items-center justify-between mb-4">
+                    <h1 className="text-2xl font-bold">コーディネート一覧</h1>
+                    <Button
+                        className="max-w-xs"
+                        onClick={() => navigate("/coordination/new")}
+                    >
+                        ＋ 追加
+                    </Button>
                 </div>
+
+                <div className="grid grid-cols-10 gap-6">
+                    {/* 左：フィルター */}
+                    <aside className="col-span-2 sticky top-0">
+                        <Filter
+                            filters={filters}
+                            setFilters={setFilters}
+                            showClearAllButton // 全フィルター解除対応
+                        />
+                    </aside>
+
+                    {/* 右：一覧 */}
+                    <main className="col-span-8">
+                        {loading && <p>読み込み中...</p>}
+                        {error && <p className="text-red-500">{error}</p>}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {filteredCoordinations.length > 0 ? (
+                                filteredCoordinations.map(c => {
+                                    const items = getItemsForCoordination(c.coordination_id).slice(0, 3);
+
+                                    return (
+                                        <Card
+                                            key={c.coordination_id}
+                                            className="cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition"
+                                            onClick={() => setSelected(c)}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className="text-lg font-semibold">{c.name}</div>
+                                                <div className="text-xl text-yellow-500">
+                                                    {c.is_favorite ? "★" : "☆"}
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-2 flex gap-2">
+                                                {items.length > 0 ? (
+                                                    items.map(item => (
+                                                        <ItemCard
+                                                            key={item.item_id}
+                                                            item={item}
+                                                            compact
+                                                            disableHover
+                                                            className="flex-1"
+                                                        />
+                                                    ))
+                                                ) : (
+                                                    <div className="text-gray-400">アイテムなし</div>
+                                                )}
+                                            </div>
+                                        </Card>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-gray-500 mt-4">
+                                    条件に合うコーディネートがありません
+                                </p>
+                            )}
+                        </div>
+                    </main>
+                </div>
+
+                {/* 詳細モーダル */}
+                {selected && (
+                    <CoordinationDetailModal
+                        coordination={selected}
+                        isOpen={true}
+                        onClose={() => setSelected(null)}
+                        onDeleted={fetchList}
+                    />
+                )}
             </div>
         </>
     );

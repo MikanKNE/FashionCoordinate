@@ -152,3 +152,12 @@ dotenv_path = os.path.join(BASE_DIR, '..', '.env')
 load_dotenv(dotenv_path)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+# AI Image Analysis
+AI_IMAGE_ANALYSIS_API_URL = os.getenv(
+    "AI_IMAGE_ANALYSIS_API_URL",
+    "https://264db6c555c4.ngrok-free.app"
+)
+AI_IMAGE_ANALYSIS_TIMEOUT = int(
+    os.getenv("AI_IMAGE_ANALYSIS_TIMEOUT", "120")
+)

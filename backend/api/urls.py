@@ -11,7 +11,7 @@ from .views.protected_view import protected_view
 from .views.items_image import item_image
 from .views.item_image_batch import item_image_batch
 from .views.declutter import declutter_candidates
-from .views.image_analysis import image_analysis_preview
+from .views.ai_image_analysis import ai_image_analysis_preview
 from .views.declutter_actions import update_declutter_status
 
 urlpatterns = [
@@ -56,6 +56,6 @@ urlpatterns = [
     path("items/declutter_candidates/", declutter_candidates),
 
     # image analysis preview
-    path("image_analysis/preview/", image_analysis_preview),
+    path("ai_image_analysis/preview/", ai_image_analysis_preview),
     path("items/declutter/action/", update_declutter_status),
 ]
