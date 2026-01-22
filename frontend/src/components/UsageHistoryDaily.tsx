@@ -35,27 +35,39 @@ export default function UsageHistoryDaily({
     const [items, setItems] = useState<UsageHistoryRow[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const load = async (d: string) => {
-        setLoading(true);
-        try {
-            const res = await getUsageByDate(d);
-
-            if (res.status === "success") {
-                setItems(res.data);
-            } else {
-                setItems([]);
-            }
-        } catch (e) {
-            console.error(e);
-            toast.error("服装履歴の取得に失敗しました");
-            setItems([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        load(date);
+        let cancelled = false;
+
+        const loadSafe = async () => {
+            setLoading(true);
+            try {
+                const res = await getUsageByDate(date);
+                if (cancelled) return;
+
+                if (res.status === "success") {
+                    setItems(res.data);
+                } else {
+                    setItems([]);
+                }
+            } catch (e: any) {
+                if (cancelled) return;
+
+                if (e?.message !== "ユーザーがログインしていません") {
+                    toast.error("服装履歴の取得に失敗しました");
+                }
+                setItems([]);
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadSafe();
+
+        return () => {
+            cancelled = true;
+        };
     }, [date]);
 
     const moveDate = (days: number) => {

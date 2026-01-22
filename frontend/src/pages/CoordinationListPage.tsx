@@ -53,26 +53,26 @@ export default function CoordinationListPage() {
         setError(null);
 
         try {
-            // コーディネート一覧
-            const coordinationRes = await getCoordinations();
-            const coordinationList = coordinationRes?.data ?? [];
-            setCoordinations(coordinationList);
+            const [coordinationRes, ciRes, itemsRes] = await Promise.all([
+                getCoordinations(),
+                getAllCoordinationItems(),
+                getItems(),
+            ]);
 
-            // 中間テーブル
-            const ciRes = await getAllCoordinationItems();
+            const coordinations = coordinationRes?.data ?? [];
             const ciListRaw: CoordinationItem[] = ciRes?.data ?? [];
+            const items: Item[] = itemsRes ?? [];
 
-            // アイテム一覧
-            const items: Item[] = await getItems();
             const itemsMap = new Map<number, Item>();
             items.forEach(item => itemsMap.set(item.item_id, item));
 
-            // 中間テーブルに item を紐付け
             const ciList = ciListRaw.map(ci => ({
                 ...ci,
                 item: itemsMap.get(ci.item_id),
             }));
 
+            // ★ ここでまとめて state 更新
+            setCoordinations(coordinations);
             setCoordinationItems(ciList);
         } catch (e) {
             console.error(e);
