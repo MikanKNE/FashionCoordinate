@@ -46,6 +46,18 @@ export default function DiscardPage() {
         );
     };
 
+    /** 全選択ON/OFF */
+    const handleToggleAll = (checked: boolean) => {
+        if (checked) {
+            setCheckedIds(items.map(item => item.item_id));
+        } else {
+            setCheckedIds([]);
+        }
+    };
+
+    const isAllSelected =
+        items.length > 0 && checkedIds.length === items.length;
+
     /** 削除確定 */
     const handleConfirmDelete = async () => {
         try {
@@ -58,7 +70,7 @@ export default function DiscardPage() {
             setIsDeleteModalOpen(false);
 
             toast.success("選択したアイテムを削除しました");
-        } catch (err) {
+        } catch {
             toast.error("削除に失敗しました");
         }
     };
@@ -95,18 +107,32 @@ export default function DiscardPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* 左：候補アイテム一覧 */}
                         <main className="md:col-span-2 space-y-4">
+                            {/* 全選択 */}
+                            <div className="flex items-center gap-2 px-1">
+                                <input
+                                    type="checkbox"
+                                    checked={isAllSelected}
+                                    onChange={e =>
+                                        handleToggleAll(e.target.checked)
+                                    }
+                                />
+                                <span className="text-sm font-medium">
+                                    全選択
+                                </span>
+                            </div>
+
                             {items.map(item => (
                                 <Card
                                     key={item.item_id}
                                     className={`p-4 cursor-pointer transition
-        ${checkedIds.includes(item.item_id)
+                                        ${checkedIds.includes(item.item_id)
                                             ? "ring-2 ring-red-400 bg-red-50"
                                             : "hover:bg-gray-50"
                                         }`}
                                     onClick={() => toggleCheck(item.item_id)}
                                 >
                                     <div className="flex items-center gap-4">
-                                        {/* 見た目用チェックボックス */}
+                                        {/* 個別チェック */}
                                         <input
                                             type="checkbox"
                                             checked={checkedIds.includes(item.item_id)}
@@ -141,7 +167,7 @@ export default function DiscardPage() {
                             ))}
                         </main>
 
-                        {/* 右：操作パネル */}
+                        {/* 右：操作パネル（変更なし） */}
                         <aside className="md:col-span-1 sticky top-6">
                             <Card className="p-4 space-y-4">
                                 <h2 className="font-semibold">
