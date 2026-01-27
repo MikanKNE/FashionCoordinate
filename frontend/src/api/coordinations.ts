@@ -31,8 +31,15 @@ export async function createCoordination(payload: {
         body: JSON.stringify(payload),
     });
 
-    if (!res.ok) throw new Error("コーディネート作成に失敗しました");
-    return res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+        throw new Error(
+            data?.message ?? "コーディネート作成に失敗しました"
+        );
+    }
+
+    return data;
 }
 
 // ===========================
@@ -68,8 +75,15 @@ export async function updateCoordination(coordination_id: number, data: any) {
         body: JSON.stringify(data),
     });
 
-    if (!res.ok) throw new Error("コーディネート更新に失敗しました");
-    return res.json();
+    const resData = await res.json();
+
+    if (!res.ok) {
+        throw new Error(
+            resData?.message ?? "コーディネート更新に失敗しました"
+        );
+    }
+
+    return resData;
 }
 
 // ===========================
