@@ -8,25 +8,18 @@ import { supabase } from "../lib/supabaseClient";
  */
 export interface AiImageAnalysisResult {
     category?: string;
-    subcategory?: string;
+    subcategory_name?: string;
     color?: string;
     material?: string;
     pattern?: string;
     confidence?: {
         category?: number;
-        subcategory?: number;
         color?: number;
         material?: number;
         pattern?: number;
     };
-    auto_filled?: {
-        category?: boolean;
-        subcategory?: boolean;
-        color?: boolean;
-        material?: boolean;
-        pattern?: boolean;
-    };
 }
+
 
 async function authHeaders(): Promise<HeadersInit> {
     const {

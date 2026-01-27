@@ -8,7 +8,6 @@ import Card from "./ui/Card";
 import type { CategoryType, SeasonType, TpoType } from "../types";
 import { API_BASE } from "../api/index";
 import { analyzeImage } from "../api/ai_imageAnalysis";
-import { convertAiResult } from "../utils/aiCategoryMapper";
 
 export interface ItemFormValues {
     item_id?: number;
@@ -122,26 +121,31 @@ export default function ItemForm({
         setAnalyzing(true);
 
         try {
-            const rawResult = await analyzeImage(values.image_file);
-            const converted = convertAiResult(rawResult, subcategoryList);
+            const result = await analyzeImage(values.image_file);
 
             setValues((prev) => ({
                 ...prev,
-                category: converted.category ?? prev.category,
-                subcategory_id: converted.subcategory_id ?? prev.subcategory_id,
 
-                color: converted.color
-                    ? Array.from(new Set([...prev.color, converted.color]))
-                    : prev.color,
+                category: result.category
+                    ? (result.category as CategoryType)
+                    : prev.category,
 
-                material: converted.material
-                    ? Array.from(new Set([...prev.material, converted.material]))
-                    : prev.material,
+                subcategory_id: (() => {
+                    if (!result.subcategory_name) return prev.subcategory_id;
 
-                pattern: converted.pattern
-                    ? Array.from(new Set([...prev.pattern, converted.pattern]))
-                    : prev.pattern,
+                    const matched = subcategoryList.find(
+                        (s) =>
+                            s.category === result.category &&
+                            s.name === result.subcategory_name
+                    );
+                    return matched?.subcategory_id ?? prev.subcategory_id;
+                })(),
+
+                color: result.color ? [result.color] : [],
+                material: result.material ? [result.material] : [],
+                pattern: result.pattern ? [result.pattern] : [],
             }));
+
 
             toast.success("AI解析結果を反映しました");
         } catch (err) {

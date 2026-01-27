@@ -21,10 +21,10 @@ CATEGORY_MAP = {
 }
 
 BOTTOM_TYPE_MAP = {
-    "pants": "パンツ",
-    "jeans": "デニム",
-    "skirt": "スカート",
-    "shorts": "ショーツ",
+    "pants": "ボトムス",
+    "jeans": "ボトムス",
+    "skirt": "ボトムス",
+    "shorts": "ボトムス",
 }
 
 COLOR_MAP = {
