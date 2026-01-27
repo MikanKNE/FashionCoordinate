@@ -40,7 +40,7 @@ export async function getDeclutterCandidates(): Promise<DeclutterItem[]> {
     } = await supabase.auth.getSession();
 
     if (!session?.access_token) {
-        throw new Error("未ログインです");
+        throw new Error("ログインが必要です");
     }
 
     const res = await fetch(
@@ -74,7 +74,7 @@ export async function updateDeclutterAction(
     } = await supabase.auth.getSession();
 
     if (!session?.access_token) {
-        throw new Error("未ログインです");
+        throw new Error("ログインが必要です");
     }
 
     const res = await fetch(

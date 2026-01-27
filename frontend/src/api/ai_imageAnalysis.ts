@@ -28,7 +28,7 @@ async function authHeaders(): Promise<HeadersInit> {
 
     const token = session?.access_token;
     if (!token) {
-        throw new Error("Not logged in");
+        throw new Error("ログインが必要です");
     }
 
     return {

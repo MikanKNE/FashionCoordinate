@@ -1,5 +1,5 @@
 // src/pages/CoordinationListPage.tsx
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -83,9 +83,14 @@ export default function CoordinationListPage() {
         }
     }, []);
 
+    const fetchedRef = useRef(false);
     useEffect(() => {
+        if (fetchedRef.current) return;
+        fetchedRef.current = true;
+
         fetchList();
     }, [fetchList]);
+
 
     // =========================
     // コーデごとのアイテム取得

@@ -52,7 +52,7 @@ export default function UsageHistoryDaily({
             } catch (e: any) {
                 if (cancelled) return;
 
-                if (e?.message !== "ユーザーがログインしていません") {
+                if (e?.message !== "ログインが必要です") {
                     toast.error("服装履歴の取得に失敗しました");
                 }
                 setItems([]);

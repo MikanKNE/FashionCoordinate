@@ -9,7 +9,7 @@ import type { ItemFormValues } from "../components/ItemForm";
 async function authHeaders() {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
-    if (!token) throw new Error("Not logged in");
+    if (!token) throw new Error("ログインが必要です");
 
     return {
         Authorization: `Bearer ${token}`,

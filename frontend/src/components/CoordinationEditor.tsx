@@ -1,5 +1,5 @@
 // frontend/src/components/CoordinationEditor.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 
 import { getAllCoordinationItems } from "../api/coordination_items";
@@ -34,8 +34,15 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchedCoordinationRef = useRef<number | null>(null);
   // アイテム初回取得
   useEffect(() => {
+    const currentId = coordination?.coordination_id ?? -1;
+
+    // 同じ coordination では二度 fetch しない
+    if (fetchedCoordinationRef.current === currentId) return;
+    fetchedCoordinationRef.current = currentId;
+
     const fetchItems = async () => {
       setLoading(true);
       try {
@@ -44,7 +51,6 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
         setAllItems(itemsArr);
         setFilteredItems(itemsArr);
 
-        // 編集時は selectedItems を初期セット
         if (coordination) {
           const ciRes = await getAllCoordinationItems();
           const ciList: CoordinationItem[] = ciRes?.data ?? [];
@@ -65,8 +71,10 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
         setLoading(false);
       }
     };
+
     fetchItems();
   }, [coordination]);
+
 
   // フィルター適用
   useEffect(() => {

@@ -1,5 +1,5 @@
 // frontend/src/pages/ItemAddPage.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -16,7 +16,11 @@ export default function ItemAddPage() {
     const [storageList, setStorageList] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
+    const fetchedRef = useRef(false);
     useEffect(() => {
+        if (fetchedRef.current) return;
+        fetchedRef.current = true;
+
         (async () => {
             try {
                 const [subs, sts] = await Promise.all([getSubcategories(), getStorages()]);
