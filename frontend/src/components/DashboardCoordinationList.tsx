@@ -4,9 +4,11 @@ import { getAllCoordinationItems } from "../api/coordination_items";
 import { getCoordinations } from "../api/coordinations";
 import type { Coordination, Item, CoordinationItem } from "../types";
 import { ItemImage } from "./ItemImage";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardCoordinationList() {
     const [coordinations, setCoordinations] = useState<Coordination[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -59,8 +61,13 @@ export default function DashboardCoordinationList() {
 
     return (
         <div className="space-y-4">
-            <h2 className="text-lg font-semibold mb-3">
+            <h2
+                className="text-lg font-semibold mb-3 flex items-center gap-1
+               cursor-pointer hover:text-blue-600 transition-colors"
+                onClick={() => navigate("/coordination-list")}
+            >
                 コーディネート一覧
+                <span className="text">＞</span>
             </h2>
 
             <div className="flex flex-col gap-4">

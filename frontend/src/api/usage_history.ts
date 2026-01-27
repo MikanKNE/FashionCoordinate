@@ -70,11 +70,23 @@ export async function deleteUsage(id: number) {
 }
 
 // ===========================
-// 日付で取得（auth 必須!!）
+// 日付で取得
 // ===========================
 export async function getUsageByDate(date: string) {
-    const headers = await authHeaders();
-    const res = await fetch(`${API_BASE}/usage_history/date/${date}/`, { headers });
-    if (!res.ok) throw new Error("日付で使用履歴取得に失敗しました");
-    return res.json();
+    try {
+        const headers = await authHeaders();
+        const res = await fetch(`${API_BASE}/usage_history/date/${date}/`, { headers });
+
+        if (!res.ok) {
+            // 401 は無視（遷移直後対策）
+            if (res.status === 401) {
+                return { status: "success", data: [] };
+            }
+            throw new Error("日付で使用履歴取得に失敗しました");
+        }
+
+        return res.json();
+    } catch (e) {
+        throw e;
+    }
 }

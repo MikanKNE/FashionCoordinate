@@ -9,6 +9,7 @@ import DashboardCoordinationList from "../components/DashboardCoordinationList";
 import DashboardItemList from "../components/DashboardItemList";
 import Header from "../components/Header"
 import UsageHistoryDaily from "../components/UsageHistoryDaily";
+import DashboardDeclutterList from "../components/DashboardDeclutterList";
 
 function getTodayLocal() {
     const d = new Date();
@@ -47,6 +48,10 @@ export default function Dashboard() {
 
                     <Card><DashboardItemList /></Card>
                     <Card><DashboardCoordinationList /></Card>
+
+                    <Card>
+                        <DashboardDeclutterList />
+                    </Card>
                 </div>
             </div>
         </>

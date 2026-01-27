@@ -101,7 +101,7 @@ export function DeclutterCandidateCard({
                             disabled={loading}
                             onClick={() => handleAction("pending")}
                         >
-                            残す
+                            保留
                         </Button>
 
                         <Button

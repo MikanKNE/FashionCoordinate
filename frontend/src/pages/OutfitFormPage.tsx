@@ -1,21 +1,19 @@
 // frontend/src/pages/OutfitFormPage.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { supabase } from "../lib/supabaseClient";
-
 import { getItems } from "../api/items";
 
 import { Button } from "../components/ui/Button";
 import Card from "../components/ui/Card";
-
 import Header from "../components/Header";
 import ItemCard from "../components/ItemCard";
 import Filter from "../components/Filter";
+import { ItemImage } from "../components/ItemImage";
 
 import type { Item, MultiFilters } from "../types";
-
 
 type SelectionMode = "items" | "coordination";
 
@@ -31,10 +29,14 @@ export default function OutfitFormPage() {
     const navigate = useNavigate();
 
     const [mode, setMode] = useState<SelectionMode>("items");
+
     const [allItems, setAllItems] = useState<Item[]>([]);
     const [filteredItems, setFilteredItems] = useState<Item[]>([]);
     const [selectedItems, setSelectedItems] = useState<Item[]>([]);
+
     const [coordinations, setCoordinations] = useState<Coordination[]>([]);
+    const [selectedCoordinationId, setSelectedCoordinationId] = useState<number | null>(null);
+
     const [filters, setFilters] = useState<MultiFilters>({
         subcategory_ids: [],
         color: [],
@@ -43,6 +45,7 @@ export default function OutfitFormPage() {
         season_tag: [],
         tpo_tags: [],
     });
+
     const [loading, setLoading] = useState(true);
 
     // ---------------------------
@@ -53,17 +56,23 @@ export default function OutfitFormPage() {
             setLoading(true);
             try {
                 const res = await getItems();
-                const items: Item[] = Array.isArray(res) ? res : (res as any)?.data || [];
+                const items: Item[] = Array.isArray(res)
+                    ? res
+                    : (res as any)?.data || [];
+
                 setAllItems(items);
                 setFilteredItems(items);
 
                 if (date) {
-                    const { data: history, error } = await supabase
+                    const { data: history } = await supabase
                         .from("usage_history")
                         .select("item_id")
                         .eq("used_date", date);
-                    if (!error && history) {
-                        const selected = items.filter((i) => history.some((h: any) => h.item_id === i.item_id));
+
+                    if (history) {
+                        const selected = items.filter((i) =>
+                            history.some((h: any) => h.item_id === i.item_id)
+                        );
                         setSelectedItems(selected);
                     }
                 }
@@ -73,13 +82,44 @@ export default function OutfitFormPage() {
                 setLoading(false);
             }
         };
+
         fetchItemsAndHistory();
     }, [date]);
 
     // ---------------------------
-    // フィルター適用
+    // コーデ一覧取得
     // ---------------------------
     useEffect(() => {
+        const fetchCoordinations = async () => {
+            const { data, error } = await supabase
+                .from("coordinations")
+                .select(`
+                    coordination_id,
+                    name,
+                    coordination_items (
+                        item:items (*)
+                    )
+                `);
+
+            if (!error && data) {
+                const formatted: Coordination[] = data.map((c: any) => ({
+                    coordination_id: c.coordination_id,
+                    name: c.name,
+                    items: c.coordination_items.map((ci: any) => ci.item),
+                }));
+                setCoordinations(formatted);
+            }
+        };
+
+        fetchCoordinations();
+    }, []);
+
+    // ---------------------------
+    // フィルター適用（itemsモードのみ）
+    // ---------------------------
+    useEffect(() => {
+        if (mode !== "items") return;
+
         const filtered = allItems.filter((i) => {
             if (filters.subcategory_ids.length > 0 && !filters.subcategory_ids.includes(i.subcategory_id!)) return false;
             if (filters.color.length > 0 && !filters.color.includes(i.color!)) return false;
@@ -89,62 +129,107 @@ export default function OutfitFormPage() {
             if (filters.tpo_tags.length > 0 && !(i.tpo_tags || []).some((s) => filters.tpo_tags.includes(s))) return false;
             return true;
         });
+
         setFilteredItems(filtered);
-    }, [filters, allItems]);
+    }, [filters, allItems, mode]);
 
     // ---------------------------
-    // コーデ一覧取得
+    // 選択アイテムと一致するコーデがあれば自動選択
     // ---------------------------
     useEffect(() => {
         if (mode !== "coordination") return;
 
-        const fetchCoordinations = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from("coordinations")
-                    .select(`
-            coordination_id,
-            name,
-            coordination_items (
-              item_id,
-              items (*)
-            )
-          `)
-                    .order("coordination_id", { ascending: true });
+        const matched = coordinations.find((c) =>
+            isSameItems(c.items, selectedItems)
+        );
 
-                if (!error && data) {
-                    const mapped: Coordination[] = data.map((c: any) => ({
-                        coordination_id: c.coordination_id,
-                        name: c.name,
-                        items: c.coordination_items.map((ci: any) => ci.items),
-                    }));
-                    setCoordinations(mapped);
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchCoordinations();
-    }, [mode]);
+        setSelectedCoordinationId(matched?.coordination_id ?? null);
+    }, [selectedItems, coordinations, mode]);
 
+    // ---------------------------
+    // アイテム個別トグル
+    // ---------------------------
     const toggleSelectItem = (item: Item) => {
-        const exists = selectedItems.some((i) => i.item_id === item.item_id);
-        if (exists) setSelectedItems((prev) => prev.filter((i) => i.item_id !== item.item_id));
-        else setSelectedItems((prev) => [...prev, item]);
+        setSelectedItems((prev) => {
+            const exists = prev.some((i) => i.item_id === item.item_id);
+            const next = exists
+                ? prev.filter((i) => i.item_id !== item.item_id)
+                : [...prev, item];
+
+            // 中央で触ったらコーデ選択解除
+            setSelectedCoordinationId(null);
+            return next;
+        });
     };
 
+    // ---------------------------
+    // コーデ選択（部分解除対応）
+    // ---------------------------
+    const handleSelectCoordination = (coordination: Coordination) => {
+        // ① 同じコーデを再クリック → 解除
+        if (selectedCoordinationId === coordination.coordination_id) {
+            setSelectedCoordinationId(null);
+            setSelectedItems((prev) =>
+                prev.filter(
+                    (item) =>
+                        !coordination.items.some(
+                            (ci) => ci.item_id === item.item_id
+                        )
+                )
+            );
+            return;
+        }
+
+        // ② 別のコーデをクリックした場合
+        setSelectedCoordinationId(coordination.coordination_id);
+
+        setSelectedItems((prev) => {
+            // 前に選択されていたコーデがあれば、そのアイテムを除外
+            const prevCoordination = coordinations.find(
+                (c) => c.coordination_id === selectedCoordinationId
+            );
+
+            const cleaned = prevCoordination
+                ? prev.filter(
+                    (item) =>
+                        !prevCoordination.items.some(
+                            (ci) => ci.item_id === item.item_id
+                        )
+                )
+                : prev;
+
+            // 新しいコーデのアイテムを追加
+            const map = new Map<number, Item>();
+            [...cleaned, ...coordination.items].forEach((i) =>
+                map.set(i.item_id, i)
+            );
+
+            return Array.from(map.values());
+        });
+    };
+
+    const isSameItems = (a: Item[], b: Item[]) => {
+        if (a.length !== b.length) return false;
+        const aIds = a.map(i => i.item_id).sort();
+        const bIds = b.map(i => i.item_id).sort();
+        return aIds.every((id, idx) => id === bIds[idx]);
+    };
+
+    // ---------------------------
+    // 保存
+    // ---------------------------
     const handleSave = async () => {
         if (!date) return toast("日付が取得できません");
         if (selectedItems.length === 0) return toast("アイテムを選択してください");
 
         try {
             await supabase.from("usage_history").delete().eq("used_date", date);
+
             const inserts = selectedItems.map((item) => ({
                 item_id: item.item_id,
                 used_date: date,
-                weather: null,
-                temperature: null,
             }));
+
             const { error } = await supabase.from("usage_history").insert(inserts);
             if (error) toast("保存に失敗しました");
             else {
@@ -157,47 +242,65 @@ export default function OutfitFormPage() {
         }
     };
 
+    const displayItems = mode === "items" ? filteredItems : allItems;
+
     return (
         <>
             <Header />
-            <div className="min-h-screen p-6 text-slate-800 dark:text-slate-100">
+            <div className="min-h-screen p-6">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-2xl font-bold mb-4">{date ? `${date} の服装記録` : "今日の服装記録"}</h1>
+                    <h1 className="text-2xl font-bold mb-4">
+                        {date ? `${date} の服装記録` : "今日の服装記録"}
+                    </h1>
 
                     {/* モード切替 */}
                     <div className="mb-4 flex gap-2">
                         <button
                             className={`px-3 py-1 border rounded ${mode === "items" ? "bg-blue-500 text-white" : ""}`}
-                            onClick={() => setMode("items")}
+                            onClick={() => {
+                                setMode("items");
+                                setSelectedCoordinationId(null);
+                            }}
                         >
                             アイテムから選択
                         </button>
                         <button
                             className={`px-3 py-1 border rounded ${mode === "coordination" ? "bg-blue-500 text-white" : ""}`}
-                            onClick={() => setMode("coordination")}
+                            onClick={() => {
+                                setMode("coordination");
+                                setSelectedCoordinationId(null);
+                            }}
                         >
                             コーディネートから選択
                         </button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        {/* 左サイド */}
-                        <aside className="md:col-span-1 sticky top-6 space-y-4">
+                        {/* 左 */}
+                        <aside className="md:col-span-1 sticky top-6">
                             {mode === "items" ? (
                                 <Filter filters={filters} setFilters={setFilters} />
                             ) : (
                                 <Card>
-                                    <h4 className="text-lg font-semibold mb-4">コーディネート一覧</h4>
+                                    <h4 className="font-semibold mb-3">コーデ一覧</h4>
                                     {coordinations.map((c) => (
                                         <div
                                             key={c.coordination_id}
-                                            className="border border-gray-300 rounded p-2 mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
-                                            onClick={() => setSelectedItems(c.items)}
+                                            onClick={() => handleSelectCoordination(c)}
+                                            className={`p-3 mb-3 rounded cursor-pointer
+                                                ${selectedCoordinationId === c.coordination_id
+                                                    ? "bg-blue-50 ring-2 ring-blue-400"
+                                                    : "hover:bg-gray-100"}`}
                                         >
-                                            <p className="text-sm font-medium mb-1">{c.name}</p>
-                                            <div className="flex gap-2 flex-wrap">
-                                                {c.items.map((i) => (
-                                                    <img key={i.item_id} src={i.image_url} className="w-12 h-12 object-cover rounded" />
+                                            <p className="text-sm mb-2">{c.name}</p>
+                                            <div className="grid grid-cols-3 gap-2">
+                                                {c.items.map((item) => (
+                                                    <ItemImage
+                                                        key={item.item_id}
+                                                        itemId={item.item_id}
+                                                        alt=""
+                                                        className="w-full h-16 object-cover rounded"
+                                                    />
                                                 ))}
                                             </div>
                                         </div>
@@ -206,69 +309,44 @@ export default function OutfitFormPage() {
                             )}
                         </aside>
 
-                        {/* 中央サイド */}
+                        {/* 中央 */}
                         <main className="md:col-span-2">
-                            <Card className="p-4">
-                                {loading ? (
-                                    <div>読み込み中...</div>
-                                ) : (
-                                    <>
-                                        {/* 中央は常にアイテム一覧を表示 */}
-                                        <div className="flex items-center justify-between mb-4 text-sm text-slate-600 dark:text-slate-400">
-                                            <span>{filteredItems.length} アイテム</span>
-                                            <span>選択済み: {selectedItems.length}</span>
-                                        </div>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                                            {filteredItems.map((it) => {
-                                                const selected = selectedItems.some((s) => s.item_id === it.item_id);
-                                                return (
-                                                    <ItemCard
-                                                        key={it.item_id}
-                                                        item={it}
-                                                        selected={selected}
-                                                        onClick={() => toggleSelectItem(it)}
-                                                    />
-                                                );
-                                            })}
-                                        </div>
-                                    </>
-                                )}
+                            <Card>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {displayItems.map((it) => (
+                                        <ItemCard
+                                            key={it.item_id}
+                                            item={it}
+                                            selected={selectedItems.some(
+                                                (s) => s.item_id === it.item_id
+                                            )}
+                                            onClick={() => toggleSelectItem(it)}
+                                        />
+                                    ))}
+                                </div>
                             </Card>
                         </main>
 
-                        {/* 右サイド：選択アイテム */}
+                        {/* 右 */}
                         <aside className="md:col-span-1 sticky top-6">
-                            <Card className="p-4 flex flex-col">
+                            <Card>
+                                <Button
+                                    variant="primary"
+                                    onClick={handleSave}
+                                    disabled={selectedItems.length === 0}
+                                    className="w-full mb-4"
+                                >
+                                    保存
+                                </Button>
 
-                                <h4 className="text-lg font-semibold mb-2">選択中アイテム</h4>
-
-                                <div className="mb-4">
-                                    <Button
-                                        variant="primary"
-                                        onClick={handleSave}
-                                        disabled={selectedItems.length === 0}
-                                        className="w-full"
-                                    >
-                                        保存
-                                    </Button>
-                                </div>
-
-                                {selectedItems.length === 0 && (
-                                    <p className="text-sm text-gray-500">アイテムを選んでください</p>
-                                )}
-
-                                <div className="overflow-y-auto flex-1 space-y-2">
-                                    {selectedItems.map((item) => (
-                                        <div key={item.item_id} className="relative">
-                                            <img
-                                                src={item.image_url}
-                                                alt={item.name}
-                                                className="w-full h-32 object-cover rounded"
-                                            />
-                                            <p className="text-center mt-1 text-sm">{item.name}</p>
-                                        </div>
-                                    ))}
-                                </div>
+                                {selectedItems.map((item) => (
+                                    <ItemCard
+                                        key={item.item_id}
+                                        item={item}
+                                        compact
+                                        disableHover
+                                    />
+                                ))}
                             </Card>
                         </aside>
                     </div>

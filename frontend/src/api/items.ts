@@ -138,3 +138,38 @@ export async function getItemImageUrl(item_id: number) {
     const json = await res.json();
     return json.url as string; // 署名付きURL
 }
+
+// ===========================
+// 処分予定一覧
+// ===========================
+export async function getDiscardItems() {
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/items/discard/`, { headers });
+    if (!res.ok) throw new Error("Failed to fetch discard items");
+    return res.json();
+}
+
+// ===========================
+// 一斉削除
+// ===========================
+export async function bulkDeleteItems(itemIds: number[]) {
+    const headers = await authHeaders();
+    const res = await fetch(`${API_BASE}/items/bulk-delete/`, {
+        method: "PATCH",
+        headers: {
+            ...headers,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ item_ids: itemIds }),
+    });
+
+    if (!res.ok) throw new Error("Failed to bulk delete");
+    return res.json();
+}
+
+export async function cancelDiscard(itemId: number) {
+    return supabase
+        .from("items")
+        .update({ status: "active" })
+        .eq("item_id", itemId);
+}

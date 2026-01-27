@@ -1,12 +1,13 @@
 // frontend/src/components/DashboardItemList.tsx
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
 import ItemCard from "./ItemCard";
 
 export default function DashboardItemList() {
     const [items, setItems] = useState<any[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const navigate = useNavigate();
 
     useEffect(() => {
         import("../api/items").then(({ getItems }) => {
@@ -26,8 +27,16 @@ export default function DashboardItemList() {
 
     return (
         <div className="flex flex-col items-center">
-            <h2 className="text-lg font-semibold mb-3">アイテム一覧</h2>
-            <ItemCard item={currentItem} className="w-64"/>
+            <h2
+                className="text-lg font-semibold mb-3 flex items-center gap-1
+               cursor-pointer hover:text-blue-600 transition-colors"
+                onClick={() => navigate("/item-list")}
+            >
+                アイテム一覧
+                <span className="text">＞</span>
+            </h2>
+
+            <ItemCard item={currentItem} className="w-64" />
             <div className="flex mt-4 gap-2">
                 <button
                     onClick={handlePrev}

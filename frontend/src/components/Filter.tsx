@@ -43,48 +43,74 @@ export default function Filter({ filters, setFilters }: FilterProps) {
     // アイテム取得
     // ------------------------------
     useEffect(() => {
-        const fetchItems = async () => {
+        let cancelled = false;
+
+        const fetchItemsSafe = async () => {
             setLoading(true);
             try {
                 const res = await getItems();
+                if (cancelled) return;
+
                 const itemsArr = Array.isArray(res) ? res : res?.data || [];
                 setAllItems(itemsArr);
-            } catch (e) {
-                console.error(e);
-                toast.error("フィルター用アイテムの取得に失敗しました");
+            } catch (e: any) {
+                if (!cancelled && e?.message !== "ユーザーがログインしていません") {
+                    toast.error("フィルター用アイテムの取得に失敗しました");
+                }
             } finally {
                 setLoading(false);
             }
         };
-        fetchItems();
+
+        fetchItemsSafe();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     // ------------------------------
     // サブカテゴリ取得
     // ------------------------------
     useEffect(() => {
-        const fetchSubcategories = async () => {
+        let cancelled = false;
+
+        const fetchSubcategoriesSafe = async () => {
             const map = new Map<string, Subcategory[]>();
+
             for (const parent of parentCategories) {
                 try {
                     const res = await getSubcategories(parent);
-                    const data: SubcategoryResponse[] = Array.isArray(res) ? res : res.data || [];
+                    if (cancelled) return;
+
+                    const data: SubcategoryResponse[] =
+                        Array.isArray(res) ? res : res.data || [];
+
                     map.set(
                         parent,
-                        data.map((s: SubcategoryResponse) => ({
+                        data.map(s => ({
                             subcategory_id: s.subcategory_id,
                             category: s.category,
                             name: s.name,
                         }))
                     );
-                } catch (e) {
-                    console.error(`サブカテゴリ取得失敗: ${parent}`, e);
+                } catch (e: any) {
+                    if (cancelled) return;
+
                     map.set(parent, []);
                 }
             }
-            setSubcategoriesByParent(map);
+
+            if (!cancelled) {
+                setSubcategoriesByParent(map);
+            }
         };
-        fetchSubcategories();
+
+        fetchSubcategoriesSafe();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     // ------------------------------
