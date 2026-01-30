@@ -44,6 +44,7 @@ export default function OutfitFormPage() {
         pattern: [],
         season_tag: [],
         tpo_tags: [],
+        name: "",
     });
 
     const [loading, setLoading] = useState(true);
@@ -120,18 +121,59 @@ export default function OutfitFormPage() {
     useEffect(() => {
         if (mode !== "items") return;
 
-        const filtered = allItems.filter((i) => {
-            if (filters.subcategory_ids.length > 0 && !filters.subcategory_ids.includes(i.subcategory_id!)) return false;
-            if (filters.color.length > 0 && !filters.color.includes(i.color!)) return false;
-            if (filters.material.length > 0 && !filters.material.includes(i.material!)) return false;
-            if (filters.pattern.length > 0 && !filters.pattern.includes(i.pattern!)) return false;
-            if (filters.season_tag.length > 0 && !(i.season_tag || []).some((s) => filters.season_tag.includes(s))) return false;
-            if (filters.tpo_tags.length > 0 && !(i.tpo_tags || []).some((s) => filters.tpo_tags.includes(s))) return false;
-            return true;
+        const filtered = allItems.filter(item => {
+            const subcategoryMatch =
+                filters.subcategory_ids.length === 0 ||
+                (item.subcategory_id !== undefined &&
+                    filters.subcategory_ids.includes(item.subcategory_id));
+
+            const itemColors = item.color
+                ? item.color.split(",").map(c => c.trim())
+                : ["未選択"];
+            const colorMatch =
+                filters.color.length === 0 ||
+                filters.color.some(f => itemColors.includes(f));
+
+            const itemMaterials = item.material
+                ? item.material.split(",").map(c => c.trim())
+                : ["未選択"];
+            const materialMatch =
+                filters.material.length === 0 ||
+                filters.material.some(f => itemMaterials.includes(f));
+
+            const itemPatterns = item.pattern
+                ? item.pattern.split(",").map(c => c.trim())
+                : ["未選択"];
+            const patternMatch =
+                filters.pattern.length === 0 ||
+                filters.pattern.some(f => itemPatterns.includes(f));
+
+            const seasonMatch =
+                filters.season_tag.length === 0 ||
+                (item.season_tag?.some(s => filters.season_tag.includes(s)) ?? false);
+
+            const tpoMatch =
+                filters.tpo_tags.length === 0 ||
+                (item.tpo_tags?.some(t => filters.tpo_tags.includes(t)) ?? false);
+
+            const nameMatch =
+                !filters.name ||
+                item.name.toLowerCase().includes(filters.name.toLowerCase());
+
+            return (
+                subcategoryMatch &&
+                colorMatch &&
+                materialMatch &&
+                patternMatch &&
+                seasonMatch &&
+                tpoMatch &&
+                nameMatch
+            );
         });
 
         setFilteredItems(filtered);
     }, [filters, allItems, mode]);
+
 
     // ---------------------------
     // 選択アイテムと一致するコーデがあれば自動選択
