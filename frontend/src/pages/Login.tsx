@@ -1,10 +1,9 @@
 // frontend/src/pages/Login.tsx
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
-
 import { Button } from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import { useNavigate, Link } from 'react-router-dom'
 
 const Login = () => {
     const [email, setEmail] = useState('')
@@ -55,6 +54,13 @@ const Login = () => {
                         ログイン
                     </Button>
                     {error && <p className="text-red-500 text-sm">{error}</p>}
+
+                    <p className="text-sm text-center mt-2">
+                        アカウントをお持ちでない方は{' '}
+                        <Link to="/signup" className="text-blue-500 hover:underline">
+                            新規登録はこちら
+                        </Link>
+                    </p>
                 </form>
             </Card>
         </div>
