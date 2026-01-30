@@ -8,7 +8,7 @@ from supabase import create_client
 # プロジェクトルート（FashionCoordinate/.env）を指定
 # ===============================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # backend/settings.py 相対
-dotenv_path = os.path.join(BASE_DIR, '..', '.env')
+dotenv_path = os.path.join(BASE_DIR,'.env')
 load_dotenv(dotenv_path)
 
 # ===============================

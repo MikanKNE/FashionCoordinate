@@ -148,16 +148,11 @@ REST_FRAMEWORK = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-dotenv_path = os.path.join(BASE_DIR, '..', '.env')
+dotenv_path = os.path.join(BASE_DIR, '.env')
 load_dotenv(dotenv_path)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 # AI Image Analysis
-AI_IMAGE_ANALYSIS_API_URL = os.getenv(
-    "AI_IMAGE_ANALYSIS_API_URL",
-    "https://fashion-ai-api-hlhe.onrender.com"
-)
-AI_IMAGE_ANALYSIS_TIMEOUT = int(
-    os.getenv("AI_IMAGE_ANALYSIS_TIMEOUT", "300")
-)
+AI_IMAGE_ANALYSIS_API_URL = os.getenv("AI_IMAGE_ANALYSIS_API_URL")
+AI_IMAGE_ANALYSIS_TIMEOUT = int(os.getenv("AI_IMAGE_ANALYSIS_TIMEOUT"))
