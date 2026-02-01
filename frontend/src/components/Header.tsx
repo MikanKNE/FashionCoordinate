@@ -60,6 +60,9 @@ export default function Header() {
                 <Link to="/declutter" style={{ color: "#fff", textDecoration: "none" }}>
                     断捨離提案
                 </Link>
+                <Link to="/storages/items" style={{ color: "#fff", textDecoration: "none" }}>
+                    収納場所
+                </Link>
 
                 {!loading && (
                     <>

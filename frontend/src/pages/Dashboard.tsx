@@ -10,6 +10,7 @@ import DashboardItemList from "../components/DashboardItemList";
 import Header from "../components/Header"
 import UsageHistoryDaily from "../components/UsageHistoryDaily";
 import DashboardDeclutterList from "../components/DashboardDeclutterList";
+import DashboardStorageSummary from "../components/DashboardStorageSummary";
 
 function getTodayLocal() {
     const d = new Date();
@@ -51,6 +52,10 @@ export default function Dashboard() {
 
                     <Card>
                         <DashboardDeclutterList />
+                    </Card>
+
+                    <Card>
+                        <DashboardStorageSummary />
                     </Card>
                 </div>
             </div>

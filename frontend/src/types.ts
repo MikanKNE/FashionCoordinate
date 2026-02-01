@@ -24,7 +24,6 @@ export interface Item {
     pattern?: string[];
     is_favorite: boolean;
 
-    // ===== 追加（重要）=====
     status: "active" | "pending" | "discard";
     wear_count: number;
     last_used_date: string | null;
@@ -76,6 +75,7 @@ export interface MultiFilters {
     season_tag: string[];
     tpo_tags: string[];
     is_favorite?: boolean;
+    storage_id?: number | null;
 }
 
 export interface AccordionState {
@@ -90,4 +90,10 @@ export interface AccordionState {
 
 export type CoordinationDetail = Coordination & {
     items: Item[];
+};
+
+export type StorageWithItems = {
+  storage_id: number;
+  storage_location: string;
+  items: Item[];
 };

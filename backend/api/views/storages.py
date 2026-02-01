@@ -98,3 +98,40 @@ def storage_detail(request, storage_id):
         print("storage_detail error:", e)
         traceback.print_exc()
         return Response({"status": "error", "message": str(e)}, status=500)
+
+@api_view(["GET"])
+def storages_with_items(request):
+    user_id, err = get_user_id_from_request(request)
+    if err:
+        return err
+
+    try:
+        res = (
+            supabase
+            .table("storages")
+            .select("""
+                storage_id,
+                storage_location,
+                items (
+                    item_id,
+                    name,
+                    image_url,
+                    category,
+                    status
+                )
+            """)
+            .eq("user_id", user_id)
+            .execute()
+        )
+
+        for storage in res.data:
+            storage["items"] = [
+                item for item in storage["items"]
+                if item["status"] != "deleted"
+            ]
+
+        return Response({"status": "success", "data": res.data})
+
+    except Exception as e:
+        traceback.print_exc()
+        return Response({"status": "error", "message": str(e)}, status=500)

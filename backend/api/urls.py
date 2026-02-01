@@ -5,7 +5,7 @@ from .views.coordinations import coordinations_list_create, coordination_detail
 from .views.usage_history import usage_list_create, usage_detail, usage_by_date
 from .views.coordination_items import coordination_items_manage, get_all_coordination_items
 from .views.subcategories import subcategories_list
-from .views.storages import storages_list_create, storage_detail
+from .views.storages import storages_list_create, storage_detail, storages_with_items
 from .views.users import users_list_create, user_detail, user_update_email, user_update_password
 from .views.protected_view import protected_view
 from .views.items_image import item_image
@@ -39,6 +39,7 @@ urlpatterns = [
     # storages
     path("storages/", storages_list_create,),
     path("storages/<int:storage_id>/", storage_detail,),
+    path("storages/with-items/", storages_with_items),
 
     # users
     path("users/", users_list_create),
