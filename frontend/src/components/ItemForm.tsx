@@ -6,8 +6,8 @@ import toast from "react-hot-toast";
 import { Button } from "./ui/Button";
 import Card from "./ui/Card";
 import type { CategoryType, SeasonType, TpoType } from "../types";
-import { API_BASE } from "../api/index";
 import { analyzeImage } from "../api/ai_imageAnalysis";
+import { useSignedImageUrl } from "../hooks/useSignedImageUrl";
 
 export interface ItemFormValues {
     item_id?: number;
@@ -46,22 +46,23 @@ export default function ItemForm({
     const navigate = useNavigate();
 
     const [values, setValues] = useState<ItemFormValues>(initialValues);
-    const [preview, setPreview] = useState<string>(
-        initialValues.image_url || "/noimage.png"
-    );
+    const [preview, setPreview] = useState<string>("/noimage.png");
     const [analyzing, setAnalyzing] = useState(false);
 
     const [showColorInput, setShowColorInput] = useState(false);
     const [showMaterialInput, setShowMaterialInput] = useState(false);
     const [showPatternInput, setShowPatternInput] = useState(false);
 
-    // 候補（このファイル内に直書き）
+    // 🔑 編集時画像表示用（署名URL）
+    const { url: signedImageUrl } = useSignedImageUrl(values.item_id);
+
+    // 候補
     const COLOR_OPTIONS = ["黒", "白", "グレー", "ベージュ", "茶", "ネイビー", "青", "緑", "赤", "黄色"];
     const MATERIAL_OPTIONS = ["綿", "デニム", "ポリエステル", "ウール", "レザー", "麻", "ニット"];
     const PATTERN_OPTIONS = ["無地", "ストライプ", "チェック", "花柄", "プリント", "デニム"];
 
     /**
-     * 初回マウント時：sessionStorage からドラフト復元
+     * 初回マウント時：ドラフト or initialValues 復元
      */
     useEffect(() => {
         const savedValues = sessionStorage.getItem(DRAFT_VALUES_KEY);
@@ -77,6 +78,16 @@ export default function ItemForm({
             setPreview(savedPreview);
         }
     }, [initialValues]);
+
+    /**
+     * signedImageUrl が来たら preview に反映
+     * （image_file が未選択の場合のみ）
+     */
+    useEffect(() => {
+        if (!values.image_file && signedImageUrl) {
+            setPreview(signedImageUrl);
+        }
+    }, [signedImageUrl, values.image_file]);
 
     /**
      * values が変わるたびにドラフト保存
@@ -100,12 +111,11 @@ export default function ItemForm({
         if (file) {
             const reader = new FileReader();
             reader.onload = () => {
-                const result = reader.result as string;
-                setPreview(result);
+                setPreview(reader.result as string);
             };
             reader.readAsDataURL(file);
         } else {
-            setPreview(initialValues.image_url || "/noimage.png");
+            setPreview(signedImageUrl || "/noimage.png");
         }
     };
 
@@ -119,20 +129,16 @@ export default function ItemForm({
         }
 
         setAnalyzing(true);
-
         try {
             const result = await analyzeImage(values.image_file);
 
             setValues((prev) => ({
                 ...prev,
-
                 category: result.category
                     ? (result.category as CategoryType)
                     : prev.category,
-
                 subcategory_id: (() => {
                     if (!result.subcategory_name) return prev.subcategory_id;
-
                     const matched = subcategoryList.find(
                         (s) =>
                             s.category === result.category &&
@@ -140,12 +146,10 @@ export default function ItemForm({
                     );
                     return matched?.subcategory_id ?? prev.subcategory_id;
                 })(),
-
                 color: result.color ? [result.color] : [],
                 material: result.material ? [result.material] : [],
                 pattern: result.pattern ? [result.pattern] : [],
             }));
-
 
             toast.success("AI解析結果を反映しました");
         } catch (err) {
@@ -191,8 +195,6 @@ export default function ItemForm({
         e.preventDefault();
         try {
             await onSubmit(values);
-
-            // 保存成功 → ドラフト破棄
             sessionStorage.removeItem(DRAFT_VALUES_KEY);
             sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
         } catch {
@@ -222,46 +224,39 @@ export default function ItemForm({
                                 className="w-40 h-40 object-cover rounded-xl border"
                             />
                         </div>
-                        <div>
-                            <p className="text-sm font-semibold mb-1">画像</p>
 
-                            <div className="flex gap-2 items-stretch">
-                                {/* 画像選択（2） */}
-                                <label
-                                    className={`
-                                        flex-[2] cursor-pointer rounded-lg border-2 border-dashed
-                                        flex items-center justify-center text-sm
-                                        transition
-                                        ${values.image_file
-                                            ? "border-blue-400 bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-slate-100"
-                                            : "border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100 dark:bg-slate-800"
-                                        }
-                                    `}
-                                >
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={(e) =>
-                                            handleImageFile(e.target.files?.[0] || null)
-                                        }
-                                    />
-                                    {values.image_file ? "画像を変更" : "画像を選択"}
-                                </label>
+                        <div className="flex gap-2 items-stretch mt-2">
+                            <label
+                                className={`
+                                    flex-[2] cursor-pointer rounded-lg border-2 border-dashed
+                                    flex items-center justify-center text-sm
+                                    transition
+                                    ${values.image_file
+                                        ? "border-blue-400 bg-blue-50 text-blue-700 dark:bg-slate-700 dark:text-slate-100"
+                                        : "border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100 dark:bg-slate-800"
+                                    }
+                                `}
+                            >
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) =>
+                                        handleImageFile(e.target.files?.[0] || null)
+                                    }
+                                />
+                                {values.image_file ? "画像を変更" : "画像を選択"}
+                            </label>
 
-                                {/* AI解析ボタン（3） */}
-                                <Button
-                                    type="button"
-                                    onClick={analyzeImageWithAI}
-                                    disabled={analyzing || !values.image_file}
-                                    className="flex-[3]"
-                                >
-                                    {analyzing ? "AI解析中..." : "AI解析"}
-                                </Button>
-                            </div>
+                            <Button
+                                type="button"
+                                onClick={analyzeImageWithAI}
+                                disabled={analyzing || !values.image_file}
+                                className="flex-[3]"
+                            >
+                                {analyzing ? "AI解析中..." : "AI解析"}
+                            </Button>
                         </div>
-
-
                     </div>
 
                     <div>
@@ -622,6 +617,6 @@ export default function ItemForm({
                     </div>
                 </div>
             </form>
-        </Card>
+        </Card >
     );
 }
