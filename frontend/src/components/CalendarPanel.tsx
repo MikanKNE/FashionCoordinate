@@ -1,6 +1,5 @@
 // frontend/src/components/CalendarPanel.tsx
 import { useState } from "react";
-import toast from "react-hot-toast";
 
 function formatDateLocal(d: Date) {
   const y = d.getFullYear();

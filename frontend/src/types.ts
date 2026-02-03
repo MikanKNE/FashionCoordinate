@@ -19,12 +19,11 @@ export interface Item {
 
     season_tag: string[];
     tpo_tags: string[];
-    color?: string[];
-    material?: string[];
-    pattern?: string[];
+    color?: string;
+    material?: string;
+    pattern?: string;
     is_favorite: boolean;
 
-    // ===== 追加（重要）=====
     status: "active" | "pending" | "discard";
     wear_count: number;
     last_used_date: string | null;
@@ -33,7 +32,6 @@ export interface Item {
 export type CategoryType = "服" | "靴" | "アクセサリー" | "帽子" | "バッグ";
 export type SeasonType = "春" | "夏" | "秋" | "冬";
 export type TpoType = "フォーマル" | "カジュアル" | "ビジネス" | "ルームウェア" | "その他";
-
 
 export type Coordination = {
     coordination_id: number
@@ -76,6 +74,8 @@ export interface MultiFilters {
     season_tag: string[];
     tpo_tags: string[];
     is_favorite?: boolean;
+    storage_id?: number | null;
+    name?: string;
 }
 
 export interface AccordionState {
@@ -89,5 +89,11 @@ export interface AccordionState {
 }
 
 export type CoordinationDetail = Coordination & {
+    items: Item[];
+};
+
+export type StorageWithItems = {
+    storage_id: number;
+    storage_location: string;
     items: Item[];
 };

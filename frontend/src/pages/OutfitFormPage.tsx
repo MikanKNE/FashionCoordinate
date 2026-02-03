@@ -44,9 +44,10 @@ export default function OutfitFormPage() {
         pattern: [],
         season_tag: [],
         tpo_tags: [],
+        name: "",
     });
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState<boolean>(true);
 
     // ---------------------------
     // アイテム取得 + 使用履歴
@@ -120,14 +121,54 @@ export default function OutfitFormPage() {
     useEffect(() => {
         if (mode !== "items") return;
 
-        const filtered = allItems.filter((i) => {
-            if (filters.subcategory_ids.length > 0 && !filters.subcategory_ids.includes(i.subcategory_id!)) return false;
-            if (filters.color.length > 0 && !filters.color.includes(i.color!)) return false;
-            if (filters.material.length > 0 && !filters.material.includes(i.material!)) return false;
-            if (filters.pattern.length > 0 && !filters.pattern.includes(i.pattern!)) return false;
-            if (filters.season_tag.length > 0 && !(i.season_tag || []).some((s) => filters.season_tag.includes(s))) return false;
-            if (filters.tpo_tags.length > 0 && !(i.tpo_tags || []).some((s) => filters.tpo_tags.includes(s))) return false;
-            return true;
+        const filtered = allItems.filter(item => {
+            const subcategoryMatch =
+                filters.subcategory_ids.length === 0 ||
+                (item.subcategory_id !== undefined &&
+                    filters.subcategory_ids.includes(item.subcategory_id));
+
+            const itemColors = item.color
+                ? item.color.split(",").map(c => c.trim())
+                : ["未選択"];
+            const colorMatch =
+                filters.color.length === 0 ||
+                filters.color.some(f => itemColors.includes(f));
+
+            const itemMaterials = item.material
+                ? item.material.split(",").map(c => c.trim())
+                : ["未選択"];
+            const materialMatch =
+                filters.material.length === 0 ||
+                filters.material.some(f => itemMaterials.includes(f));
+
+            const itemPatterns = item.pattern
+                ? item.pattern.split(",").map(c => c.trim())
+                : ["未選択"];
+            const patternMatch =
+                filters.pattern.length === 0 ||
+                filters.pattern.some(f => itemPatterns.includes(f));
+
+            const seasonMatch =
+                filters.season_tag.length === 0 ||
+                (item.season_tag?.some(s => filters.season_tag.includes(s)) ?? false);
+
+            const tpoMatch =
+                filters.tpo_tags.length === 0 ||
+                (item.tpo_tags?.some(t => filters.tpo_tags.includes(t)) ?? false);
+
+            const nameMatch =
+                !filters.name ||
+                item.name.toLowerCase().includes(filters.name.toLowerCase());
+
+            return (
+                subcategoryMatch &&
+                colorMatch &&
+                materialMatch &&
+                patternMatch &&
+                seasonMatch &&
+                tpoMatch &&
+                nameMatch
+            );
         });
 
         setFilteredItems(filtered);
@@ -146,9 +187,6 @@ export default function OutfitFormPage() {
         setSelectedCoordinationId(matched?.coordination_id ?? null);
     }, [selectedItems, coordinations, mode]);
 
-    // ---------------------------
-    // アイテム個別トグル
-    // ---------------------------
     const toggleSelectItem = (item: Item) => {
         setSelectedItems((prev) => {
             const exists = prev.some((i) => i.item_id === item.item_id);
@@ -156,17 +194,12 @@ export default function OutfitFormPage() {
                 ? prev.filter((i) => i.item_id !== item.item_id)
                 : [...prev, item];
 
-            // 中央で触ったらコーデ選択解除
             setSelectedCoordinationId(null);
             return next;
         });
     };
 
-    // ---------------------------
-    // コーデ選択（部分解除対応）
-    // ---------------------------
     const handleSelectCoordination = (coordination: Coordination) => {
-        // ① 同じコーデを再クリック → 解除
         if (selectedCoordinationId === coordination.coordination_id) {
             setSelectedCoordinationId(null);
             setSelectedItems((prev) =>
@@ -180,11 +213,9 @@ export default function OutfitFormPage() {
             return;
         }
 
-        // ② 別のコーデをクリックした場合
         setSelectedCoordinationId(coordination.coordination_id);
 
         setSelectedItems((prev) => {
-            // 前に選択されていたコーデがあれば、そのアイテムを除外
             const prevCoordination = coordinations.find(
                 (c) => c.coordination_id === selectedCoordinationId
             );
@@ -198,7 +229,6 @@ export default function OutfitFormPage() {
                 )
                 : prev;
 
-            // 新しいコーデのアイテムを追加
             const map = new Map<number, Item>();
             [...cleaned, ...coordination.items].forEach((i) =>
                 map.set(i.item_id, i)
@@ -215,9 +245,6 @@ export default function OutfitFormPage() {
         return aIds.every((id, idx) => id === bIds[idx]);
     };
 
-    // ---------------------------
-    // 保存
-    // ---------------------------
     const handleSave = async () => {
         if (!date) return toast("日付が取得できません");
         if (selectedItems.length === 0) return toast("アイテムを選択してください");
@@ -252,6 +279,8 @@ export default function OutfitFormPage() {
                     <h1 className="text-2xl font-bold mb-4">
                         {date ? `${date} の服装記録` : "今日の服装記録"}
                     </h1>
+
+                    {loading && <p className="text-gray-500 mb-4">読み込み中…</p>}
 
                     {/* モード切替 */}
                     <div className="mb-4 flex gap-2">

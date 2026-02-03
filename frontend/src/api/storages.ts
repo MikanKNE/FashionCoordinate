@@ -1,6 +1,7 @@
 // frontend/src/api/storages.ts
 import { API_BASE } from "./index";
 import { supabase } from "../lib/supabaseClient";
+import type { StorageWithItems } from "../types";
 
 // ===========================
 // 認証ヘッダー生成
@@ -80,4 +81,19 @@ export async function deleteStorage(id: number) {
 
     if (!res.ok) throw new Error("ストレージ削除に失敗しました");
     return res.json();
+}
+
+export async function fetchStoragesWithItems(): Promise<StorageWithItems[]> {
+    const headers = await authHeaders();
+
+    const res = await fetch(`${API_BASE}/storages/with-items/`, {
+        headers,
+    });
+
+    if (!res.ok) {
+        throw new Error("収納場所＋アイテム取得に失敗しました");
+    }
+
+    const json = await res.json();
+    return json.data;
 }

@@ -1,6 +1,6 @@
 // frontend/src/pages/SignUpForm.tsx
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 const SignUpForm = () => {
@@ -8,7 +8,6 @@ const SignUpForm = () => {
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null)
     const [message, setMessage] = useState<string | null>(null)
-    const navigate = useNavigate()
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -56,6 +55,13 @@ const SignUpForm = () => {
                 </button>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 {message && <p className="text-green-600 text-sm">{message}</p>}
+
+                <p className="text-sm text-center mt-2">
+                    すでにアカウントをお持ちの方は{' '}
+                    <Link to="/login" className="text-blue-500 hover:underline">
+                        ログイン
+                    </Link>
+                </p>
             </form>
         </div>
     )

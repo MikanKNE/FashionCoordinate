@@ -1,12 +1,8 @@
 // frontend/src/components/Header.tsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
-
 import { getUserDetail } from "../api/users";
-
 import { useAuth } from "../context/AuthContext";
-
 import type { User } from "../types";
 
 export default function Header() {
@@ -59,6 +55,9 @@ export default function Header() {
                 </Link>
                 <Link to="/declutter" style={{ color: "#fff", textDecoration: "none" }}>
                     断捨離提案
+                </Link>
+                <Link to="/storages/items" style={{ color: "#fff", textDecoration: "none" }}>
+                    収納場所
                 </Link>
 
                 {!loading && (

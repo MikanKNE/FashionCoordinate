@@ -13,6 +13,7 @@ import ItemEditPage from "../pages/ItemEditPage";
 import OutfitFormPage from "../pages/OutfitFormPage";
 import DeclutterPage from "../pages/DeclutterPage";
 import DiscardPage from "../pages/DiscardPage";
+import StorageItemListPage from "../pages/StorageItemListPage";
 
 export default function AppRoutes() {
     return (
@@ -31,6 +32,7 @@ export default function AppRoutes() {
                 <Route path="/outfit-form" element={<OutfitFormPage />} />
                 <Route path="/declutter" element={<DeclutterPage />} />
                 <Route path="/discard" element={<DiscardPage />} />
+                <Route path="/storages/items" element={<StorageItemListPage />} />
             </Routes>
         </BrowserRouter>
     );

@@ -76,10 +76,23 @@ def user_update_password(request, user_id):
     try:
         password = request.data.get("password")
         if not password:
-            return Response({"status": "error", "message": "password is required"}, status=400)
+            return Response(
+                {"status": "error", "message": "password is required"},
+                status=400
+            )
 
-        response = supabase.table("users").update({"password": password}).eq("user_id", user_id).execute()
-        return Response({"status": "success", "data": response.data})
+        supabase.auth.admin.update_user_by_id(
+            str(user_id),
+            {"password": password}
+        )
+
+        return Response({
+            "status": "success",
+            "message": "Password updated successfully"
+        })
 
     except Exception as e:
-        return Response({"status": "error", "message": str(e)}, status=500)
+        return Response(
+            {"status": "error", "message": str(e)},
+            status=500
+        )
