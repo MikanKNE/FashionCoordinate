@@ -84,6 +84,7 @@ export default function ItemEditPage() {
                         storageList={storageList}
                         loading={loading}
                         onSubmit={handleSubmit}
+                        enableDraft={false}
                     />
                 </div>
             </div>

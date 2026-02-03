@@ -31,6 +31,7 @@ interface Props {
     storageList: any[];
     loading?: boolean;
     onSubmit: (values: ItemFormValues) => Promise<void>;
+    enableDraft: boolean;
 }
 
 const DRAFT_VALUES_KEY = "item_draft_values";
@@ -42,6 +43,7 @@ export default function ItemForm({
     storageList,
     loading = false,
     onSubmit,
+    enableDraft,
 }: Props) {
     const navigate = useNavigate();
 
@@ -53,8 +55,9 @@ export default function ItemForm({
     const [showMaterialInput, setShowMaterialInput] = useState(false);
     const [showPatternInput, setShowPatternInput] = useState(false);
 
-    // 🔑 編集時画像表示用（署名URL）
     const { url: signedImageUrl } = useSignedImageUrl(values.item_id);
+
+    const [isInitialized, setIsInitialized] = useState(false);
 
     // 候補
     const COLOR_OPTIONS = ["黒", "白", "グレー", "ベージュ", "茶", "ネイビー", "青", "緑", "赤", "黄色"];
@@ -65,6 +68,12 @@ export default function ItemForm({
      * 初回マウント時：ドラフト or initialValues 復元
      */
     useEffect(() => {
+        if (!enableDraft) {
+            setValues(initialValues);
+            setIsInitialized(true);
+            return;
+        }
+
         const savedValues = sessionStorage.getItem(DRAFT_VALUES_KEY);
         const savedPreview = sessionStorage.getItem(DRAFT_PREVIEW_KEY);
 
@@ -77,7 +86,9 @@ export default function ItemForm({
         if (savedPreview) {
             setPreview(savedPreview);
         }
-    }, [initialValues]);
+
+        setIsInitialized(true);
+    }, [initialValues, enableDraft]);
 
     /**
      * signedImageUrl が来たら preview に反映
@@ -93,17 +104,21 @@ export default function ItemForm({
      * values が変わるたびにドラフト保存
      */
     useEffect(() => {
+        if (!enableDraft) return;
+        if (!isInitialized) return;
         sessionStorage.setItem(DRAFT_VALUES_KEY, JSON.stringify(values));
-    }, [values]);
+    }, [values, enableDraft, isInitialized]);
 
     /**
      * preview が変わるたびに保存
      */
     useEffect(() => {
+        if (!enableDraft) return;
+        if (!isInitialized) return;
         if (preview) {
             sessionStorage.setItem(DRAFT_PREVIEW_KEY, preview);
         }
-    }, [preview]);
+    }, [preview, enableDraft, isInitialized]);
 
     const handleImageFile = (file: File | null) => {
         setValues((prev) => ({ ...prev, image_file: file }));
@@ -195,18 +210,23 @@ export default function ItemForm({
         e.preventDefault();
         try {
             await onSubmit(values);
-            sessionStorage.removeItem(DRAFT_VALUES_KEY);
-            sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
+            if (enableDraft) {
+                sessionStorage.removeItem(DRAFT_VALUES_KEY);
+                sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
+            }
         } catch {
             toast.error("保存に失敗しました");
         }
     };
 
     const handleCancel = () => {
-        sessionStorage.removeItem(DRAFT_VALUES_KEY);
-        sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
+        if (enableDraft) {
+            sessionStorage.removeItem(DRAFT_VALUES_KEY);
+            sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
+        }
         navigate("/item-list");
     };
+
 
     const selectClass =
         "border p-2 rounded w-full bg-white text-gray-900 dark:bg-slate-800 dark:text-gray-100";

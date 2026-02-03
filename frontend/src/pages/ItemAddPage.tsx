@@ -76,6 +76,7 @@ export default function ItemAddPage() {
                     storageList={storageList}
                     loading={loading}
                     onSubmit={handleSubmit}
+                    enableDraft={true}
                 />
             </div>
         </>
