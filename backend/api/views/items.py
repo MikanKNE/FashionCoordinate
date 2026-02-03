@@ -134,12 +134,17 @@ def item_detail(request, item_id):
         item_res = (
             supabase
             .table("items")
-            .select("*")
+            .select(
+                "*, "
+                "subcategories:subcategory_id(name), "
+                "storages:storage_id(storage_location)"
+            )
             .eq("item_id", item_id)
             .eq("user_id", user_id)
             .neq("status", "deleted")
             .execute()
         )
+
 
         if not item_res.data:
             return Response({"message": "Item not found"}, status=404)

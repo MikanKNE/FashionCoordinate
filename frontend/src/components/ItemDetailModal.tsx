@@ -8,6 +8,7 @@ import { getItemDetail, deleteItem } from "../api/items";
 import { Button } from "./ui/Button";
 
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
+import { ItemImage } from "./ItemImage";
 
 import type { Item } from "../types";
 
@@ -114,10 +115,10 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
                             {/* 画像 */}
                             <div className="w-full mb-3 flex justify-center">
                                 {imageUrl ? (
-                                    <img
-                                        src={imageUrl}
+                                    <ItemImage
+                                        itemId={item.item_id}
                                         alt={item.name}
-                                        className="w-64 h-64 object-cover rounded-xl"
+                                        className="w-64 h-64 rounded-xl"
                                     />
                                 ) : (
                                     <div className="w-64 h-64 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
