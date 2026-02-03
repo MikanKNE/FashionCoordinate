@@ -1,6 +1,6 @@
 // frontend/src/pages/CoordinationEditPage.tsx
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import { getCoordination } from "../api/coordinations";
 

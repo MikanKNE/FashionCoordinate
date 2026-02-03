@@ -28,14 +28,20 @@ export default function DashboardCoordinationList() {
 
                 allCoordItems.forEach((ci) => {
                     const item: Item =
-                        ci.item ??
-                        {
+                        ci.item ?? {
                             item_id: ci.item_id,
+                            user_id: "unknown",
                             name: "No Name",
                             category: "",
                             season_tag: [],
                             tpo_tags: [],
+                            color: "",
+                            material: "",
+                            pattern: "",
                             is_favorite: false,
+                            status: "active",
+                            wear_count: 0,
+                            last_used_date: null,
                         };
 
                     if (!itemsByCoordId[ci.coordination_id]) {
@@ -90,6 +96,7 @@ export default function DashboardCoordinationList() {
                         <div className="flex items-center gap-2">
                             {c.items.slice(0, 3).map((item) => (
                                 <ItemImage
+                                    key={item.item_id}
                                     itemId={item.item_id}
                                     alt={item.name}
                                     className="w-16 h-16 rounded-xl object-cover"

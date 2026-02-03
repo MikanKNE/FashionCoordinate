@@ -37,9 +37,9 @@ export async function createItem(values: ItemFormValues) {
     form.append("category", values.category);
     form.append("subcategory_id", String(values.subcategory_id ?? ""));
     form.append("storage_id", String(values.storage_id ?? ""));
-    form.append("color", values.color);
-    form.append("material", values.material);
-    form.append("pattern", values.pattern);
+    form.append("color", values.color.join(","));
+    form.append("material", values.material.join(","));
+    form.append("pattern", values.pattern.join(","));
     form.append("season_tag", JSON.stringify(values.season_tag));
     form.append("tpo_tags", JSON.stringify(values.tpo_tags));
     form.append("is_favorite", String(values.is_favorite));
@@ -73,9 +73,9 @@ export async function updateItem(item_id: number, values: ItemFormValues) {
     form.append("category", values.category);
     form.append("subcategory_id", String(values.subcategory_id ?? ""));
     form.append("storage_id", String(values.storage_id ?? ""));
-    form.append("color", values.color);
-    form.append("material", values.material);
-    form.append("pattern", values.pattern);
+    form.append("color", values.color.join(","));      // 修正
+    form.append("material", values.material.join(",")); // 修正
+    form.append("pattern", values.pattern.join(","));   // 修正
     form.append("season_tag", JSON.stringify(values.season_tag));
     form.append("tpo_tags", JSON.stringify(values.tpo_tags));
     form.append("is_favorite", String(values.is_favorite));
@@ -136,7 +136,7 @@ export async function getItemImageUrl(item_id: number) {
     }
 
     const json = await res.json();
-    return json.url as string; // 署名付きURL
+    return json.url as string;
 }
 
 // ===========================

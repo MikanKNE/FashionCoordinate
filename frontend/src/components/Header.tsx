@@ -1,12 +1,8 @@
 // frontend/src/components/Header.tsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
-
 import { getUserDetail } from "../api/users";
-
 import { useAuth } from "../context/AuthContext";
-
 import type { User } from "../types";
 
 export default function Header() {

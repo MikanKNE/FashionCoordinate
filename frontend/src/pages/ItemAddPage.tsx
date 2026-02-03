@@ -1,5 +1,5 @@
 // frontend/src/pages/ItemAddPage.tsx
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -39,9 +39,9 @@ export default function ItemAddPage() {
         subcategory_id: null,
         storage_id: null,
         image_file: null,
-        color: "",
-        material: "",
-        pattern: "",
+        color: [],
+        material: [],
+        pattern: [],
         season_tag: [],
         tpo_tags: [],
         is_favorite: false,

@@ -1,6 +1,6 @@
 // frontend/src/pages/SignUpForm.tsx
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 const SignUpForm = () => {
@@ -8,7 +8,6 @@ const SignUpForm = () => {
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null)
     const [message, setMessage] = useState<string | null>(null)
-    const navigate = useNavigate()
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault()

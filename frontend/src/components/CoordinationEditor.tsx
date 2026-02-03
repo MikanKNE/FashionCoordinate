@@ -32,7 +32,7 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
     tpo_tags: [],
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
 
   const fetchedCoordinationRef = useRef<number | null>(null);
   // アイテム初回取得

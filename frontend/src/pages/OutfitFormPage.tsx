@@ -47,7 +47,7 @@ export default function OutfitFormPage() {
         name: "",
     });
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState<boolean>(true);
 
     // ---------------------------
     // アイテム取得 + 使用履歴
@@ -174,7 +174,6 @@ export default function OutfitFormPage() {
         setFilteredItems(filtered);
     }, [filters, allItems, mode]);
 
-
     // ---------------------------
     // 選択アイテムと一致するコーデがあれば自動選択
     // ---------------------------
@@ -188,9 +187,6 @@ export default function OutfitFormPage() {
         setSelectedCoordinationId(matched?.coordination_id ?? null);
     }, [selectedItems, coordinations, mode]);
 
-    // ---------------------------
-    // アイテム個別トグル
-    // ---------------------------
     const toggleSelectItem = (item: Item) => {
         setSelectedItems((prev) => {
             const exists = prev.some((i) => i.item_id === item.item_id);
@@ -198,17 +194,12 @@ export default function OutfitFormPage() {
                 ? prev.filter((i) => i.item_id !== item.item_id)
                 : [...prev, item];
 
-            // 中央で触ったらコーデ選択解除
             setSelectedCoordinationId(null);
             return next;
         });
     };
 
-    // ---------------------------
-    // コーデ選択（部分解除対応）
-    // ---------------------------
     const handleSelectCoordination = (coordination: Coordination) => {
-        // ① 同じコーデを再クリック → 解除
         if (selectedCoordinationId === coordination.coordination_id) {
             setSelectedCoordinationId(null);
             setSelectedItems((prev) =>
@@ -222,11 +213,9 @@ export default function OutfitFormPage() {
             return;
         }
 
-        // ② 別のコーデをクリックした場合
         setSelectedCoordinationId(coordination.coordination_id);
 
         setSelectedItems((prev) => {
-            // 前に選択されていたコーデがあれば、そのアイテムを除外
             const prevCoordination = coordinations.find(
                 (c) => c.coordination_id === selectedCoordinationId
             );
@@ -240,7 +229,6 @@ export default function OutfitFormPage() {
                 )
                 : prev;
 
-            // 新しいコーデのアイテムを追加
             const map = new Map<number, Item>();
             [...cleaned, ...coordination.items].forEach((i) =>
                 map.set(i.item_id, i)
@@ -257,9 +245,6 @@ export default function OutfitFormPage() {
         return aIds.every((id, idx) => id === bIds[idx]);
     };
 
-    // ---------------------------
-    // 保存
-    // ---------------------------
     const handleSave = async () => {
         if (!date) return toast("日付が取得できません");
         if (selectedItems.length === 0) return toast("アイテムを選択してください");
@@ -294,6 +279,8 @@ export default function OutfitFormPage() {
                     <h1 className="text-2xl font-bold mb-4">
                         {date ? `${date} の服装記録` : "今日の服装記録"}
                     </h1>
+
+                    {loading && <p className="text-gray-500 mb-4">読み込み中…</p>}
 
                     {/* モード切替 */}
                     <div className="mb-4 flex gap-2">

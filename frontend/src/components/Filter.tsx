@@ -13,6 +13,7 @@ import type { MultiFilters, AccordionState, Subcategory, Item } from "../types";
 interface FilterProps {
     filters: MultiFilters;
     setFilters: React.Dispatch<React.SetStateAction<MultiFilters>>;
+    showClearAllButton?: boolean;
 }
 
 // getSubcategories の返り値型
