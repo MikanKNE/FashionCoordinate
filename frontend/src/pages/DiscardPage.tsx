@@ -127,7 +127,7 @@ export default function DiscardPage() {
                                     className={`p-4 cursor-pointer transition
                                         ${checkedIds.includes(item.item_id)
                                             ? "ring-2 ring-red-400 bg-red-50"
-                                            : "hover:bg-gray-50"
+                                            : "hover:bg-gray-200 dark:hover:bg-gray-700"
                                         }`}
                                     onClick={() => toggleCheck(item.item_id)}
                                 >
@@ -150,7 +150,7 @@ export default function DiscardPage() {
                                                 {item.name}
                                             </h3>
 
-                                            <div className="text-sm text-gray-500 mt-1 space-y-0.5">
+                                            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
                                                 <p>着用回数：{item.usage_count}回</p>
                                                 <p>
                                                     最終着用日：
@@ -175,7 +175,7 @@ export default function DiscardPage() {
                                 </h2>
 
                                 {checkedIds.length === 0 ? (
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
                                         アイテムを選択してください
                                     </p>
                                 ) : (

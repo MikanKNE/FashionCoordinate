@@ -8,10 +8,8 @@ import { getItems } from "../api/items";
 import Card from "./ui/Card";
 
 import CoordinationForm from "./CoordinationForm";
-import CoordinationPreview from "./CoordinationPreview";
 import Filter from "./Filter";
 import ItemCard from "./ItemCard";
-import { ItemImage } from "./ItemImage";
 
 import type { Item, MultiFilters, Coordination, CoordinationItem } from "../types";
 
