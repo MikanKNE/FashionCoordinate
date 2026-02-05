@@ -24,7 +24,7 @@ const Login = () => {
             setError(error.message)
         } else {
             console.log('Logged in:', data)
-            navigate('/') // ログイン後にホームへ
+            navigate('/dashboard') // ログイン後にホームへ
         }
     }
 

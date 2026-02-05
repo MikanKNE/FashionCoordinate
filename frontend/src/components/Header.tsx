@@ -89,7 +89,7 @@ export default function Header() {
                         ) : (
                             <>
                                 <span style={{ color: "#ccc" }}>ゲスト様</span>
-                                <Link to="/login" style={{ color: "#fff", textDecoration: "none" }}>
+                                <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
                                     ログイン
                                 </Link>
                             </>
