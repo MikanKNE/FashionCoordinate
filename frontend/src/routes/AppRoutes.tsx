@@ -19,8 +19,8 @@ export default function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<Login />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/signup" element={<SignUpForm />} />
                 <Route path="/user-profile" element={<UserProfilePage />} />
                 <Route path="/coordination-list" element={<CoordinationListPage />} />
