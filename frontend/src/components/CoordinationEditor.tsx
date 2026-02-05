@@ -11,6 +11,7 @@ import CoordinationForm from "./CoordinationForm";
 import CoordinationPreview from "./CoordinationPreview";
 import Filter from "./Filter";
 import ItemCard from "./ItemCard";
+import { ItemImage } from "./ItemImage";
 
 import type { Item, MultiFilters, Coordination, CoordinationItem } from "../types";
 
@@ -149,13 +150,25 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
       {/* 右：選択 + フォーム */}
       <aside className="md:col-span-1 sticky top-6">
         <Card className="space-y-4 p-4">
-          <h4 className="text-lg font-semibold mb-2">選択中アイテム</h4>
+          <h4 className="text-lg font-semibold">選択中アイテム</h4>
+          {/* フォーム */}
           <CoordinationForm
             selectedItems={selectedItems}
             coordination={coordination}
             onSubmitSuccess={onSubmitSuccess}
           />
-          <CoordinationPreview items={selectedItems} />
+
+          {/* 画像一覧 */}
+          <div className="space-y-2">
+            {selectedItems.map((item) => (
+              <ItemCard
+                key={item.item_id}
+                item={item}
+                compact
+                disableHover
+              />
+            ))}
+          </div>
         </Card>
       </aside>
     </div>
