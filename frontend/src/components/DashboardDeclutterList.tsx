@@ -44,7 +44,7 @@ export default function DashboardDeclutterList() {
                         <div
                             key={item.item_id}
                             className="rounded-2xl shadow-md bg-white dark:bg-gray-800
-                                       transition-all hover:scale-[1.03] hover:shadow-lg
+                                       transition-all hover:shadow-lg
                                        p-3 flex gap-3"
                         >
                             {/* 画像 */}

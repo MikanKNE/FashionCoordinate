@@ -35,7 +35,16 @@ export default function DashboardItemList() {
                 <span className="text">＞</span>
             </h2>
 
-            <ItemCard item={currentItem} className="w-64" />
+            <ItemCard
+                item={currentItem}
+                className="w-64"
+                onClick={() =>
+                    navigate("/item-list", {
+                        state: { openItemId: currentItem.item_id },
+                    })
+                }
+            />
+
             <div className="flex mt-4 gap-2">
                 <button
                     onClick={handlePrev}

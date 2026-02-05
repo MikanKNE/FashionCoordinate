@@ -1,6 +1,7 @@
 // src/pages/ItemListPage.tsx
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { getItems } from "../api/items";
 import { Button } from "../components/ui/Button";
 import Filter from "../components/Filter";
@@ -27,6 +28,7 @@ export default function ItemListPage() {
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     const fetchItems = useCallback(async () => {
         setLoading(true);
@@ -43,6 +45,14 @@ export default function ItemListPage() {
             setLoading(false);
         }
     }, []);
+
+    useEffect(() => {
+        const openItemId = location.state?.openItemId;
+        if (openItemId) {
+            setSelectedItemId(openItemId);
+        }
+    }, [location.state]);
+
 
     useEffect(() => {
         fetchItems();

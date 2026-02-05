@@ -1,6 +1,7 @@
 // src/pages/CoordinationListPage.tsx
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { getAllCoordinationItems } from "../api/coordination_items";
@@ -44,6 +45,7 @@ export default function CoordinationListPage() {
     const [error, setError] = useState<string | null>(null);
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     // =========================
     // 一覧取得
@@ -91,6 +93,18 @@ export default function CoordinationListPage() {
         fetchList();
     }, [fetchList]);
 
+    useEffect(() => {
+        const openId = location.state?.openCoordinationId;
+        if (!openId || coordinations.length === 0) return;
+
+        const target = coordinations.find(
+            c => c.coordination_id === openId
+        );
+
+        if (target) {
+            setSelected(target);
+        }
+    }, [location.state, coordinations]);
 
     // =========================
     // コーデごとのアイテム取得
