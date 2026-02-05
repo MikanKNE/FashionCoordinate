@@ -30,6 +30,7 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
     pattern: [],
     season_tag: [],
     tpo_tags: [],
+    name: "",
   });
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
@@ -96,7 +97,7 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
       const tpoMatch =
         filters.tpo_tags.length === 0 ||
         (item.tpo_tags?.some(t => filters.tpo_tags.includes(t)) ?? false);
-
+      if (filters.name && !item.name.toLowerCase().includes(filters.name.toLowerCase())) return false;
       return subcategoryMatch && colorMatch && materialMatch && patternMatch && seasonMatch && tpoMatch;
     });
 
