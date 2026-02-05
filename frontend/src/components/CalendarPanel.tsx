@@ -44,9 +44,9 @@ export default function CalendarPanel({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow p-4">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow px-4">
       {/* ヘッダー */}
-      <div className="relative mb-3 h-8">
+      <div className="relative mb-5 h-10">
 
         {/* 中央：◁ 日付 ▷ */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">

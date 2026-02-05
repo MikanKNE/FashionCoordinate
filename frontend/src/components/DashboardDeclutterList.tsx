@@ -44,8 +44,8 @@ export default function DashboardDeclutterList() {
                         <div
                             key={item.item_id}
                             className="rounded-2xl shadow-md bg-white dark:bg-gray-800
-                                       transition-all hover:shadow-lg
-                                       p-3 flex gap-3"
+                                        border border-gray-200 dark:border-gray-500/70
+                                        transition-all p-3 flex gap-3"
                         >
                             {/* 画像 */}
                             <ItemImage

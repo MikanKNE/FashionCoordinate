@@ -86,7 +86,8 @@ export default function UsageHistoryDaily({
             <div className="relative flex items-center mb-4">
                 <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">
                     <button
-                        className="px-2 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700"
+                        className="px-2 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700
+                                text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
                         onClick={() => moveDate(-1)}
                     >
                         ◁
@@ -95,7 +96,8 @@ export default function UsageHistoryDaily({
                     <h2 className="text-lg font-semibold">{date}</h2>
 
                     <button
-                        className="px-2 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700"
+                        className="px-2 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700
+                                text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600"
                         onClick={() => moveDate(1)}
                     >
                         ▷
@@ -103,7 +105,9 @@ export default function UsageHistoryDaily({
                 </div>
 
                 <div className="ml-auto">
-                    <Button onClick={handleEdit}>
+                    <Button 
+                        className="cursor-pointer"
+                        onClick={handleEdit}>
                         {items.length > 0 ? "編集" : "登録"}
                     </Button>
                 </div>
@@ -119,7 +123,8 @@ export default function UsageHistoryDaily({
                 {items.map((h) => (
                     <div
                         key={h.history_id}
-                        className="rounded-2xl shadow-md bg-white dark:bg-gray-800 p-3 flex items-center gap-4"
+                        className="rounded-2xl shadow-md bg-white dark:bg-gray-800 p-3 flex items-center gap-4
+                                    border border-gray-200 dark:border-gray-500/70"
                     >
                         {/* 左：画像（共通コンポーネント） */}
                         {h.items?.item_id ? (

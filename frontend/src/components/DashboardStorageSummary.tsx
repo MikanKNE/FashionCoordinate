@@ -39,6 +39,7 @@ export default function DashboardStorageSummary() {
                         }
                         className="relative rounded-2xl shadow-md bg-white dark:bg-gray-800
                                    cursor-pointer transition-all
+                                   border border-gray-200 dark:border-gray-500/70
                                    hover:scale-[1.03] hover:shadow-lg
                                    p-4 flex items-center justify-between"
                     >
@@ -49,7 +50,7 @@ export default function DashboardStorageSummary() {
 
                         {/* アイテム数 */}
                         <span className="text-sm text-gray-500">
-                            ({storage.items.length})
+                            {storage.items.length} アイテム
                         </span>
                     </div>
                 ))}
