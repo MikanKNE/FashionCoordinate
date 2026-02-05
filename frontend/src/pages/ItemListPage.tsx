@@ -20,8 +20,10 @@ export default function ItemListPage() {
         pattern: [],
         season_tag: [],
         tpo_tags: [],
+        is_favorite: undefined,
         name: "",
     });
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +65,10 @@ export default function ItemListPage() {
     // ------------------------------
     useEffect(() => {
         const filtered = items.filter(item => {
+            if (filters.is_favorite === true && !item.is_favorite) {
+                return false;
+            }
+
             const subcategoryMatch =
                 filters.subcategory_ids.length === 0 ||
                 (item.subcategory_id !== undefined && filters.subcategory_ids.includes(item.subcategory_id));
@@ -91,7 +97,12 @@ export default function ItemListPage() {
             return subcategoryMatch && colorMatch && materialMatch && patternMatch && seasonMatch && tpoMatch && nameMatch;
         });
 
-        setFilteredItems(filtered);
+        const sorted = [
+            ...filtered.filter(item => item.is_favorite),
+            ...filtered.filter(item => !item.is_favorite),
+        ];
+
+        setFilteredItems(sorted);
     }, [filters, items]);
 
     const handleItemUpdated = async () => {
@@ -105,7 +116,7 @@ export default function ItemListPage() {
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-2xl font-bold">アイテム一覧</h1>
                     <Button
-                        className="max-w-xs"
+                        className="max-w-xs cursor-pointer"
                         onClick={() => navigate("/items/new")}
                     >
                         ＋ 追加
@@ -138,6 +149,7 @@ export default function ItemListPage() {
                         isOpen={!!selectedItemId}
                         onClose={() => setSelectedItemId(null)}
                         onItemUpdated={handleItemUpdated}
+                        showActions={true}
                     />
                 )}
             </div>

@@ -2,19 +2,36 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ItemCard from "./ItemCard";
+import ItemDetailModal from "./ItemDetailModal";
+import { getItems } from "../api/items";
+
+function shuffleArray<T>(array: T[]): T[] {
+    const copied = [...array];
+    for (let i = copied.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copied[i], copied[j]] = [copied[j], copied[i]];
+    }
+    return copied;
+}
 
 export default function DashboardItemList() {
     const [items, setItems] = useState<any[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
+    const DISPLAY_COUNT = 10;    // 表示個数を制限
 
     useEffect(() => {
-        import("../api/items").then(({ getItems }) => {
-            getItems().then((res) => {
-                const list = Array.isArray(res) ? res : res.data;
-                setItems(list);
-            });
-        })
+        const fetchItems = async () => {
+            const res = await getItems();
+            const list = Array.isArray(res) ? res : res.data;
+            // シャッフル
+            const shuffled = shuffleArray(list);
+
+            setItems(shuffled.slice(0, DISPLAY_COUNT));
+        };
+        fetchItems();
     }, []);
 
     const handlePrev = () => setCurrentIndex((prev) => Math.max(prev - 1, 0));
@@ -27,8 +44,8 @@ export default function DashboardItemList() {
     return (
         <div className="flex flex-col items-center">
             <h2
-                className="text-lg font-semibold mb-3 flex items-center gap-1
-               cursor-pointer hover:text-blue-600 transition-colors"
+                className="text-lg font-semibold mb-3 flex items-center gap-1 w-full
+                        cursor-pointer hover:text-blue-600 transition-colors"
                 onClick={() => navigate("/item-list")}
             >
                 アイテム一覧
@@ -38,11 +55,10 @@ export default function DashboardItemList() {
             <ItemCard
                 item={currentItem}
                 className="w-64"
-                onClick={() =>
-                    navigate("/item-list", {
-                        state: { openItemId: currentItem.item_id },
-                    })
-                }
+                onClick={() => {
+                    setSelectedItemId(currentItem.item_id);
+                    setIsModalOpen(true);
+                }}
             />
 
             <div className="flex mt-4 gap-2">
@@ -62,6 +78,16 @@ export default function DashboardItemList() {
                 </button>
             </div>
             <p className="text-sm text-gray-500 mt-2">{currentIndex + 1} / {items.length}</p>
+            <ItemDetailModal
+                itemId={selectedItemId}
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedItemId(null);
+                }}
+                showActions={false}
+            />
         </div>
+
     );
 }

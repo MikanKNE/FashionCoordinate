@@ -44,8 +44,10 @@ export default function OutfitFormPage() {
         pattern: [],
         season_tag: [],
         tpo_tags: [],
+        is_favorite: undefined,
         name: "",
     });
+
 
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -95,12 +97,12 @@ export default function OutfitFormPage() {
             const { data, error } = await supabase
                 .from("coordinations")
                 .select(`
-                    coordination_id,
-                    name,
-                    coordination_items (
-                        item:items (*)
-                    )
-                `);
+                        coordination_id,
+                        name,
+                        coordination_items (
+                            item:items (*)
+                        )
+                    `);
 
             if (!error && data) {
                 const formatted: Coordination[] = data.map((c: any) => ({
@@ -122,6 +124,10 @@ export default function OutfitFormPage() {
         if (mode !== "items") return;
 
         const filtered = allItems.filter(item => {
+            if (filters.is_favorite === true && !item.is_favorite) {
+                return false;
+            }
+
             const subcategoryMatch =
                 filters.subcategory_ids.length === 0 ||
                 (item.subcategory_id !== undefined &&
@@ -261,7 +267,7 @@ export default function OutfitFormPage() {
             if (error) toast("保存に失敗しました");
             else {
                 toast("服装を登録しました");
-                navigate("/");
+                navigate("/dashboard");
             }
         } catch (err) {
             console.error(err);
@@ -275,7 +281,7 @@ export default function OutfitFormPage() {
         <>
             <Header />
             <div className="min-h-screen p-6">
-                <div className="max-w-7xl mx-auto">
+                <div className="mx-auto">
                     <h1 className="text-2xl font-bold mb-4">
                         {date ? `${date} の服装記録` : "今日の服装記録"}
                     </h1>
@@ -285,7 +291,14 @@ export default function OutfitFormPage() {
                     {/* モード切替 */}
                     <div className="mb-4 flex gap-2">
                         <button
-                            className={`px-3 py-1 border rounded ${mode === "items" ? "bg-blue-500 text-white" : ""}`}
+                            className={`]
+                                px-4 py-2 rounded-lg shadow-sm dark:shadow-black/20
+                                hover:scale-[1.03]
+                                ${mode === "items"
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                }
+                                `}
                             onClick={() => {
                                 setMode("items");
                                 setSelectedCoordinationId(null);
@@ -293,8 +306,16 @@ export default function OutfitFormPage() {
                         >
                             アイテムから選択
                         </button>
+
                         <button
-                            className={`px-3 py-1 border rounded ${mode === "coordination" ? "bg-blue-500 text-white" : ""}`}
+                            className={`]
+                                px-4 py-2 rounded-lg shadow-sm dark:shadow-black/20
+                                hover:scale-[1.03]
+                                ${mode === "coordination"
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                }
+                                `}
                             onClick={() => {
                                 setMode("coordination");
                                 setSelectedCoordinationId(null);
@@ -316,14 +337,23 @@ export default function OutfitFormPage() {
                                         <div
                                             key={c.coordination_id}
                                             onClick={() => handleSelectCoordination(c)}
-                                            className={`p-3 mb-3 rounded cursor-pointer
-                                                ${selectedCoordinationId === c.coordination_id
+                                            className={`p-3 mb-3 cursor-pointer
+                                                    border border-gray-200 rounded-2xl shadow-md
+                                                    bg-white text-gray-800
+                                                    dark:bg-gray-800 dark:text-gray-100
+                                                    dark:border-gray-500/70
+                                                    ${selectedCoordinationId === c.coordination_id
                                                     ? "bg-blue-50 ring-2 ring-blue-400"
-                                                    : "hover:bg-gray-100"}`}
+                                                    : "hover:scale-[1.03] hover:shadow-lg"}`}
                                         >
-                                            <p className="text-sm mb-2">{c.name}</p>
+                                            <p className="text-sm mb-2 font-bold">
+                                                {c.name}
+                                                <span className="text-xs text-gray-500 ml-2">
+                                                    {c.items.length} アイテム
+                                                </span>
+                                            </p>
                                             <div className="grid grid-cols-3 gap-2">
-                                                {c.items.map((item) => (
+                                                {c.items.slice(0, 3).map((item) => (
                                                     <ItemImage
                                                         key={item.item_id}
                                                         itemId={item.item_id}
@@ -374,6 +404,7 @@ export default function OutfitFormPage() {
                                         item={item}
                                         compact
                                         disableHover
+                                        className="mb-3"
                                     />
                                 ))}
                             </Card>

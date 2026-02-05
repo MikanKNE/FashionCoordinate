@@ -8,6 +8,7 @@ import { getItemDetail, deleteItem } from "../api/items";
 import { Button } from "./ui/Button";
 
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
+
 import { ItemImage } from "./ItemImage";
 
 import type { Item } from "../types";
@@ -19,9 +20,17 @@ interface Props {
     isOpen: boolean;
     onClose: () => void;
     onItemUpdated?: () => void;
+    showActions?: boolean;
 }
 
-export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated }: Props) {
+export default function ItemDetailModal({
+    itemId,
+    isOpen,
+    onClose,
+    onItemUpdated,
+    showActions = false,
+}: Props) {
+
     const [item, setItem] = useState<Item | null>(null);
     const [loading, setLoading] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -131,7 +140,7 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
                             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                                 {item.name}
                                 <span className="text-yellow-400 text-2xl">
-                                    {item.is_favorite ? "⭐" : "☆"}
+                                    {item.is_favorite ? "★" : "☆"}
                                 </span>
                             </h2>
 
@@ -177,23 +186,25 @@ export default function ItemDetailModal({ itemId, isOpen, onClose, onItemUpdated
                             </div>
 
                             {/* ボタン */}
-                            <div className="flex gap-2 mt-4">
-                                <Button
-                                    variant="primary"
-                                    className="flex-1"
-                                    onClick={() => navigate(`/items/${item.item_id}/edit`)}
-                                >
-                                    編集
-                                </Button>
+                            {showActions && (
+                                <div className="flex gap-2 mt-4">
+                                    <Button
+                                        variant="primary"
+                                        className="flex-1"
+                                        onClick={() => navigate(`/items/${item.item_id}/edit`)}
+                                    >
+                                        編集
+                                    </Button>
 
-                                <Button
-                                    variant="danger"
-                                    className="flex-1"
-                                    onClick={() => setShowConfirm(true)}
-                                >
-                                    削除
-                                </Button>
-                            </div>
+                                    <Button
+                                        variant="danger"
+                                        className="flex-1"
+                                        onClick={() => setShowConfirm(true)}
+                                    >
+                                        削除
+                                    </Button>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <p>アイテムが見つかりません</p>

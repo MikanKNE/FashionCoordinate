@@ -51,6 +51,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
             {/* テキスト */}
             <h3 className={`font-medium ${compact ? "text-sm" : "text-base"}`}>
                 {item.name}
+                <span className="text-yellow-400 text-2xl">
+                    {item.is_favorite ? "★" : ""}
+                </span>
             </h3>
 
             {item.category && (

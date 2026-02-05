@@ -194,7 +194,7 @@ export default function Filter({ filters, setFilters }: FilterProps) {
                 onClick={() => toggleAccordion(key)}
             >
                 <span>{label}</span>
-                <span>{accordion[key] ? "-" : "+"}</span>
+                <span>{accordion[key] ? " - " : " + "}</span>
             </button>
 
             {accordion[key] && (
@@ -280,10 +280,34 @@ export default function Filter({ filters, setFilters }: FilterProps) {
         </div>
     );
 
+    // ------------------------------
+    // お気に入りフィルター用レンダラー
+    // ------------------------------
+    const renderFavoriteFilter = () => (
+        <div className="mb-3 border border-gray-300 dark:border-white/20 rounded-lg p-2">
+            <label className="flex items-center text-sm cursor-pointer">
+                <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={filters.is_favorite === true}
+                    onChange={(e) =>
+                        setFilters({
+                            ...filters,
+                            is_favorite: e.target.checked ? true : undefined,
+                        })
+                    }
+                />
+                <span className="text-slate-800 dark:text-slate-100">
+                    お気に入りのみ
+                </span>
+            </label>
+        </div>
+    );
+
     return (
         <Card>
             <div className="items-center justify-between mb-3">
-                <h4 className="text-lg font-semibold">アイテムフィルター</h4>
+                <h4 className="text-lg font-semibold pb-2">アイテムフィルター</h4>
                 <Button
                     variant="secondary"
                     className="max-w-xs text-sm"
@@ -310,7 +334,9 @@ export default function Filter({ filters, setFilters }: FilterProps) {
             {!loading && (
                 <>
                     {renderNameSearch()}
+                    {renderFavoriteFilter()}
                     {renderCategorySection()}
+
 
                     {renderCheckboxSection(
                         "色",

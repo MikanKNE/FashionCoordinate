@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import ItemList from "../components/ItemList";
 import StorageFilter from "../components/StorageFilter";
+import ItemDetailModal from "../components/ItemDetailModal";
 
 import { fetchStoragesWithItems } from "../api/storages";
 import type { StorageWithItems, Item } from "../types";
@@ -19,6 +20,9 @@ export default function StorageItemListPage() {
     const [selectedStorageId, setSelectedStorageId] =
         useState<number | null>(initialStorageId);
     const [loading, setLoading] = useState(true);
+
+    const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         fetchStoragesWithItems()
@@ -69,12 +73,24 @@ export default function StorageItemListPage() {
                         ) : (
                             <ItemList
                                 items={filteredItems}
-                                onItemClick={() => {}}
+                                onItemClick={(id) => {
+                                    setSelectedItemId(id);
+                                    setIsModalOpen(true);
+                                }}
                             />
                         )}
                     </main>
                 </div>
             </div>
+            <ItemDetailModal
+                itemId={selectedItemId}
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedItemId(null);
+                }}
+                showActions={false}
+            />
         </>
     );
 }
