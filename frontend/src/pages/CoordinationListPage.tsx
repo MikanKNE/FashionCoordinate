@@ -186,7 +186,12 @@ export default function CoordinationListPage() {
                                             onClick={() => setSelected(c)}
                                         >
                                             <div className="flex items-center justify-between">
-                                                <div className="text-lg font-semibold">{c.name}</div>
+                                                <div className="flex">
+                                                    <div className="text-lg font-semibold">{c.name}</div>
+                                                    <div className="text-sm text-gray-500 px-2 content-center">
+                                                        {getItemsForCoordination(c.coordination_id).length}件
+                                                    </div>
+                                                </div>
                                                 <div className="text-xl text-yellow-500">
                                                     {c.is_favorite ? "★" : "☆"}
                                                 </div>
