@@ -18,6 +18,7 @@ interface Props {
     isOpen: boolean;
     onClose: () => void;
     onDeleted?: () => void;
+    showActions?: boolean;
 }
 
 export default function CoordinationDetailModal({
@@ -25,6 +26,7 @@ export default function CoordinationDetailModal({
     isOpen,
     onClose,
     onDeleted,
+    showActions = true,
 }: Props) {
     const [detail, setDetail] = useState<(Coordination & { items: Item[] }) | null>(null);
     const [loading, setLoading] = useState(false);
@@ -110,7 +112,7 @@ export default function CoordinationDetailModal({
         >
             <div
                 className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg
-                           w-96 relative animate-fadeIn border border-gray-300 dark:border-white/20"
+                w-1/2 relative animate-fadeIn border border-gray-300 dark:border-white/20"
             >
                 {/* 閉じる */}
                 <button
@@ -133,7 +135,7 @@ export default function CoordinationDetailModal({
                         </h2>
 
                         {/* アイテム */}
-                        <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="mt-4 grid grid-flow-row grid-cols-3 gap-2 content-center">
                             {detail.items.length > 0 ? (
                                 detail.items.map(item => (
                                     <ItemCard
@@ -151,26 +153,29 @@ export default function CoordinationDetailModal({
                         </div>
 
                         {/* ボタン */}
-                        <div className="flex gap-2 mt-5">
-                            <Button
-                                className="flex-1"
-                                onClick={() =>
-                                    navigate(`/coordination/${detail.coordination_id}/edit`)
-                                }
-                            >
-                                編集
-                            </Button>
-                            <Button
-                                variant="danger"
-                                className="flex-1"
-                                onClick={() => setDeleteModalOpen(true)}
-                            >
-                                削除
-                            </Button>
-                        </div>
+                        {showActions && (
+                            <div className="flex gap-2 mt-5">
+                                <Button
+                                    className="flex-1"
+                                    onClick={() =>
+                                        navigate(`/coordination/${detail.coordination_id}/edit`)
+                                    }
+                                >
+                                    編集
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    className="flex-1"
+                                    onClick={() => setDeleteModalOpen(true)}
+                                >
+                                    削除
+                                </Button>
+                            </div>
+                        )}
                     </>
-                )}
-            </div>
+                )
+                }
+            </div >
 
             <ConfirmDeleteModal
                 isOpen={deleteModalOpen}
@@ -178,6 +183,6 @@ export default function CoordinationDetailModal({
                 onConfirm={confirmDelete}
                 onCancel={() => setDeleteModalOpen(false)}
             />
-        </div>
+        </div >
     );
 }

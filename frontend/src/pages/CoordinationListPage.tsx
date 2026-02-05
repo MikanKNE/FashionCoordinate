@@ -38,7 +38,7 @@ export default function CoordinationListPage() {
         season_tag: [],
         tpo_tags: [],
         is_favorite: undefined,
-        name: "", // 名前検索追加
+        name: "",
     });
 
     const [loading, setLoading] = useState(true);
@@ -117,6 +117,14 @@ export default function CoordinationListPage() {
     };
 
     // =========================
+    // お気に入り → 非お気に入り の順に並び替え
+    // =========================
+    const sortedCoordinations = [
+        ...coordinations.filter(c => c.is_favorite),
+        ...coordinations.filter(c => !c.is_favorite),
+    ];
+
+    // =========================
     // フィルタ判定
     // =========================
     const matchesFilter = (item: Item, filters: MultiFilters) => {
@@ -149,7 +157,7 @@ export default function CoordinationListPage() {
     // =========================
     // フィルター適用後のコーデ
     // =========================
-    const filteredCoordinations = coordinations.filter(c => {
+    const filteredCoordinations = sortedCoordinations.filter(c => {
         const items = getItemsForCoordination(c.coordination_id);
         return items.some(item => matchesFilter(item, filters));
     });
@@ -166,7 +174,7 @@ export default function CoordinationListPage() {
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-2xl font-bold">コーディネート一覧</h1>
                     <Button
-                        className="max-w-xs"
+                        className="max-w-xs cursor-pointer"
                         onClick={() => navigate("/coordination/new")}
                     >
                         ＋ 追加
@@ -203,7 +211,7 @@ export default function CoordinationListPage() {
                                                 <div className="flex">
                                                     <div className="text-lg font-semibold">{c.name}</div>
                                                     <div className="text-sm text-gray-500 px-2 content-center">
-                                                        {getItemsForCoordination(c.coordination_id).length}件
+                                                        {getItemsForCoordination(c.coordination_id).length} アイテム
                                                     </div>
                                                 </div>
                                                 <div className="text-xl text-yellow-500">
