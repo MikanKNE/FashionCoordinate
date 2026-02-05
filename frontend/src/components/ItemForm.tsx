@@ -387,7 +387,7 @@ export default function ItemForm({
                                 <button
                                     key={c}
                                     type="button"
-                                    className={`px-2 py-1 rounded border text-sm
+                                    className={`px-2 py-1 rounded border text-sm hover:scale-[1.05]
                                         ${values.color.includes(c)
                                             ? "bg-blue-500 text-white"
                                             : "bg-gray-100 dark:bg-gray-700"
@@ -441,7 +441,7 @@ export default function ItemForm({
                                 <button
                                     key={m}
                                     type="button"
-                                    className={`px-2 py-1 rounded border text-sm
+                                    className={`px-2 py-1 rounded border text-sm hover:scale-[1.05]
                                         ${values.material.includes(m)
                                             ? "bg-blue-500 text-white"
                                             : "bg-gray-100 dark:bg-gray-700"
@@ -495,7 +495,7 @@ export default function ItemForm({
                                 <button
                                     key={p}
                                     type="button"
-                                    className={`px-2 py-1 rounded border text-sm
+                                    className={`px-2 py-1 rounded border text-sm hover:scale-[1.05]
                                         ${values.pattern.includes(p)
                                             ? "bg-blue-500 text-white"
                                             : "bg-gray-100 dark:bg-gray-700"
@@ -548,9 +548,8 @@ export default function ItemForm({
                                 <button
                                     type="button"
                                     key={s}
-                                    className={`px-2 py-1 rounded border ${values.season_tag.includes(
-                                        s as SeasonType
-                                    )
+                                    className={`px-2 py-1 rounded border hover:scale-[1.05]
+                                        ${values.season_tag.includes(s as SeasonType)
                                         ? "bg-blue-500 text-white"
                                         : "bg-gray-100 dark:bg-gray-700"
                                         }`}
@@ -585,9 +584,8 @@ export default function ItemForm({
                                 <button
                                     type="button"
                                     key={t}
-                                    className={`px-2 py-1 rounded border ${values.tpo_tags.includes(
-                                        t as TpoType
-                                    )
+                                    className={`px-2 py-1 rounded border hover:scale-[1.05]
+                                        ${values.tpo_tags.includes(t as TpoType)
                                         ? "bg-blue-500 text-white"
                                         : "bg-gray-100 dark:bg-gray-700"
                                         }`}
@@ -612,7 +610,8 @@ export default function ItemForm({
                         </p>
                         <button
                             type="button"
-                            className={`text-2xl ${values.is_favorite
+                            className={`text-2xl hover:scale-[1.05]
+                                ${values.is_favorite
                                 ? "text-yellow-400"
                                 : "text-gray-400"
                                 }`}
