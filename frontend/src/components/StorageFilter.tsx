@@ -39,8 +39,8 @@ export default function StorageFilter({
                     onClick={() => onSelect(null)}
                     className={`w-full text-left px-3 py-2 rounded-md transition
                         ${selectedStorageId === null
-                            ? "bg-gray-100 border border-gray-300 font-semibold"
-                            : "hover:bg-gray-50"
+                            ? "bg-gray-100 border border-gray-300 font-semibold dark:bg-slate-700 dark:border-slate-600"
+                            : "hover:bg-gray-50 dark:hover:bg-slate-700/50"
                         }
                     `}
                 >
@@ -57,8 +57,8 @@ export default function StorageFilter({
                             onClick={() => onSelect(storage.storage_id)}
                             className={`w-full text-left px-3 py-2 rounded-md transition
                                 ${isSelected
-                                    ? "bg-gray-100 border border-gray-300 font-semibold"
-                                    : "hover:bg-gray-50"
+                                    ? "bg-gray-100 border border-gray-300 font-semibold dark:bg-slate-700 dark:border-slate-600"
+                                    : "hover:bg-gray-50 dark:hover:bg-slate-700/50"
                                 }
                             `}
                         >
