@@ -76,13 +76,13 @@ export default function DashboardDeclutterList() {
                                 {/* スコア */}
                                 <p className="text-sm">
                                     断捨離スコア：
-                                    <span className="ml-1 text-red-600 font-semibold">
+                                    <span className="ml-1 text-red-600 dark:text-red-400 space-y-1 font-semibold">
                                         {item.declutter_score}
                                     </span>
                                 </p>
 
                                 {/* 理由 */}
-                                <ul className="text-xs text-gray-600 space-y-1">
+                                <ul className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                                     {item.score_breakdown.slice(0, 2).map((s, i) => (
                                         <li key={i} className="flex justify-between">
                                             <span>・{s.reason}</span>
