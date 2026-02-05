@@ -81,6 +81,11 @@ export default function DashboardCoordinationList() {
                     <div
                         key={c.coordination_id}
                         className="relative rounded-2xl shadow-md bg-white dark:bg-gray-800 cursor-pointer transition-all hover:scale-[1.03] hover:shadow-lg p-3 flex flex-col gap-2"
+                        onClick={() =>
+                            navigate("/coordination-list", {
+                                state: { openCoordinationId: c.coordination_id },
+                            })
+                        }
                     >
                         {/* 名前とお気に入り */}
                         <h3 className="font-medium text-base">
