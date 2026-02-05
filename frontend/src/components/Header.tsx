@@ -39,12 +39,12 @@ export default function Header() {
             }}
         >
             <h2 style={{ margin: 0 }}>
-                <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
+                <Link to="/dashboard" style={{ color: "#fff", textDecoration: "none" }}>
                     FashionCoordinate
                 </Link>
             </h2>
             <nav style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-                <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
+                <Link to="/dashboard" style={{ color: "#fff", textDecoration: "none" }}>
                     ホーム
                 </Link>
                 <Link to="/item-list" style={{ color: "#fff", textDecoration: "none" }}>
