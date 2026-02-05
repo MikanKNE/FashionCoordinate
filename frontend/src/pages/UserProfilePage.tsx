@@ -7,8 +7,9 @@ import { getStorages, createStorage, deleteStorage } from "../api/storages";
 
 import { Button } from "../components/ui/Button";
 import Card from "../components/ui/Card";
-
 import Header from "../components/Header";
+import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
+
 import { useAuth } from "../context/AuthContext";
 
 import type { User, Storage } from "../types";
@@ -27,6 +28,9 @@ export default function UserProfilePage() {
   const [newStorage, setNewStorage] = useState("");
 
   const [loading, setLoading] = useState(true);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [targetStorageId, setTargetStorageId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!authUser) return;
@@ -126,20 +130,30 @@ export default function UserProfilePage() {
     }
   };
 
-  const handleDeleteStorage = async (id: number) => {
-    if (!confirm("削除してよろしいですか？")) return;
+  const openDeleteModal = (id: number) => {
+    setTargetStorageId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (targetStorageId === null) return;
+
     try {
-      const res = await deleteStorage(id);
+      const res = await deleteStorage(targetStorageId);
       if (res.status === "success") {
-        setStorages(storages.filter(s => s.storage_id !== id));
+        setStorages(storages.filter(s => s.storage_id !== targetStorageId));
         toast.success("削除しました");
       } else {
         toast.error("削除に失敗しました");
       }
     } catch {
       toast.error("エラーが発生しました");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setTargetStorageId(null);
     }
   };
+
 
   if (loading) return <p className="p-6">読み込み中...</p>;
   if (!userData) return <p className="p-6 text-red-500">ユーザー情報が取得できません</p>;
@@ -234,10 +248,11 @@ export default function UserProfilePage() {
                   <Button
                     variant="danger"
                     className="basis-1/10 ml-2"
-                    onClick={() => handleDeleteStorage(s.storage_id)}
+                    onClick={() => openDeleteModal(s.storage_id)}
                   >
                     削除
                   </Button>
+
                 </li>
 
               ))}
@@ -263,6 +278,17 @@ export default function UserProfilePage() {
         </Card>
 
       </div>
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        title="収納場所を削除しますか？"
+        description="この操作は元に戻せません。"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setIsDeleteModalOpen(false);
+          setTargetStorageId(null);
+        }}
+      />
+
     </>
   );
 }
