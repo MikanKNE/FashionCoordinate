@@ -64,13 +64,13 @@ export function DeclutterCandidateCard({
                     {/* スコア */}
                     <p className="text-sm font-medium">
                         断捨離スコア：
-                        <span className="ml-1 text-red-600">
+                        <span className="ml-1 text-red-600 dark:text-red-400 space-y-1">
                             {item.declutter_score}
                         </span>
                     </p>
 
                     {/* 理由 */}
-                    <ul className="space-y-1 text-sm text-gray-700">
+                    <ul className="mt-2 text-sm text-gray-600 dark:text-gray-300 space-y-1">
                         {item.score_breakdown.map((s, i) => (
                             <li key={i} className="flex justify-between">
                                 <span>・{s.reason}</span>
@@ -82,7 +82,7 @@ export function DeclutterCandidateCard({
                     </ul>
 
                     {/* 補足情報 */}
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500  dark:text-gray-400 space-y-1">
                         <p>着用回数：{item.stats.usage_count}回</p>
                         <p>
                             最終着用日：
