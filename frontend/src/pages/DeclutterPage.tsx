@@ -42,7 +42,7 @@ export default function DeclutterPage() {
                     <h1 className="text-2xl font-bold">断捨離候補アイテム</h1>
 
                     <Button
-                        className="max-w-xs"
+                        className="max-w-xs cursor-pointer"
                         variant="secondary"
                         onClick={() => navigate("/discard")}
                     >

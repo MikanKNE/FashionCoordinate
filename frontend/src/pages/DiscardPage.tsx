@@ -91,7 +91,7 @@ export default function DiscardPage() {
                     </h1>
 
                     <Button
-                        className="max-w-xs"
+                        className="max-w-xs cursor-pointer"
                         variant="secondary"
                         onClick={() => navigate("/declutter")}
                     >
