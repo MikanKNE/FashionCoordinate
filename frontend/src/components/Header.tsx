@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getUserDetail } from "../api/users";
+import logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
 import type { User } from "../types";
 
@@ -38,11 +39,25 @@ export default function Header() {
                 alignItems: "center",
             }}
         >
-            <h2 style={{ margin: 0 }}>
-                <Link to="/dashboard" style={{ color: "#fff", textDecoration: "none" }}>
-                    FashionCoordinate
-                </Link>
-            </h2>
+            <Link
+                to="/dashboard"
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    textDecoration: "none",
+                    color: "#fff",
+                }}
+            >
+                <img
+                    src={logo}
+                    alt="FashionCoordinate"
+                    style={{
+                        height: "32px",
+                        width: "auto",
+                    }}
+                />
+            </Link>
             <nav style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                 <Link to="/dashboard" style={{ color: "#fff", textDecoration: "none" }}>
                     ホーム
@@ -73,7 +88,10 @@ export default function Header() {
                                 </Link>
 
                                 <button
-                                    onClick={signOut}
+                                    onClick={() => {
+                                        signOut();
+                                        window.location.href = "/";
+                                    }}
                                     style={{
                                         backgroundColor: "#555",
                                         color: "#fff",
