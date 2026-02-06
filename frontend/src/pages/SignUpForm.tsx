@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import Card from '../components/ui/Card';
 
 const SignUpForm = () => {
     const [email, setEmail] = useState('')
@@ -31,38 +32,40 @@ const SignUpForm = () => {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen">
-            <h1 className="text-2xl mb-4">新規登録</h1>
-            <form onSubmit={handleSignUp} className="flex flex-col w-80 space-y-3">
-                <input
-                    type="email"
-                    placeholder="メールアドレス"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="border p-2 rounded"
-                />
-                <input
-                    type="password"
-                    placeholder="パスワード"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border p-2 rounded"
-                />
-                <button
-                    type="submit"
-                    className="bg-green-500 text-white py-2 rounded hover:bg-green-600"
-                >
-                    登録
-                </button>
-                {error && <p className="text-red-500 text-sm">{error}</p>}
-                {message && <p className="text-green-600 text-sm">{message}</p>}
+            <Card>
+                <h1 className="text-2xl mb-4">新規登録</h1>
+                <form onSubmit={handleSignUp} className="flex flex-col w-80 space-y-3">
+                    <input
+                        type="email"
+                        placeholder="メールアドレス"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="border p-2 rounded"
+                    />
+                    <input
+                        type="password"
+                        placeholder="パスワード"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="border p-2 rounded"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-green-500 text-white py-2 rounded hover:bg-green-600 cursor-pointer"
+                    >
+                        登録
+                    </button>
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    {message && <p className="text-green-600 text-sm">{message}</p>}
 
-                <p className="text-sm text-center mt-2">
-                    すでにアカウントをお持ちの方は{' '}
-                    <Link to="/login" className="text-blue-500 hover:underline">
-                        ログイン
-                    </Link>
-                </p>
-            </form>
+                    <p className="text-sm text-center mt-2">
+                        すでにアカウントをお持ちの方は{' '}
+                        <Link to="/" className="text-blue-500 hover:underline">
+                            ログイン
+                        </Link>
+                    </p>
+                </form>
+            </Card>
         </div>
     )
 }

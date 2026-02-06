@@ -89,14 +89,24 @@ export default function Header() {
                         ) : (
                             <>
                                 <span style={{ color: "#ccc" }}>ゲスト様</span>
-                                <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
+                                <button
+                                    onClick={() => { window.location.href = "/"; }}
+                                    style={{
+                                        backgroundColor: "#555",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        padding: "4px 8px",
+                                        cursor: "pointer",
+                                    }}
+                                >
                                     ログイン
-                                </Link>
+                                </button>
                             </>
                         )}
                     </>
                 )}
             </nav>
-        </header>
+        </header >
     );
 }
