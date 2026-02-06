@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { getUsageByDate } from "../api/usage_history";
 import { Button } from "./ui/Button";
 import { ItemImage } from "./ItemImage";
+import CoordinationDetailModal from "./CoordinationDetailModal";
 
 function formatDateLocal(d: Date) {
     const y = d.getFullYear();
@@ -84,6 +85,11 @@ export default function UsageHistoryDaily({
         <div className="space-y-4">
             {/* ヘッダー */}
             <div className="relative flex items-center mb-4">
+                <div
+                    className="text-gray-500 text-xm ml-3"
+                >
+                    {items.length} アイテム
+                </div>
                 <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">
                     <button
                         className="px-2 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700
@@ -105,7 +111,7 @@ export default function UsageHistoryDaily({
                 </div>
 
                 <div className="ml-auto">
-                    <Button 
+                    <Button
                         className="cursor-pointer"
                         onClick={handleEdit}>
                         {items.length > 0 ? "編集" : "登録"}
@@ -120,7 +126,7 @@ export default function UsageHistoryDaily({
             )}
 
             <div className="flex flex-col gap-4">
-                {items.map((h) => (
+                {items.slice(0, 3).map((h) => (
                     <div
                         key={h.history_id}
                         className="rounded-2xl shadow-md bg-white dark:bg-gray-800 p-3 flex items-center gap-4

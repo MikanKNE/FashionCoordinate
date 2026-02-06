@@ -125,7 +125,7 @@ export default function DashboardCoordinationList() {
 
                         {/* アイテム画像 */}
                         <div className="flex items-center gap-2">
-                            {c.items.slice(0, 3).map((item) => (
+                            {c.items.slice(0, 5).map((item) => (
                                 <ItemImage
                                     key={item.item_id}
                                     itemId={item.item_id}
