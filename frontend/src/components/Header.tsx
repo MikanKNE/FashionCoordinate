@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getUserDetail } from "../api/users";
-import logo from "../assets/logo.png";
+import logo from "../assets/Logo.png";
 import { useAuth } from "../context/AuthContext";
 import type { User } from "../types";
 
