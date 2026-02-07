@@ -75,7 +75,7 @@ export function DeclutterCandidateCard({
                             <li key={i} className="flex justify-between">
                                 <span>・{s.reason}</span>
                                 <span className="text-gray-500">
-                                    +{s.point}
+                                    {s.point > 0 ? `+${s.point}` : s.point}
                                 </span>
                             </li>
                         ))}
