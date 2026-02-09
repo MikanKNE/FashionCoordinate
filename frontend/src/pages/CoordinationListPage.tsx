@@ -16,12 +16,8 @@ import Filter from "../components/Filter";
 import Header from "../components/Header";
 import ItemCard from "../components/ItemCard";
 
-import type {
-    Coordination,
-    CoordinationItem,
-    Item,
-    MultiFilters,
-} from "../types";
+import type { Item, MultiFilters, Coordination, CoordinationItem } from "../types";
+import { COLOR_OPTIONS, MATERIAL_OPTIONS, PATTERN_OPTIONS, } from "../types";
 
 export default function CoordinationListPage() {
     const [coordinations, setCoordinations] = useState<Coordination[]>([]);

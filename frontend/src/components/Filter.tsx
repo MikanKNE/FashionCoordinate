@@ -9,6 +9,7 @@ import { Button } from "./ui/Button";
 import Card from "./ui/Card";
 
 import type { MultiFilters, AccordionState, Subcategory, Item } from "../types";
+import { COLOR_OPTIONS, MATERIAL_OPTIONS, PATTERN_OPTIONS, } from "../types";
 
 interface FilterProps {
     filters: MultiFilters;
@@ -118,37 +119,45 @@ export default function Filter({ filters, setFilters }: FilterProps) {
     // 色・素材・柄・季節・TPO を取得（未選択を末尾に追加）
     // ------------------------------
     const uniqueValues = useMemo(() => {
-        const addEmptyOption = (arr: string[]) => {
-            const nonEmpty = arr.filter(v => v && v.trim() !== "");
-            if (arr.length === 0 || nonEmpty.length === arr.length) return nonEmpty;
-            return [...nonEmpty, "未選択"];
+        const buildOptionsWithOther = (
+            items: Item[],
+            key: "color" | "material" | "pattern",
+            options: readonly string[]
+        ) => {
+            const set = new Set<string>();
+            let hasOther = false;
+
+            items.forEach(item => {
+                const raw = item[key];
+                if (!raw) {
+                    set.add("未選択");
+                    return;
+                }
+
+                raw.split(",").map(v => v.trim()).forEach(v => {
+                    if (options.includes(v)) {
+                        set.add(v);
+                    } else {
+                        hasOther = true;
+                    }
+                });
+            });
+
+            if (hasOther) set.add("その他");
+
+            return Array.from(set).filter(Boolean);
         };
 
-        const moveEmptyToEnd = (arr: string[]) => arr.filter(v => v !== "未選択").concat(arr.includes("未選択") ? ["未選択"] : []);
-
-        const colors = moveEmptyToEnd(
-            addEmptyOption(
-                Array.from(new Set(allItems.flatMap(i => (i.color ? i.color.split(",").map(c => c.trim()) : ["未選択"]))))
-            )
-        );
-
-        const materials = moveEmptyToEnd(
-            addEmptyOption(
-                Array.from(new Set(allItems.flatMap(i => (i.material ? i.material.split(",").map(c => c.trim()) : ["未選択"]))))
-            )
-        );
-
-        const patterns = moveEmptyToEnd(
-            addEmptyOption(
-                Array.from(new Set(allItems.flatMap(i => (i.pattern ? i.pattern.split(",").map(c => c.trim()) : ["未選択"]))))
-            )
-        );
+        const colors = buildOptionsWithOther(allItems, "color", COLOR_OPTIONS);
+        const materials = buildOptionsWithOther(allItems, "material", MATERIAL_OPTIONS);
+        const patterns = buildOptionsWithOther(allItems, "pattern", PATTERN_OPTIONS);
 
         const seasons = Array.from(new Set(allItems.flatMap(i => i.season_tag || [])));
         const tpos = Array.from(new Set(allItems.flatMap(i => i.tpo_tags || [])));
 
         return { colors, materials, patterns, seasons, tpos };
     }, [allItems]);
+
 
     // ------------------------------
     // 使用されているサブカテゴリだけを表示

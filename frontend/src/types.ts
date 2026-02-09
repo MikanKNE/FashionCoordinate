@@ -33,6 +33,10 @@ export type CategoryType = "服" | "靴" | "アクセサリー" | "帽子" | "�
 export type SeasonType = "春" | "夏" | "秋" | "冬";
 export type TpoType = "フォーマル" | "カジュアル" | "ビジネス" | "ルームウェア" | "その他";
 
+export const COLOR_OPTIONS = ["黒", "白", "グレー", "ベージュ", "茶", "ネイビー", "青", "緑", "赤", "黄色"] as const;
+export const MATERIAL_OPTIONS = ["綿", "デニム", "ポリエステル", "ウール", "レザー", "麻", "ニット"] as const;
+export const PATTERN_OPTIONS = ["無地", "ストライプ", "チェック", "花柄", "プリント", "デニム"] as const;
+
 export type Coordination = {
     coordination_id: number
     name: string

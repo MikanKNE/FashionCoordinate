@@ -14,6 +14,7 @@ import Filter from "../components/Filter";
 import { ItemImage } from "../components/ItemImage";
 
 import type { Item, MultiFilters } from "../types";
+import { COLOR_OPTIONS, MATERIAL_OPTIONS, PATTERN_OPTIONS, } from "../types";
 
 type SelectionMode = "items" | "coordination";
 

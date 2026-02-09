@@ -9,6 +9,7 @@ import Header from "../components/Header";
 import ItemDetailModal from "../components/ItemDetailModal";
 import ItemList from "../components/ItemList";
 import type { MultiFilters, Item } from "../types";
+import { COLOR_OPTIONS, MATERIAL_OPTIONS, PATTERN_OPTIONS, } from "../types";
 
 export default function ItemListPage() {
     const [items, setItems] = useState<Item[]>([]);
@@ -48,6 +49,37 @@ export default function ItemListPage() {
         }
     }, []);
 
+    const matchWithOther = (
+        rawValue: string | null,
+        selected: string[],
+        options: readonly string[]
+    ): boolean => {
+        // フィルター未選択なら常に true
+        if (selected.length === 0) return true;
+
+        // アイテム側が未選択
+        if (!rawValue) {
+            return selected.includes("未選択");
+        }
+
+        const values = rawValue.split(",").map(v => v.trim());
+
+        const normals = values.filter(v => options.includes(v));
+        const hasOther = values.some(v => !options.includes(v));
+
+        // 通常選択と一致
+        if (selected.some(v => normals.includes(v))) {
+            return true;
+        }
+
+        // 「その他」判定
+        if (hasOther && selected.includes("その他")) {
+            return true;
+        }
+
+        return false;
+    };
+
     useEffect(() => {
         const openItemId = location.state?.openItemId;
         if (openItemId) {
@@ -71,16 +103,26 @@ export default function ItemListPage() {
 
             const subcategoryMatch =
                 filters.subcategory_ids.length === 0 ||
-                (item.subcategory_id !== undefined && filters.subcategory_ids.includes(item.subcategory_id));
+                (item.subcategory_id !== undefined &&
+                    filters.subcategory_ids.includes(item.subcategory_id));
 
-            const itemColors = item.color ? item.color.split(",").map(c => c.trim()) : ["未選択"];
-            const colorMatch = filters.color.length === 0 || filters.color.some(f => itemColors.includes(f));
+            const colorMatch = matchWithOther(
+                item.color ?? null,
+                filters.color,
+                COLOR_OPTIONS
+            );
 
-            const itemMaterials = item.material ? item.material.split(",").map(c => c.trim()) : ["未選択"];
-            const materialMatch = filters.material.length === 0 || filters.material.some(f => itemMaterials.includes(f));
+            const materialMatch = matchWithOther(
+                item.material ?? null,
+                filters.material,
+                MATERIAL_OPTIONS
+            );
 
-            const itemPatterns = item.pattern ? item.pattern.split(",").map(c => c.trim()) : ["未選択"];
-            const patternMatch = filters.pattern.length === 0 || filters.pattern.some(f => itemPatterns.includes(f));
+            const patternMatch = matchWithOther(
+                item.pattern ?? null,
+                filters.pattern,
+                PATTERN_OPTIONS
+            );
 
             const seasonMatch =
                 filters.season_tag.length === 0 ||
@@ -94,15 +136,21 @@ export default function ItemListPage() {
                 !filters.name ||
                 item.name.toLowerCase().includes(filters.name.toLowerCase());
 
-            return subcategoryMatch && colorMatch && materialMatch && patternMatch && seasonMatch && tpoMatch && nameMatch;
+            return (
+                subcategoryMatch &&
+                colorMatch &&
+                materialMatch &&
+                patternMatch &&
+                seasonMatch &&
+                tpoMatch &&
+                nameMatch
+            );
         });
 
-        const sorted = [
-            ...filtered.filter(item => item.is_favorite),
-            ...filtered.filter(item => !item.is_favorite),
-        ];
-
-        setFilteredItems(sorted);
+        setFilteredItems([
+            ...filtered.filter(i => i.is_favorite),
+            ...filtered.filter(i => !i.is_favorite),
+        ]);
     }, [filters, items]);
 
     const handleItemUpdated = async () => {

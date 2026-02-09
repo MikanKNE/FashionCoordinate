@@ -12,6 +12,7 @@ import Filter from "./Filter";
 import ItemCard from "./ItemCard";
 
 import type { Item, MultiFilters, Coordination, CoordinationItem } from "../types";
+import { COLOR_OPTIONS, MATERIAL_OPTIONS, PATTERN_OPTIONS, } from "../types";
 
 interface Props {
   coordination?: Coordination; // 編集時に渡す
