@@ -5,7 +5,8 @@ import toast from "react-hot-toast";
 import { getUsageByDate } from "../api/usage_history";
 import { Button } from "./ui/Button";
 import { ItemImage } from "./ItemImage";
-import CoordinationDetailModal from "./CoordinationDetailModal";
+import UsageHistoryItemsModal from "./UsageHistoryItemsModal";
+import type { Item } from "../types";
 
 function formatDateLocal(d: Date) {
     const y = d.getFullYear();
@@ -35,6 +36,8 @@ export default function UsageHistoryDaily({
     const navigate = useNavigate();
     const [items, setItems] = useState<UsageHistoryRow[]>([]);
     const [loading, setLoading] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalItems, setModalItems] = useState<Item[]>([]);
 
     useEffect(() => {
         let cancelled = false;
@@ -86,10 +89,22 @@ export default function UsageHistoryDaily({
             {/* ヘッダー */}
             <div className="relative flex items-center mb-4">
                 <div
-                    className="text-gray-500 text-xm ml-3"
+                    className="text-gray-500 text-xm ml-3 cursor-pointer hover:underline"
+                    onClick={() => {
+                        const validItems = items
+                            .map(h => h.items)
+                            .filter(Boolean)
+                            .map(h => ({
+                                ...h!,
+                            })) as Item[];
+
+                        setModalItems(validItems);
+                        setModalOpen(true);
+                    }}
                 >
                     {items.length} アイテム
                 </div>
+
                 <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-2 whitespace-nowrap">
                     <button
                         className="px-2 py-1 text-sm rounded-lg bg-gray-100 dark:bg-slate-700
@@ -162,6 +177,12 @@ export default function UsageHistoryDaily({
                     </div>
                 ))}
             </div>
+            <UsageHistoryItemsModal
+                date={date}
+                items={modalItems}
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+            />
         </div>
     );
 }
