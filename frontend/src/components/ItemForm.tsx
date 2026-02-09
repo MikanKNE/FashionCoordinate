@@ -62,19 +62,36 @@ export default function ItemForm({
     const { url: signedImageUrl } = useSignedImageUrl(values.item_id);
 
     const [isInitialized, setIsInitialized] = useState(false);
+    const [otherInitialized, setOtherInitialized] = useState(false);
+
 
     // 候補
     const COLOR_OPTIONS = ["黒", "白", "グレー", "ベージュ", "茶", "ネイビー", "青", "緑", "赤", "黄色"];
     const MATERIAL_OPTIONS = ["綿", "デニム", "ポリエステル", "ウール", "レザー", "麻", "ニット"];
     const PATTERN_OPTIONS = ["無地", "ストライプ", "チェック", "花柄", "プリント", "デニム"];
 
-    const splitOtherValues = (
+    const splitByOptions = (
         values: string[],
         options: string[]
     ) => {
-        const normals = values.filter(v => options.includes(v));
-        const others = values.filter(v => !options.includes(v));
-        return { normals, others };
+        const normals: string[] = [];
+        const others: string[] = [];
+
+        let isOther = false;
+
+        for (const v of values) {
+            if (!isOther && options.includes(v)) {
+                normals.push(v);
+            } else {
+                isOther = true;
+                others.push(v);
+            }
+        }
+
+        return {
+            normals,
+            otherText: others.join(","),
+        };
     };
 
     /**
@@ -106,42 +123,62 @@ export default function ItemForm({
     /*
     * その他選択肢の復元処理
     */
-
     useEffect(() => {
         if (!isInitialized) return;
+        if (otherInitialized) return; // ←★これが命
 
         // ===== カラー =====
-        const { normals: colorNormals, others: colorOthers } =
-            splitOtherValues(values.color, COLOR_OPTIONS);
-
-        if (colorOthers.length > 0) {
-            sessionStorage.setItem("draft_color_other", colorOthers[0]);
-            setColorInput(colorOthers[0]);
-            setShowColorInput(true);
-            handleChange("color", colorNormals);
+        {
+            const { normals, otherText } = splitByOptions(
+                values.color ?? [],
+                COLOR_OPTIONS
+            );
+            setValues(prev => ({
+                ...prev,
+                color: normals,
+            }));
+            if (otherText) {
+                sessionStorage.setItem("draft_color_other", otherText);
+                setColorInput(otherText);
+                setShowColorInput(true);
+            }
         }
 
         // ===== 素材 =====
-        const { normals: materialNormals, others: materialOthers } =
-            splitOtherValues(values.material, MATERIAL_OPTIONS);
-
-        if (materialOthers.length > 0) {
-            sessionStorage.setItem("draft_material_other", materialOthers[0]);
-            setMaterialInput(materialOthers[0]);
-            setShowMaterialInput(true);
-            handleChange("material", materialNormals);
+        {
+            const { normals, otherText } = splitByOptions(
+                values.material ?? [],
+                MATERIAL_OPTIONS
+            );
+            setValues(prev => ({
+                ...prev,
+                material: normals,
+            }));
+            if (otherText) {
+                sessionStorage.setItem("draft_material_other", otherText);
+                setMaterialInput(otherText);
+                setShowMaterialInput(true);
+            }
         }
 
         // ===== 柄 =====
-        const { normals: patternNormals, others: patternOthers } =
-            splitOtherValues(values.pattern, PATTERN_OPTIONS);
-
-        if (patternOthers.length > 0) {
-            sessionStorage.setItem("draft_pattern_other", patternOthers[0]);
-            setPatternInput(patternOthers[0]);
-            setShowPatternInput(true);
-            handleChange("pattern", patternNormals);
+        {
+            const { normals, otherText } = splitByOptions(
+                values.pattern ?? [],
+                PATTERN_OPTIONS
+            );
+            setValues(prev => ({
+                ...prev,
+                pattern: normals,
+            }));
+            if (otherText) {
+                sessionStorage.setItem("draft_pattern_other", otherText);
+                setPatternInput(otherText);
+                setShowPatternInput(true);
+            }
         }
+
+        setOtherInitialized(true); // ←★最後にロック
     }, [isInitialized]);
 
 
@@ -301,26 +338,45 @@ export default function ItemForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // submit 用にコピーを作る
-        const submitValues: ItemFormValues = {
-            ...values,
-            color: [...values.color],
-            material: [...values.material],
-            pattern: [...values.pattern],
+        const buildFinalValues = (
+            selected: string[],
+            options: string[],
+            otherInput: string,
+            showOther: boolean
+        ) => {
+            const normals = selected.filter(v => options.includes(v));
+
+            if (!showOther) {
+                return normals;
+            }
+
+            const other = otherInput.trim();
+            return other
+                ? [...normals, other] // ← ★その他は「1要素」
+                : normals;
         };
 
-        // 「その他」が表示されているときだけ反映
-        if (showColorInput && colorInput.trim()) {
-            submitValues.color.push(colorInput.trim());
-        }
-
-        if (showMaterialInput && materialInput.trim()) {
-            submitValues.material.push(materialInput.trim());
-        }
-
-        if (showPatternInput && patternInput.trim()) {
-            submitValues.pattern.push(patternInput.trim());
-        }
+        const submitValues: ItemFormValues = {
+            ...values,
+            color: buildFinalValues(
+                values.color,
+                COLOR_OPTIONS,
+                colorInput,
+                showColorInput
+            ),
+            material: buildFinalValues(
+                values.material,
+                MATERIAL_OPTIONS,
+                materialInput,
+                showMaterialInput
+            ),
+            pattern: buildFinalValues(
+                values.pattern,
+                PATTERN_OPTIONS,
+                patternInput,
+                showPatternInput
+            ),
+        };
 
         try {
             await onSubmit(submitValues);
@@ -328,7 +384,6 @@ export default function ItemForm({
             if (enableDraft) {
                 sessionStorage.removeItem(DRAFT_VALUES_KEY);
                 sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
-
                 sessionStorage.removeItem("draft_color_other");
                 sessionStorage.removeItem("draft_material_other");
                 sessionStorage.removeItem("draft_pattern_other");
