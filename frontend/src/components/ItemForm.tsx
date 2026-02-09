@@ -68,6 +68,15 @@ export default function ItemForm({
     const MATERIAL_OPTIONS = ["綿", "デニム", "ポリエステル", "ウール", "レザー", "麻", "ニット"];
     const PATTERN_OPTIONS = ["無地", "ストライプ", "チェック", "花柄", "プリント", "デニム"];
 
+    const splitOtherValues = (
+        values: string[],
+        options: string[]
+    ) => {
+        const normals = values.filter(v => options.includes(v));
+        const others = values.filter(v => !options.includes(v));
+        return { normals, others };
+    };
+
     /**
      * 初回マウント時：ドラフト or initialValues 復元
      */
@@ -93,6 +102,48 @@ export default function ItemForm({
 
         setIsInitialized(true);
     }, [initialValues, enableDraft]);
+
+    /*
+    * その他選択肢の復元処理
+    */
+
+    useEffect(() => {
+        if (!isInitialized) return;
+
+        // ===== カラー =====
+        const { normals: colorNormals, others: colorOthers } =
+            splitOtherValues(values.color, COLOR_OPTIONS);
+
+        if (colorOthers.length > 0) {
+            sessionStorage.setItem("draft_color_other", colorOthers[0]);
+            setColorInput(colorOthers[0]);
+            setShowColorInput(true);
+            handleChange("color", colorNormals);
+        }
+
+        // ===== 素材 =====
+        const { normals: materialNormals, others: materialOthers } =
+            splitOtherValues(values.material, MATERIAL_OPTIONS);
+
+        if (materialOthers.length > 0) {
+            sessionStorage.setItem("draft_material_other", materialOthers[0]);
+            setMaterialInput(materialOthers[0]);
+            setShowMaterialInput(true);
+            handleChange("material", materialNormals);
+        }
+
+        // ===== 柄 =====
+        const { normals: patternNormals, others: patternOthers } =
+            splitOtherValues(values.pattern, PATTERN_OPTIONS);
+
+        if (patternOthers.length > 0) {
+            sessionStorage.setItem("draft_pattern_other", patternOthers[0]);
+            setPatternInput(patternOthers[0]);
+            setShowPatternInput(true);
+            handleChange("pattern", patternNormals);
+        }
+    }, [isInitialized]);
+
 
     /**
      * signedImageUrl が来たら preview に反映
@@ -278,7 +329,6 @@ export default function ItemForm({
                 sessionStorage.removeItem(DRAFT_VALUES_KEY);
                 sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
 
-                // その他 input 用のドラフトも消すならここ
                 sessionStorage.removeItem("draft_color_other");
                 sessionStorage.removeItem("draft_material_other");
                 sessionStorage.removeItem("draft_pattern_other");
@@ -292,6 +342,9 @@ export default function ItemForm({
         if (enableDraft) {
             sessionStorage.removeItem(DRAFT_VALUES_KEY);
             sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
+            sessionStorage.removeItem("draft_color_other");
+            sessionStorage.removeItem("draft_material_other");
+            sessionStorage.removeItem("draft_pattern_other");
         }
         navigate("/item-list");
     };
