@@ -51,6 +51,10 @@ export default function ItemForm({
     const [preview, setPreview] = useState<string>("/noimage.png");
     const [analyzing, setAnalyzing] = useState(false);
 
+    const [colorInput, setColorInput] = useState("");
+    const [materialInput, setMaterialInput] = useState("");
+    const [patternInput, setPatternInput] = useState("");
+
     const [showColorInput, setShowColorInput] = useState(false);
     const [showMaterialInput, setShowMaterialInput] = useState(false);
     const [showPatternInput, setShowPatternInput] = useState(false);
@@ -135,6 +139,43 @@ export default function ItemForm({
     };
 
     /**
+     * その他カラーの復元
+     */
+    useEffect(() => {
+        if (showColorInput) {
+            const saved = sessionStorage.getItem("draft_color_other");
+            if (saved) {
+                setColorInput(saved);
+            }
+        }
+    }, [showColorInput]);
+
+    /**
+     * その他素材の復元
+     */
+    useEffect(() => {
+        if (showMaterialInput) {
+            const saved = sessionStorage.getItem("draft_material_other");
+            if (saved) {
+                setMaterialInput(saved);
+            }
+        }
+    }, [showMaterialInput]);
+
+    /*
+    * その他柄の復元
+    */
+    useEffect(() => {
+        if (showPatternInput) {
+            const saved = sessionStorage.getItem("draft_pattern_other");
+            if (saved) {
+                setPatternInput(saved);
+            }
+        }
+    }, [showPatternInput]);
+
+
+    /**
      * AI解析
      */
     const analyzeImageWithAI = async () => {
@@ -208,11 +249,39 @@ export default function ItemForm({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // submit 用にコピーを作る
+        const submitValues: ItemFormValues = {
+            ...values,
+            color: [...values.color],
+            material: [...values.material],
+            pattern: [...values.pattern],
+        };
+
+        // 「その他」が表示されているときだけ反映
+        if (showColorInput && colorInput.trim()) {
+            submitValues.color.push(colorInput.trim());
+        }
+
+        if (showMaterialInput && materialInput.trim()) {
+            submitValues.material.push(materialInput.trim());
+        }
+
+        if (showPatternInput && patternInput.trim()) {
+            submitValues.pattern.push(patternInput.trim());
+        }
+
         try {
-            await onSubmit(values);
+            await onSubmit(submitValues);
+
             if (enableDraft) {
                 sessionStorage.removeItem(DRAFT_VALUES_KEY);
                 sessionStorage.removeItem(DRAFT_PREVIEW_KEY);
+
+                // その他 input 用のドラフトも消すならここ
+                sessionStorage.removeItem("draft_color_other");
+                sessionStorage.removeItem("draft_material_other");
+                sessionStorage.removeItem("draft_pattern_other");
             }
         } catch {
             toast.error("保存に失敗しました");
@@ -416,17 +485,16 @@ export default function ItemForm({
                         {showColorInput && (
                             <input
                                 type="text"
+                                value={colorInput}
                                 placeholder="他のカラーの入力"
                                 className="border p-2 rounded w-full text-sm"
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" && e.currentTarget.value.trim()) {
-                                        e.preventDefault();
-                                        toggleArrayValue(
-                                            e.currentTarget.value.trim(),
-                                            values.color,
-                                            (val) => handleChange("color", val)
+                                onChange={(e) => setColorInput(e.target.value)}
+                                onBlur={() => {
+                                    if (colorInput.trim()) {
+                                        sessionStorage.setItem(
+                                            "draft_color_other",
+                                            colorInput.trim()
                                         );
-                                        e.currentTarget.value = "";
                                     }
                                 }}
                             />
@@ -470,17 +538,16 @@ export default function ItemForm({
                         {showMaterialInput && (
                             <input
                                 type="text"
+                                value={materialInput}
                                 placeholder="他の素材の入力"
                                 className="border p-2 rounded w-full text-sm"
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" && e.currentTarget.value.trim()) {
-                                        e.preventDefault();
-                                        toggleArrayValue(
-                                            e.currentTarget.value.trim(),
-                                            values.material,
-                                            (val) => handleChange("material", val)
+                                onChange={(e) => setMaterialInput(e.target.value)}
+                                onBlur={() => {
+                                    if (materialInput.trim()) {
+                                        sessionStorage.setItem(
+                                            "draft_material_other",
+                                            materialInput.trim()
                                         );
-                                        e.currentTarget.value = "";
                                     }
                                 }}
                             />
@@ -524,17 +591,16 @@ export default function ItemForm({
                         {showPatternInput && (
                             <input
                                 type="text"
+                                value={patternInput}
                                 placeholder="他の柄の入力"
                                 className="border p-2 rounded w-full text-sm"
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" && e.currentTarget.value.trim()) {
-                                        e.preventDefault();
-                                        toggleArrayValue(
-                                            e.currentTarget.value.trim(),
-                                            values.pattern,
-                                            (val) => handleChange("pattern", val)
+                                onChange={(e) => setPatternInput(e.target.value)}
+                                onBlur={() => {
+                                    if (patternInput.trim()) {
+                                        sessionStorage.setItem(
+                                            "draft_pattern_other",
+                                            patternInput.trim()
                                         );
-                                        e.currentTarget.value = "";
                                     }
                                 }}
                             />
@@ -550,8 +616,8 @@ export default function ItemForm({
                                     key={s}
                                     className={`px-2 py-1 rounded border hover:scale-[1.05]
                                         ${values.season_tag.includes(s as SeasonType)
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-100 dark:bg-gray-700"
+                                            ? "bg-blue-500 text-white"
+                                            : "bg-gray-100 dark:bg-gray-700"
                                         }`}
                                     onClick={() =>
                                         toggleArrayValue(
@@ -586,8 +652,8 @@ export default function ItemForm({
                                     key={t}
                                     className={`px-2 py-1 rounded border hover:scale-[1.05]
                                         ${values.tpo_tags.includes(t as TpoType)
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-100 dark:bg-gray-700"
+                                            ? "bg-blue-500 text-white"
+                                            : "bg-gray-100 dark:bg-gray-700"
                                         }`}
                                     onClick={() =>
                                         toggleArrayValue(
@@ -612,8 +678,8 @@ export default function ItemForm({
                             type="button"
                             className={`text-2xl hover:scale-[1.05]
                                 ${values.is_favorite
-                                ? "text-yellow-400"
-                                : "text-gray-400"
+                                    ? "text-yellow-400"
+                                    : "text-gray-400"
                                 }`}
                             onClick={() =>
                                 handleChange(
