@@ -120,6 +120,32 @@ export default function CoordinationListPage() {
         ...coordinations.filter(c => !c.is_favorite),
     ];
 
+    const matchWithOther = (
+        rawValue: string | null,
+        selected: string[],
+        options: readonly string[]
+    ): boolean => {
+        if (selected.length === 0) return true;
+
+        if (!rawValue) {
+            return selected.includes("未選択");
+        }
+
+        const values = rawValue.split(",").map(v => v.trim());
+        const normals = values.filter(v => options.includes(v));
+        const hasOther = values.some(v => !options.includes(v));
+
+        if (selected.some(v => normals.includes(v))) {
+            return true;
+        }
+
+        if (hasOther && selected.includes("その他")) {
+            return true;
+        }
+
+        return false;
+    };
+
     // =========================
     // フィルタ判定
     // =========================
@@ -132,14 +158,17 @@ export default function CoordinationListPage() {
         if (filters.subcategory_ids.length && !filters.subcategory_ids.includes(item.subcategory_id!)) return false;
 
         // 色・素材・パターンはカンマ区切り対応
-        const itemColors = item.color ? item.color.split(",").map(c => c.trim()) : ["未選択"];
-        if (filters.color.length && !filters.color.some(f => itemColors.includes(f))) return false;
+        if (
+            !matchWithOther(item.color ?? null, filters.color, COLOR_OPTIONS)
+        ) return false;
 
-        const itemMaterials = item.material ? item.material.split(",").map(c => c.trim()) : ["未選択"];
-        if (filters.material.length && !filters.material.some(f => itemMaterials.includes(f))) return false;
+        if (
+            !matchWithOther(item.material ?? null, filters.material, MATERIAL_OPTIONS)
+        ) return false;
 
-        const itemPatterns = item.pattern ? item.pattern.split(",").map(c => c.trim()) : ["未選択"];
-        if (filters.pattern.length && !filters.pattern.some(f => itemPatterns.includes(f))) return false;
+        if (
+            !matchWithOther(item.pattern ?? null, filters.pattern, PATTERN_OPTIONS)
+        ) return false;
 
         if (filters.season_tag.length && !item.season_tag.some(tag => filters.season_tag.includes(tag))) return false;
         if (filters.tpo_tags.length && !item.tpo_tags.some(tag => filters.tpo_tags.includes(tag))) return false;

@@ -52,6 +52,25 @@ export default function OutfitFormPage() {
 
     const [loading, setLoading] = useState<boolean>(true);
 
+    const matchWithOther = (
+        rawValue: string | null,
+        selected: string[],
+        options: readonly string[]
+    ): boolean => {
+        if (selected.length === 0) return true; // フィルター未選択は常に true
+        if (!rawValue) return selected.includes("未選択");
+
+        const values = rawValue.split(",").map(v => v.trim());
+        const normals = values.filter(v => options.includes(v));
+        const hasOther = values.some(v => !options.includes(v));
+
+        if (selected.some(v => normals.includes(v))) return true;
+        if (hasOther && selected.includes("その他")) return true;
+
+        return false;
+    };
+
+
     // ---------------------------
     // アイテム取得 + 使用履歴
     // ---------------------------
@@ -134,26 +153,9 @@ export default function OutfitFormPage() {
                 (item.subcategory_id !== undefined &&
                     filters.subcategory_ids.includes(item.subcategory_id));
 
-            const itemColors = item.color
-                ? item.color.split(",").map(c => c.trim())
-                : ["未選択"];
-            const colorMatch =
-                filters.color.length === 0 ||
-                filters.color.some(f => itemColors.includes(f));
-
-            const itemMaterials = item.material
-                ? item.material.split(",").map(c => c.trim())
-                : ["未選択"];
-            const materialMatch =
-                filters.material.length === 0 ||
-                filters.material.some(f => itemMaterials.includes(f));
-
-            const itemPatterns = item.pattern
-                ? item.pattern.split(",").map(c => c.trim())
-                : ["未選択"];
-            const patternMatch =
-                filters.pattern.length === 0 ||
-                filters.pattern.some(f => itemPatterns.includes(f));
+            const colorMatch = matchWithOther(item.color ?? null, filters.color, COLOR_OPTIONS);
+            const materialMatch = matchWithOther(item.material ?? null, filters.material, MATERIAL_OPTIONS);
+            const patternMatch = matchWithOther(item.pattern ?? null, filters.pattern, PATTERN_OPTIONS);
 
             const seasonMatch =
                 filters.season_tag.length === 0 ||

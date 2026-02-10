@@ -36,6 +36,28 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
   const [error] = useState<string | null>(null);
 
   const fetchedCoordinationRef = useRef<number | null>(null);
+
+  const matchWithOther = (
+    rawValue: string | null,
+    selected: string[],
+    options: readonly string[]
+  ): boolean => {
+    if (selected.length === 0) return true;
+
+    if (!rawValue) {
+      return selected.includes("未選択");
+    }
+
+    const values = rawValue.split(",").map(v => v.trim());
+    const normals = values.filter(v => options.includes(v));
+    const hasOther = values.some(v => !options.includes(v));
+
+    if (selected.some(v => normals.includes(v))) return true;
+    if (hasOther && selected.includes("その他")) return true;
+
+    return false;
+  };
+
   // アイテム初回取得
   useEffect(() => {
     const currentId = coordination?.coordination_id ?? -1;
@@ -85,12 +107,24 @@ const CoordinationEditor: React.FC<Props> = ({ coordination, onSubmitSuccess }) 
       const subcategoryMatch =
         filters.subcategory_ids.length === 0 ||
         (item.subcategory_id !== undefined && filters.subcategory_ids.includes(item.subcategory_id));
-      const colorMatch =
-        filters.color.length === 0 || (item.color && filters.color.includes(item.color));
-      const materialMatch =
-        filters.material.length === 0 || (item.material && filters.material.includes(item.material));
-      const patternMatch =
-        filters.pattern.length === 0 || (item.pattern && filters.pattern.includes(item.pattern));
+      const colorMatch = matchWithOther(
+        item.color ?? null,
+        filters.color,
+        COLOR_OPTIONS
+      );
+
+      const materialMatch = matchWithOther(
+        item.material ?? null,
+        filters.material,
+        MATERIAL_OPTIONS
+      );
+
+      const patternMatch = matchWithOther(
+        item.pattern ?? null,
+        filters.pattern,
+        PATTERN_OPTIONS
+      );
+
       const seasonMatch =
         filters.season_tag.length === 0 ||
         (item.season_tag?.some(s => filters.season_tag.includes(s)) ?? false);
